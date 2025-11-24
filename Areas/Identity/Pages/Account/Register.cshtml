@@ -1,0 +1,89 @@
+@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Regjistrohu";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <i class="fas fa-user-plus fa-3x mb-3"></i>
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <p class="mb-0 small">Regjistro një llogari të re</p>
+            </div>
+            <div class="card-body p-5">
+                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    <h4 class="mb-4 text-center text-muted">Plotëso të dhënat tuaja</h4>
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Vërejtje:</strong> Ju lutem shkruani email-in tuaj nga Active Directory (p.sh. emri.mbiemri@domain.com) 
+                        ose username-in tuaj (emri.mbiemri). Do të autentifikoheni duke përdorur fjalëkalimin tuaj të Active Directory.
+                    </div>
+                    <hr class="mb-4" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" 
+                               aria-required="true" placeholder="emri.mbiemri@domain.com" />
+                        <label asp-for="Input.Email">Email ose username nga Active Directory</label>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        <small class="form-text text-muted mt-1">
+                            Shkruaj email-in ose username-in tuaj nga Active Directory
+                        </small>
+                    </div>
+                    
+                    <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary mb-3">
+                        <i class="fas fa-user-plus"></i> Dërgo kërkesë për regjistrim
+                    </button>
+                    
+                    <div class="text-center">
+                        <p class="mb-0">Keni tashmë një llogari?</p>
+                        <a class="text-decoration-none" asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">
+                            <i class="fas fa-sign-in-alt"></i> Hyni këtu
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="fas fa-shield-alt"></i> Të dhënat tuaja janë të mbrojtura dhe të sigurta
+            </small>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<style>
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .card-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border: none;
+        padding: 12px;
+        font-weight: 600;
+        transition: transform 0.2s;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
+    }
+    .form-floating > .form-control {
+        border-radius: 8px;
+        border: 2px solid #e0e7ff;
+    }
+    .form-floating > .form-control:focus {
+        border-color: #2a5298;
+        box-shadow: 0 0 0 0.2rem rgba(42, 82, 152, 0.25);
+    }
+</style>

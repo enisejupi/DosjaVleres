@@ -1,0 +1,212 @@
+@model KosovaDoganaModerne.Controllers.StatisticsViewModel
+
+@{
+    ViewData["Title"] = "Statistikat e sistemit";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-chart-bar"></i> Statistikat e sistemit</h2>
+        <div>
+            <button class="btn btn-info" onclick="window.print()">
+                <i class="fas fa-print"></i> Printo
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Kthehu
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 
+        <strong>Informacion:</strong> Këtu mund të shikoni statistikat e përgjithshme të përdorimit të sistemit.
+        Të dhënat përditësohen në kohë reale.
+    </div>
+
+    <div class="row mb-4">
+        <!-- Vlerat e Produkteve -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-box"></i> Vlerat e Produkteve</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h1 class="display-4 text-primary">@Model.TotalVleratProdukteve</h1>
+                        <p class="text-muted">Total produkte</p>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-check-circle text-success"></i> Aktive:</span>
+                        <strong class="text-success">@Model.VleratAktive</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-times-circle text-danger"></i> Jo-aktive:</span>
+                        <strong class="text-danger">@(Model.TotalVleratProdukteve - Model.VleratAktive)</strong>
+                    </div>
+                    <div class="progress mt-3" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: @(Model.TotalVleratProdukteve > 0 ? (Model.VleratAktive * 100.0 / Model.TotalVleratProdukteve) : 0)%"
+                             aria-valuenow="@Model.VleratAktive" aria-valuemin="0" aria-valuemax="@Model.TotalVleratProdukteve">
+                            @(Model.TotalVleratProdukteve > 0 ? ((int)(Model.VleratAktive * 100.0 / Model.TotalVleratProdukteve)) : 0)%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Komentet e Degëve -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100 border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-comments"></i> Komentet e Degëve</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h1 class="display-4 text-info">@Model.TotalKomentet</h1>
+                        <p class="text-muted">Total komente</p>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-envelope text-warning"></i> Pa lexuar:</span>
+                        <strong class="text-warning">@Model.KomentetPalexuara</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-clock text-danger"></i> Pa zgjidhur:</span>
+                        <strong class="text-danger">@Model.KomentetPazgjidhura</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-check text-success"></i> Të zgjidhura:</span>
+                        <strong class="text-success">@(Model.TotalKomentet - Model.KomentetPazgjidhura)</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shpenzimet e Transportit -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100 border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-truck"></i> Transporti</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h1 class="display-4 text-success">@Model.TotalShpenzimet</h1>
+                        <p class="text-muted">Shpenzime të regjistruara</p>
+                    </div>
+                    <hr />
+                    <div class="alert alert-light mb-0">
+                        <i class="fas fa-info-circle"></i> 
+                        Të dhënat e shpenzimeve të transportit janë të disponueshme në modulin përkatës.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Kërkesat për Regjistrim -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-file-alt"></i> Kërkesat për Regjistrim</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <h2 class="display-5 text-warning">@Model.TotalKerkesa</h2>
+                            <p class="text-muted">Total kërkesa</p>
+                        </div>
+                        <div class="col-6">
+                            <h2 class="display-5 text-danger">@Model.KerkesaPritje</h2>
+                            <p class="text-muted">Në pritje</p>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-check-circle text-success"></i> Të përpunuara:</span>
+                        <strong class="text-success">@(Model.TotalKerkesa - Model.KerkesaPritje)</strong>
+                    </div>
+                    <div class="progress mt-3" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: @(Model.TotalKerkesa > 0 ? ((Model.TotalKerkesa - Model.KerkesaPritje) * 100.0 / Model.TotalKerkesa) : 0)%">
+                            @(Model.TotalKerkesa > 0 ? ((int)((Model.TotalKerkesa - Model.KerkesaPritje) * 100.0 / Model.TotalKerkesa)) : 0)%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Degët -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 border-secondary">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-building"></i> Degët e Doganës</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h1 class="display-4 text-secondary">@Model.TotalDege</h1>
+                        <p class="text-muted">Degë të regjistruara</p>
+                    </div>
+                    <hr />
+                    <div class="alert alert-light mb-0">
+                        <i class="fas fa-info-circle"></i> 
+                        Për më shumë detaje rreth degëve, vizitoni modulin përkatës të menaxhimit.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Përmbledhje e përgjithshme</h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-3 mb-3">
+                    <div class="border rounded p-3">
+                        <i class="fas fa-box fa-2x text-primary mb-2"></i>
+                        <h3 class="mb-0">@Model.TotalVleratProdukteve</h3>
+                        <small class="text-muted">Produkte</small>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="border rounded p-3">
+                        <i class="fas fa-comments fa-2x text-info mb-2"></i>
+                        <h3 class="mb-0">@Model.TotalKomentet</h3>
+                        <small class="text-muted">Komente</small>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="border rounded p-3">
+                        <i class="fas fa-truck fa-2x text-success mb-2"></i>
+                        <h3 class="mb-0">@Model.TotalShpenzimet</h3>
+                        <small class="text-muted">Shpenzime</small>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="border rounded p-3">
+                        <i class="fas fa-file-alt fa-2x text-warning mb-2"></i>
+                        <h3 class="mb-0">@Model.TotalKerkesa</h3>
+                        <small class="text-muted">Kërkesa</small>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="text-center text-muted">
+                <i class="fas fa-calendar"></i> Të dhënat u gjeneruan më: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto refresh every 60 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 60000);
+    </script>
+}

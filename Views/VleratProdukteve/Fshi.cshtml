@@ -1,0 +1,156 @@
+@model KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit
+
+@{
+    ViewData["Title"] = "Fshi produktin";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Paralajmërimi -->
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Konfirmo fshirjen
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h5>
+                            <i class="fas fa-warning"></i> Kujdes!
+                        </h5>
+                        <p class="mb-0">
+                            Jeni duke fshirë produktin e mëposhtëm. Ky veprim do ta shënojë produktin si jo aktiv.
+                        </p>
+                    </div>
+
+                    <!-- Detajet e produktit -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">
+                                <i class="fas fa-box-open"></i> @Model.EmriProduktit
+                            </h5>
+                            
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Kodi i produktit:</dt>
+                                <dd class="col-sm-8"><strong>@Model.KodiProduktit</strong></dd>
+
+                                <dt class="col-sm-4">Përshkrimi:</dt>
+                                <dd class="col-sm-8">
+                                    @if (!string.IsNullOrEmpty(Model.Pershkrimi))
+                                    {
+                                        @Model.Pershkrimi
+                                    }
+                                    else
+                                    {
+                                        <em class="text-muted">Nuk ka përshkrim</em>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-4">Vlera doganore:</dt>
+                                <dd class="col-sm-8">
+                                    <strong class="text-success">
+                                        @Model.VleraDoganore.ToString("N2") @Model.Valuta
+                                    </strong>
+                                </dd>
+
+                                <dt class="col-sm-4">Njësia e matjes:</dt>
+                                <dd class="col-sm-8">
+                                    @if (!string.IsNullOrEmpty(Model.NjesiaMatese))
+                                    {
+                                        <span class="badge bg-info">@Model.NjesiaMatese</span>
+                                    }
+                                    else
+                                    {
+                                        <em class="text-muted">Nuk është specifikuar</em>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-4">Kodi HS:</dt>
+                                <dd class="col-sm-8">
+                                    @if (!string.IsNullOrEmpty(Model.KodiHS))
+                                    {
+                                        <code>@Model.KodiHS</code>
+                                    }
+                                    else
+                                    {
+                                        <em class="text-muted">Nuk është specifikuar</em>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-4">Kategoria:</dt>
+                                <dd class="col-sm-8">
+                                    @if (!string.IsNullOrEmpty(Model.Kategoria))
+                                    {
+                                        <span class="badge bg-secondary">@Model.Kategoria</span>
+                                    }
+                                    else
+                                    {
+                                        <em class="text-muted">Nuk është specifikuar</em>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-4">Statusi aktual:</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.Eshte_Aktiv)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check"></i> Aktiv
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times"></i> Jo Aktiv
+                                        </span>
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Historia -->
+                    @if (Model.HistoriaVlerave != null && Model.HistoriaVlerave.Any())
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Vërejtje:</strong>
+                            Ky produkt ka <strong>@Model.HistoriaVlerave.Count()</strong> ndryshime të regjistruara në historinë e tij.
+                        </div>
+                    }
+
+                    <!-- Forma e konfirmimit -->
+                    <form asp-action="Fshi" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-arrow-left"></i> Anulo
+                            </a>
+                            <div>
+                                <a asp-action="Detajet" asp-route-id="@Model.Id" class="btn btn-info me-2">
+                                    <i class="fas fa-eye"></i> Shiko detajet
+                                </a>
+                                <button type="submit" class="btn btn-danger btn-lg">
+                                    <i class="fas fa-trash"></i> Po, fshije
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Informacioni shtesë -->
+            <div class="alert alert-info mt-4">
+                <h6><i class="fas fa-info-circle"></i> Çfarë ndodh kur fshini një produkt?</h6>
+                <ul class="mb-0">
+                    <li>Produkti do të shënohet si "Jo aktiv"</li>
+                    <li>Produkti nuk do të shfaqet më në listën kryesore</li>
+                    <li>Historia e produktit do të ruhet</li>
+                    <li>Të dhënat nuk do të fshihen përfundimisht nga databaza</li>
+                    <li>Mund ta riaktivizoni produktin më vonë nëse nevojitet</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

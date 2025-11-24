@@ -1,0 +1,138 @@
+@model IEnumerable<KosovaDoganaModerne.Modelet.Entitetet.KomentiDeges>
+
+@{
+    ViewData["Title"] = "Komentet nga degët";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-comments"></i> Komentet nga degët</h2>
+        <a asp-action="Krijo" class="btn btn-success">
+            <i class="fas fa-plus"></i> Shto koment të ri
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Kodi tarifar</label>
+                    <input type="text" name="kodiTarifar" value="@ViewData["KodiTarifar"]" class="form-control" placeholder="Kërko sipas kodit..." />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Dega</label>
+                    <select name="dega" class="form-control">
+                        <option value="">-- Të gjitha --</option>
+                        <option value="Prishtinë" selected="@(ViewData["Dega"]?.ToString() == "Prishtinë")">Prishtinë</option>
+                        <option value="Pejë" selected="@(ViewData["Dega"]?.ToString() == "Pejë")">Pejë</option>
+                        <option value="Prizren" selected="@(ViewData["Dega"]?.ToString() == "Prizren")">Prizren</option>
+                        <option value="Gjilan" selected="@(ViewData["Dega"]?.ToString() == "Gjilan")">Gjilan</option>
+                        <option value="Mitrovicë" selected="@(ViewData["Dega"]?.ToString() == "Mitrovicë")">Mitrovicë</option>
+                        <option value="Gjakovë" selected="@(ViewData["Dega"]?.ToString() == "Gjakovë")">Gjakovë</option>
+                        <option value="Podujevë" selected="@(ViewData["Dega"]?.ToString() == "Podujevë")">Podujevë</option>
+                        <option value="Ferizaj" selected="@(ViewData["Dega"]?.ToString() == "Ferizaj")">Ferizaj</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Statusi</label>
+                    <select name="statusi" class="form-control">
+                        <option value="">-- Të gjitha --</option>
+                        <option value="Lexuar" selected="@(ViewData["Statusi"]?.ToString() == "Lexuar")">Lexuar</option>
+                        <option value="PaLexuar" selected="@(ViewData["Statusi"]?.ToString() == "PaLexuar")">Pa lexuar</option>
+                        <option value="Zgjidhur" selected="@(ViewData["Statusi"]?.ToString() == "Zgjidhur")">Zgjidhur</option>
+                        <option value="Pazgjidhur" selected="@(ViewData["Statusi"]?.ToString() == "Pazgjidhur")">Pa zgjidhur</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Kërko
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <a asp-action="Index" class="btn btn-secondary w-100">
+                        <i class="fas fa-redo"></i> Pastro
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var koment in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 @(koment.EshteLexuar ? "" : "border-primary")">
+                        <div class="card-header @(koment.EshteLexuar ? "bg-light" : "bg-primary text-white")">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-building"></i> @koment.EmriDeges
+                                        @if (!koment.EshteLexuar)
+                                        {
+                                            <span class="badge bg-warning text-dark ms-2">i ri</span>
+                                        }
+                                        @if (koment.EshteZgjidhur)
+                                        {
+                                            <span class="badge bg-success ms-2">✓ Zgjidhur</span>
+                                        }
+                                    </h6>
+                                    <small class="@(koment.EshteLexuar ? "text-muted" : "")">
+                                        Kodi tarifar: <strong>@koment.KodiTarifar</strong>
+                                    </small>
+                                </div>
+                                <small class="@(koment.EshteLexuar ? "text-muted" : "")">
+                                    @koment.DataDergimit.ToString("dd/MM/yyyy HH:mm")
+                                </small>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">@koment.Mesazhi</p>
+                            
+                            @if (!string.IsNullOrWhiteSpace(koment.Pergjigja))
+                            {
+                                <div class="alert alert-success mb-0 mt-3">
+                                    <strong><i class="fas fa-reply"></i> Përgjigje:</strong>
+                                    <p class="mb-1 mt-2">@koment.Pergjigja</p>
+                                    @if (koment.DataPergjigjes.HasValue)
+                                    {
+                                        <small class="text-muted">
+                                            @koment.DataPergjigjes.Value.ToString("dd/MM/yyyy HH:mm") - @koment.PergjigjetNga
+                                        </small>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">
+                                    <i class="fas fa-user"></i> @koment.DergoPrejNga
+                                </small>
+                                <div>
+                                    <a asp-action="Detajet" asp-route-id="@koment.Id" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> Detajet
+                                    </a>
+                                    @if (string.IsNullOrWhiteSpace(koment.Pergjigja))
+                                    {
+                                        <a asp-action="Pergjigju" asp-route-id="@koment.Id" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-reply"></i> Përgjigju
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Nuk ka komente nga degët.
+        </div>
+    }
+</div>

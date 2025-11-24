@@ -1,0 +1,238 @@
+@model KosovaDoganaModerne.Controllers.ColorThemeViewModel
+
+@{
+    ViewData["Title"] = "Tema e ngjyrave";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-palette"></i> Tema e ngjyrave</h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kthehu
+        </a>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 
+        <strong>Informacion:</strong> Ndryshoni ngjyrat e aplikacionit për të përshtatur pamjen me preferencat tuaja. 
+        Ngjyrat do të ruhen dhe do të aplikohen automatikisht kur hyni në sistem.
+    </div>
+
+    <form asp-action="ColorTheme" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-paint-brush"></i> Zgjidhni ngjyrat</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PrimaryColor" class="form-label">
+                            <i class="fas fa-circle" style="color: @Model.PrimaryColor"></i> Ngjyra primare
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="PrimaryColor" type="color" class="form-control form-control-color" />
+                            <input asp-for="PrimaryColor" type="text" class="form-control" placeholder="#007bff" />
+                        </div>
+                        <small class="form-text text-muted">Përdoret për buton at dhe elementet kryesore</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SecondaryColor" class="form-label">
+                            <i class="fas fa-circle" style="color: @Model.SecondaryColor"></i> Ngjyra sekondare
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="SecondaryColor" type="color" class="form-control form-control-color" />
+                            <input asp-for="SecondaryColor" type="text" class="form-control" placeholder="#6c757d" />
+                        </div>
+                        <small class="form-text text-muted">Përdoret për elementet sekondare</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SuccessColor" class="form-label">
+                            <i class="fas fa-circle" style="color: @Model.SuccessColor"></i> Ngjyra e suksesit
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="SuccessColor" type="color" class="form-control form-control-color" />
+                            <input asp-for="SuccessColor" type="text" class="form-control" placeholder="#28a745" />
+                        </div>
+                        <small class="form-text text-muted">Përdoret për mesazhet e suksesit</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DangerColor" class="form-label">
+                            <i class="fas fa-circle" style="color: @Model.DangerColor"></i> Ngjyra e gabimit
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="DangerColor" type="color" class="form-control form-control-color" />
+                            <input asp-for="DangerColor" type="text" class="form-control" placeholder="#dc3545" />
+                        </div>
+                        <small class="form-text text-muted">Përdoret për gabimet dhe veprimet kritike</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="WarningColor" class="form-label">
+                            <i class="fas fa-circle" style="color: @Model.WarningColor"></i> Ngjyra e paralajmërimit
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="WarningColor" type="color" class="form-control form-control-color" />
+                            <input asp-for="WarningColor" type="text" class="form-control" placeholder="#ffc107" />
+                        </div>
+                        <small class="form-text text-muted">Përdoret për paralajmërimet</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="InfoColor" class="form-label">
+                            <i class="fas fa-circle" style="color: @Model.InfoColor"></i> Ngjyra e informacionit
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="InfoColor" type="color" class="form-control form-control-color" />
+                            <input asp-for="InfoColor" type="text" class="form-control" placeholder="#17a2b8" />
+                        </div>
+                        <small class="form-text text-muted">Përdoret për mesazhet informuese</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ButtonColor" class="form-label">
+                            <i class="fas fa-circle" style="color: @Model.ButtonColor"></i> Ngjyra e butonave
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="ButtonColor" type="color" class="form-control form-control-color" />
+                            <input asp-for="ButtonColor" type="text" class="form-control" placeholder="#007bff" />
+                        </div>
+                        <small class="form-text text-muted">Ngjyra kryesore e butonave (zëvendëson rozën)</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="MenuColor" class="form-label">
+                            <i class="fas fa-circle" style="color: @Model.MenuColor"></i> Ngjyra e menusë
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="MenuColor" type="color" class="form-control form-control-color" />
+                            <input asp-for="MenuColor" type="text" class="form-control" placeholder="#343a40" />
+                        </div>
+                        <small class="form-text text-muted">Ngjyra e sfondit të menusë</small>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Preview -->
+                <h6 class="mb-3"><i class="fas fa-eye"></i> Pamja paraprake:</h6>
+                <div id="preview" class="p-4" style="background-color: #f8f9fa; border-radius: 8px;">
+                    <button type="button" class="btn me-2 mb-2" id="btn-primary">Buton primar</button>
+                    <button type="button" class="btn me-2 mb-2" id="btn-secondary">Buton sekondar</button>
+                    <button type="button" class="btn me-2 mb-2" id="btn-success">Sukses</button>
+                    <button type="button" class="btn me-2 mb-2" id="btn-danger">Gabim</button>
+                    <button type="button" class="btn me-2 mb-2" id="btn-warning">Paralajmërim</button>
+                    <button type="button" class="btn me-2 mb-2" id="btn-info">Informacion</button>
+                    
+                    <div class="mt-3">
+                        <div class="alert" id="alert-success">
+                            <i class="fas fa-check-circle"></i> Mesazh suksesi
+                        </div>
+                        <div class="alert" id="alert-danger">
+                            <i class="fas fa-exclamation-circle"></i> Mesazh gabimi
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" id="resetBtn">
+                        <i class="fas fa-undo"></i> Kthe në default
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Ruaj ndryshimet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Update preview when colors change
+        const colorInputs = document.querySelectorAll('input[type="color"], input[type="text"][id*="Color"]');
+        
+        function updatePreview() {
+            const primaryColor = document.querySelector('#PrimaryColor').value;
+            const secondaryColor = document.querySelector('#SecondaryColor').value;
+            const successColor = document.querySelector('#SuccessColor').value;
+            const dangerColor = document.querySelector('#DangerColor').value;
+            const warningColor = document.querySelector('#WarningColor').value;
+            const infoColor = document.querySelector('#InfoColor').value;
+            const buttonColor = document.querySelector('#ButtonColor').value;
+            
+            document.querySelector('#btn-primary').style.backgroundColor = primaryColor;
+            document.querySelector('#btn-primary').style.borderColor = primaryColor;
+            document.querySelector('#btn-primary').style.color = 'white';
+            
+            document.querySelector('#btn-secondary').style.backgroundColor = secondaryColor;
+            document.querySelector('#btn-secondary').style.borderColor = secondaryColor;
+            document.querySelector('#btn-secondary').style.color = 'white';
+            
+            document.querySelector('#btn-success').style.backgroundColor = successColor;
+            document.querySelector('#btn-success').style.borderColor = successColor;
+            document.querySelector('#btn-success').style.color = 'white';
+            
+            document.querySelector('#btn-danger').style.backgroundColor = dangerColor;
+            document.querySelector('#btn-danger').style.borderColor = dangerColor;
+            document.querySelector('#btn-danger').style.color = 'white';
+            
+            document.querySelector('#btn-warning').style.backgroundColor = warningColor;
+            document.querySelector('#btn-warning').style.borderColor = warningColor;
+            document.querySelector('#btn-warning').style.color = '#000';
+            
+            document.querySelector('#btn-info').style.backgroundColor = infoColor;
+            document.querySelector('#btn-info').style.borderColor = infoColor;
+            document.querySelector('#btn-info').style.color = 'white';
+            
+            document.querySelector('#alert-success').style.backgroundColor = successColor + '20';
+            document.querySelector('#alert-success').style.borderColor = successColor;
+            document.querySelector('#alert-success').style.color = successColor;
+            
+            document.querySelector('#alert-danger').style.backgroundColor = dangerColor + '20';
+            document.querySelector('#alert-danger').style.borderColor = dangerColor;
+            document.querySelector('#alert-danger').style.color = dangerColor;
+        }
+        
+        colorInputs.forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+        
+        // Reset to default colors
+        document.querySelector('#resetBtn').addEventListener('click', function() {
+            document.querySelector('#PrimaryColor').value = '#007bff';
+            document.querySelector('#SecondaryColor').value = '#6c757d';
+            document.querySelector('#SuccessColor').value = '#28a745';
+            document.querySelector('#DangerColor').value = '#dc3545';
+            document.querySelector('#WarningColor').value = '#ffc107';
+            document.querySelector('#InfoColor').value = '#17a2b8';
+            document.querySelector('#ButtonColor').value = '#007bff';
+            document.querySelector('#MenuColor').value = '#343a40';
+            updatePreview();
+        });
+        
+        // Initial preview update
+        updatePreview();
+    </script>
+}
+
+<style>
+    .form-control-color {
+        max-width: 60px;
+        height: 38px;
+        padding: 0.2rem;
+    }
+    .alert {
+        border-left: 4px solid;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+    }
+    .btn {
+        cursor: pointer;
+    }
+</style>

@@ -1,0 +1,267 @@
+@model IEnumerable<KosovaDoganaModerne.Modelet.Entitetet.FormatPrintimi>
+
+@{
+    ViewData["Title"] = "Formatet e printimit";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-print"></i> Formatet e printimit</h2>
+        <div>
+            <a asp-action="PrintFormatsEditor" class="btn btn-success me-2">
+                <i class="fas fa-magic"></i> Editori Vizual (Pa HTML/CSS)
+            </a>
+            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#createFormatModal">
+                <i class="fas fa-code"></i> Editori me kod (Avancuar)
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Kthehu
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 
+        <strong>Informacion:</strong> Përdorni <strong>Editorin Vizual</strong> nëse nuk dini HTML/CSS. 
+        Për personalizim të plotë me kod, përdorni editorin avancuar. 
+        Mund të personalizoni pozicionin e logos dhe madhësinë e letrës (A4, A5, etj.).
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center p-5">
+            <i class="fas fa-print fa-4x text-muted mb-3"></i>
+            <h4>Nuk ka formate printimi</h4>
+            <p class="text-muted">Klikoni butonin "Krijo Format të Ri" për të filluar</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var format in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                @format.EmriFormatit
+                                @if (format.EshteDefault)
+                                {
+                                    <span class="badge bg-warning text-dark float-end">Default</span>
+                                }
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Moduli:</strong> @format.LlojiModulit</p>
+                            <p><strong>Madhësia:</strong> @format.PaperSize</p>
+                            @if (!string.IsNullOrEmpty(format.LogoUrl))
+                            {
+                                <p><strong>Logo:</strong> @format.LogoPosition</p>
+                            }
+                            <hr />
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> @format.KrijuarNga<br />
+                                <i class="fas fa-calendar"></i> @format.KrijuarMe.ToString("dd/MM/yyyy")
+                            </small>
+                        </div>
+                        <div class="card-footer">
+                            <div class="btn-group w-100">
+                                <button class="btn btn-sm btn-primary" onclick="previewFormat('@format.Id')">
+                                    <i class="fas fa-eye"></i> Pamja
+                                </button>
+                                <button class="btn btn-sm btn-warning" onclick="editFormat('@format.Id')">
+                                    <i class="fas fa-edit"></i> Edito
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteFormat('@format.Id')">
+                                    <i class="fas fa-trash"></i> Fshi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Create Format Modal -->
+<div class="modal fade" id="createFormatModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-plus"></i> Krijo format të ri printimi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createFormatForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Emri i formatit *</label>
+                            <input type="text" class="form-control" id="formatName" required placeholder="p.sh. Raport Standard A4" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Lloji i modulit *</label>
+                            <select class="form-control" id="moduleType" required>
+                                <option value="">-- Zgjidhni --</option>
+                                <option value="VleratProdukteve">Vlerat e produkteve</option>
+                                <option value="KomentetDegeve">Komentet e degëve</option>
+                                <option value="ShpenzimetTransportit">Shpenzimet e transportit</option>
+                                <option value="Raportet">Raportet</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Madhësia e letrës</label>
+                            <select class="form-control" id="paperSize">
+                                <option value="A4" selected>A4</option>
+                                <option value="A5">A5</option>
+                                <option value="Letter">Letter</option>
+                                <option value="Legal">Legal</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Pozicioni i logos</label>
+                            <select class="form-control" id="logoPosition">
+                                <option value="center">Qendër</option>
+                                <option value="left">Majtas</option>
+                                <option value="right">Djathtas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">URL e logos</label>
+                            <input type="text" class="form-control" id="logoUrl" placeholder="/images/logo.png" />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">HTML Template</label>
+                        <textarea class="form-control font-monospace" id="htmlTemplate" rows="8" placeholder="<div>...HTML tuaj këtu...</div>"></textarea>
+                        <small class="text-muted">Përdorni {{variableName}} për placeholders dinamikë</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">CSS stilet</label>
+                        <textarea class="form-control font-monospace" id="cssStyle" rows="6" placeholder=".header { font-size: 18pt; }"></textarea>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="isDefault" />
+                        <label class="form-check-label" for="isDefault">
+                            Vendos si format default për këtë modul
+                        </label>
+                    </div>
+
+                    <div class="alert alert-light">
+                        <h6><i class="fas fa-lightbulb"></i> Këshilla:</h6>
+                        <ul class="mb-0">
+                            <li>Përdorni Bootstrap classes për styling të shpejtë</li>
+                            <li>Testoni formatin me të dhëna reale para se ta bëni default</li>
+                            <li>Variablat dinamike: {{data}}, {{date}}, {{user}}, etj.</li>
+                            <li>Për stil të printimit, përdorni <code>@@media print</code> në CSS</li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbyll</button>
+                <button type="button" class="btn btn-info" onclick="previewTemplate()">
+                    <i class="fas fa-eye"></i> Pamja paraprake
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveFormat()">
+                    <i class="fas fa-save"></i> Ruaj formatin
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function saveFormat() {
+            const formatName = document.getElementById('formatName').value;
+            const moduleType = document.getElementById('moduleType').value;
+            const paperSize = document.getElementById('paperSize').value;
+            const logoPosition = document.getElementById('logoPosition').value;
+            const logoUrl = document.getElementById('logoUrl').value;
+            const htmlTemplate = document.getElementById('htmlTemplate').value;
+            const cssStyle = document.getElementById('cssStyle').value;
+            const isDefault = document.getElementById('isDefault').checked;
+            
+            if (!formatName || !moduleType) {
+                alert('Emri i formatit dhe lloji i modulit janë të detyrueshëm!');
+                return;
+            }
+            
+            const data = {
+                EmriFormatit: formatName,
+                LlojiModulit: moduleType,
+                HtmlTemplate: htmlTemplate,
+                CssStyle: cssStyle,
+                LogoUrl: logoUrl,
+                LogoPosition: logoPosition,
+                PaperSize: paperSize,
+                EshteDefault: isDefault
+            };
+            
+            // AJAX request to save (implement backend endpoint)
+            fetch('/Admin/SavePrintFormat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('Formati u ruajt me sukses!');
+                    location.reload();
+                } else {
+                    alert('Gabim: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Për momentin kjo funksionalitet është në zhvillim. Formati do të implementohet së shpejti.');
+            });
+        }
+        
+        function previewTemplate() {
+            const html = document.getElementById('htmlTemplate').value;
+            const css = document.getElementById('cssStyle').value;
+            
+            const previewWindow = window.open('', 'Preview', 'width=800,height=600');
+            previewWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Preview</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <style>${css}</style>
+                </head>
+                <body>
+                    ${html}
+                </body>
+                </html>
+            `);
+            previewWindow.document.close();
+        }
+        
+        function previewFormat(id) {
+            alert('Funksioni për të parë pamjen do të implementohet së shpejti.');
+        }
+        
+        function editFormat(id) {
+            alert('Funksioni për të edituar formatin do të implementohet së shpejti.');
+        }
+        
+        function deleteFormat(id) {
+            if (confirm('Jeni i sigurt që doni ta fshini këtë format?')) {
+                alert('Funksioni për të fshirë formatin do të implementohet së shpejti.');
+            }
+        }
+    </script>
+}

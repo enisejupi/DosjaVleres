@@ -1,0 +1,46 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Gabim";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Gabim në sistem</h3>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-danger">Ndodhi një gabim gjatë përpunimit të kërkesës suaj.</h4>
+                    <p class="mt-3">Ju lutem provoni përsëri ose kontaktoni administratorin e sistemit nëse problemi vazhdon.</p>
+
+                    @if (Model.ShowRequestId)
+                    {
+                        <div class="alert alert-info mt-3">
+                            <strong>ID e kërkesës:</strong> <code>@Model.RequestId</code>
+                        </div>
+                    }
+
+                    <hr class="my-4">
+
+                    <h5>Mënyra e zhvillimit</h5>
+                    <p>
+                        Ndryshimi në mjedisin <strong>Development</strong> do të shfaqë informacion më të detajuar për gabimin që ndodhi.
+                    </p>
+                    <div class="alert alert-warning">
+                        <strong>Kujdes:</strong> Mjedisi i zhvillimit nuk duhet të jetë i aktivizuar për aplikacionet e shpërndara.
+                        Kjo mund të rezultojë në shfaqjen e informacionit të ndjeshëm nga përjashtimet për përdoruesit fundorë.
+                        Për debugging lokal, aktivizoni mjedisin <strong>Development</strong> duke vendosur variablin e mjedisit <strong>ASPNETCORE_ENVIRONMENT</strong> në <strong>Development</strong>
+                        dhe duke rinisur aplikacionin.
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-primary">
+                            <i class="fas fa-home"></i> Kthehu në ballina
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

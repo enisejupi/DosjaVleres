@@ -1,0 +1,160 @@
+@model KosovaDoganaModerne.Controllers.DatabaseSchemaViewModel
+
+@{
+    ViewData["Title"] = "Skema e databazës";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-database"></i> Skema e databazës</h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kthehu
+        </a>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 
+        <strong>Informacion:</strong> Këtu mund të shihni strukturën e plotë të databazës, tabelat, kolonat, çelësat primar dhe të huaj.
+    </div>
+
+    @foreach (var table in Model.Tables)
+    {
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5 class="mb-0">
+                            <i class="fas fa-table"></i> @table.Name
+                        </h5>
+                        <small>@table.Description</small>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="badge bg-light text-dark">
+                            <i class="fas fa-list-ol"></i> @table.RowCount rreshta
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Kolonat -->
+                <h6 class="text-primary"><i class="fas fa-columns"></i> Kolonat:</h6>
+                <div class="table-responsive mb-3">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Emri i kolonës</th>
+                                <th>Tipi</th>
+                                <th>Atributet</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var column in table.Columns)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@column.Name</strong>
+                                        @if (column.IsPrimaryKey)
+                                        {
+                                            <span class="badge bg-warning text-dark ms-2" title="Primary Key">
+                                                <i class="fas fa-key"></i> PK
+                                            </span>
+                                        }
+                                        @if (column.IsForeignKey)
+                                        {
+                                            <span class="badge bg-info ms-2" title="Foreign Key">
+                                                <i class="fas fa-link"></i> FK
+                                            </span>
+                                        }
+                                    </td>
+                                    <td><code>@column.Type</code></td>
+                                    <td>
+                                        @if (column.IsRequired)
+                                        {
+                                            <span class="badge bg-danger me-1">Required</span>
+                                        }
+                                        @if (column.IsIndexed)
+                                        {
+                                            <span class="badge bg-success me-1">Indexed</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Foreign Keys -->
+                @if (table.ForeignKeys.Any())
+                {
+                    <h6 class="text-success"><i class="fas fa-link"></i> Çelësat e huaj (Foreign Keys):</h6>
+                    <div class="mb-3">
+                        <ul class="list-group list-group-flush">
+                            @foreach (var fk in table.ForeignKeys)
+                            {
+                                <li class="list-group-item">
+                                    <i class="fas fa-arrow-right text-primary"></i>
+                                    <code>@fk.Column</code> → <strong>@fk.ReferencedTable</strong>.<code>@fk.ReferencedColumn</code>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <!-- Related Tables -->
+                @if (table.RelatedTables.Any())
+                {
+                    <h6 class="text-info"><i class="fas fa-sitemap"></i> Tabela të lidhura:</h6>
+                    <div>
+                        @foreach (var relatedTable in table.RelatedTables)
+                        {
+                            <span class="badge bg-secondary me-1 mb-1">@relatedTable</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Database Diagram Overview -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="fas fa-project-diagram"></i> Përshkrimi i lidhjeve</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-light">
+                <h6><i class="fas fa-info-circle"></i> Lidhjet kryesore të databazës:</h6>
+                <ul>
+                    <li><strong>VleratProdukteve</strong> ka shumë <strong>HistoriaVlerave</strong> (një produkt mund të ketë shumë histori ndryshimesh)</li>
+                    <li><strong>VleratProdukteve</strong> ka shumë <strong>Komentet</strong> (një produkt mund të ketë shumë komente)</li>
+                    <li><strong>VleratProdukteve</strong> lidhet me <strong>KomentetDegeve</strong> (komentet e degëve mund të lidhen me një produkt)</li>
+                    <li><strong>ShpenzimetTransportit</strong> ka shumë <strong>NdryshimetTransportit</strong> (një shpenzim mund të ketë shumë ndryshime)</li>
+                    <li><strong>AspNetUsers</strong> (Perdoruesi) lidhet me <strong>RegjistriAuditimit</strong> për tracking të veprimeve</li>
+                </ul>
+            </div>
+
+            <div class="text-center p-4" style="background-color: #f8f9fa; border-radius: 8px;">
+                <i class="fas fa-project-diagram fa-5x text-muted mb-3"></i>
+                <p class="text-muted">Diagram vizual i databazës do të implementohet në versionin e ardhshëm</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .table th {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    code {
+        background-color: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+</style>

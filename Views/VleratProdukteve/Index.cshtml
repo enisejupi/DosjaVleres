@@ -1,0 +1,354 @@
+@model IEnumerable<KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit>
+
+@{
+    ViewData["Title"] = "Dogana e Kosovës - dosja me të dhënat e disponueshme 2025";
+}
+
+<div class="container-fluid mt-3">
+    <!-- Koka e faqes -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h3 class="text-primary text-center">Dogana e Kosovës - dosja me të dhënat e disponueshme 2025</h3>
+            <div class="text-center mb-3">
+                <a href="@Url.Action("Index", "Home")" class="btn btn-link">
+                    <i class="fas fa-arrow-left"></i> Kthimi ne faqen intranet
+                </a>
+            </div>
+            <div class="text-center mb-2">
+                <span class="me-3"><strong>Shpenzimet e transportit</strong></span>
+                <span class="me-3"><strong>Baza ligjore</strong></span>
+                <span class="me-3"><strong>Vendimi për shpenzime</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mesazhet e suksesit/gabimit -->
+    @if (TempData["Sukses"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Sukses"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Gabim"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Gabim"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Forma e kërkimit -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" asp-action="Index">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <label for="kerko" class="form-label"><strong>Kërko</strong></label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="kerko" 
+                               name="kerko" 
+                               value="@ViewData["Kerko"]"
+                               placeholder="Kërko...">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label><br />
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="llojiKerkimit" id="frazeEsakte" value="frazeEsakte" 
+                                   @(ViewData["LlojiKerkimit"]?.ToString() == "frazeEsakte" ? "checked" : "")>
+                            <label class="form-check-label" for="frazeEsakte">Frazën e saktë</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="llojiKerkimit" id="tgjithaFjalet" value="tgjithaFjalet"
+                                   @(ViewData["LlojiKerkimit"]?.ToString() == "tgjithaFjalet" ? "checked" : "")>
+                            <label class="form-check-label" for="tgjithaFjalet">Të gjitha fjalët</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="llojiKerkimit" id="cdoFjale" value="cdoFjale"
+                                   @(ViewData["LlojiKerkimit"]?.ToString() == "cdoFjale" || string.IsNullOrEmpty(ViewData["LlojiKerkimit"]?.ToString()) ? "checked" : "")>
+                            <label class="form-check-label" for="cdoFjale">Çdo fjalë</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Kërko
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <a asp-action="Index" class="btn btn-secondary w-100">
+                                Trego të gjitha
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <a asp-action="Krijo" class="btn btn-success w-100">
+                                <i class="fas fa-plus"></i> Shto të ri
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela e produkteve -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-list"></i> Lista e vlerave të produkteve
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">id</th>
+                                <th style="width: 80px;">kodi (*)</th>
+                                <th>Përshkrimi (*)</th>
+                                <th style="width: 120px;">Origjina (*)</th>
+                                <th style="width: 80px;">Pariteti</th>
+                                <th style="width: 80px;">Njësia</th>
+                                <th style="width: 150px;">Çmimi</th>
+                                <th style="width: 70px;">Valuta</th>
+                                <th style="width: 120px;">Kategoria (*)</th>
+                                <th style="width: 150px;">Komentet e Degëve</th>
+                                <th style="width: 150px;" class="text-center">Veprimet</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int rowNum = 1;}
+                            @foreach (var item in Model)
+                            {
+                                <tr class="@(item.Eshte_Aktiv ? "" : "table-secondary")">
+                                    <td class="text-center">@rowNum</td>
+                                    <td><strong>@item.Kodi</strong></td>
+                                    <td>@item.Pershkrimi</td>
+                                    <td>@item.Origjina</td>
+                                    <td>@(item.Pariteti ?? "-")</td>
+                                    <td>@item.Njesia</td>
+                                    <td>@(item.Cmimi ?? "-")</td>
+                                    <td>@item.Valuta</td>
+                                    <td>
+                                        <span class="badge bg-secondary">@item.Kategoria</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @{
+                                            var komentetPerProdukt = ViewBag.KomentetPerProdukt as Dictionary<int, List<KosovaDoganaModerne.Modelet.Entitetet.KomentiDeges>>;
+                                            var komentet = komentetPerProdukt?.ContainsKey(item.Id) == true ? komentetPerProdukt[item.Id] : new List<KosovaDoganaModerne.Modelet.Entitetet.KomentiDeges>();
+                                            var numriKomenteve = komentet.Count;
+                                            var paLexuara = komentet.Count(k => !k.EshteLexuar);
+                                            var paZgjidhura = komentet.Count(k => !k.EshteZgjidhur);
+                                        }
+                                        
+                                        @if (numriKomenteve > 0)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-info" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#komentetModal@(item.Id)"
+                                                    title="Shiko komentet">
+                                                <i class="fas fa-comments"></i> @numriKomenteve
+                                                @if (paLexuara > 0)
+                                                {
+                                                    <span class="badge bg-warning text-dark">@paLexuara të reja</span>
+                                                }
+                                            </button>
+                                            
+                                            <!-- Modal për komentet -->
+                                            <div class="modal fade" id="komentetModal@(item.Id)" tabindex="-1">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header bg-primary text-white">
+                                                            <h5 class="modal-title">
+                                                                <i class="fas fa-comments"></i> Komentet e degëve për produktin: @item.Kodi
+                                                            </h5>
+                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            @foreach (var koment in komentet)
+                                                            {
+                                                                <div class="card mb-3 @(koment.EshteLexuar ? "" : "border-primary")">
+                                                                    <div class="card-header @(koment.EshteLexuar ? "bg-light" : "bg-primary text-white")">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <div>
+                                                                                <strong><i class="fas fa-building"></i> @koment.EmriDeges</strong>
+                                                                                @if (!koment.EshteLexuar)
+                                                                                {
+                                                                                    <span class="badge bg-warning text-dark ms-2">i ri</span>
+                                                                                }
+                                                                                @if (koment.EshteZgjidhur)
+                                                                                {
+                                                                                    <span class="badge bg-success ms-2">✓ Zgjidhur</span>
+                                                                                }
+                                                                            </div>
+                                                                            <small>@koment.DataDergimit.ToString("dd/MM/yyyy HH:mm")</small>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <p>@koment.Mesazhi</p>
+                                                                        
+                                                                        @if (!string.IsNullOrWhiteSpace(koment.Pergjigja))
+                                                                        {
+                                                                            <div class="alert alert-success mb-0 mt-2">
+                                                                                <strong><i class="fas fa-reply"></i> Përgjigje:</strong>
+                                                                                <p class="mb-1 mt-2">@koment.Pergjigja</p>
+                                                                                @if (koment.DataPergjigjes.HasValue)
+                                                                                {
+                                                                                    <small class="text-muted">
+                                                                                        @koment.DataPergjigjes.Value.ToString("dd/MM/yyyy HH:mm") - @koment.PergjigjetNga
+                                                                                    </small>
+                                                                                }
+                                                                            </div>
+                                                                        }
+                                                                    </div>
+                                                                    <div class="card-footer">
+                                                                        <small class="text-muted">
+                                                                            Dërguar nga: @koment.DergoPrejNga
+                                                                            <a href="@Url.Action("Detajet", "KomentetDegeve", new { id = koment.Id })" 
+                                                                               class="btn btn-sm btn-outline-primary float-end"
+                                                                               target="_blank">
+                                                                                <i class="fas fa-external-link-alt"></i> Shiko në komentet e degëve
+                                                                            </a>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            @if (numriKomenteve == 0)
+                                                            {
+                                                                <p class="text-muted text-center">Nuk ka komente për këtë produkt.</p>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                        <br />
+                                        <button type="button" class="btn btn-sm btn-primary mt-1" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#shtoKomentModal@(item.Id)"
+                                                title="Shto koment">
+                                            <i class="fas fa-plus"></i> Shto koment
+                                        </button>
+                                        
+                                        <!-- Modal për shtim komenti -->
+                                        <div class="modal fade" id="shtoKomentModal@(item.Id)" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form asp-action="ShtoKoment" method="post">
+                                                        <div class="modal-header bg-success text-white">
+                                                            <h5 class="modal-title">
+                                                                <i class="fas fa-plus-circle"></i> Shto koment të ri për degën
+                                                            </h5>
+                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <input type="hidden" name="id" value="@item.Id" />
+                                                            <div class="mb-3">
+                                                                <label class="form-label"><strong>Emri i degës:</strong></label>
+                                                                <select name="emriDeges" class="form-select" required>
+                                                                    <option value="">-- Zgjedh degën --</option>
+                                                                    <option value="Prishtinë">Prishtinë</option>
+                                                                    <option value="Pejë">Pejë</option>
+                                                                    <option value="Prizren">Prizren</option>
+                                                                    <option value="Gjilan">Gjilan</option>
+                                                                    <option value="Mitrovicë">Mitrovicë</option>
+                                                                    <option value="Gjakovë">Gjakovë</option>
+                                                                    <option value="Podujevë">Podujevë</option>
+                                                                    <option value="Ferizaj">Ferizaj</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label"><strong>Kodi tarifar:</strong></label>
+                                                                <input type="text" class="form-control" value="@item.Kodi" readonly />
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label"><strong>Mesazhi i komentit:</strong></label>
+                                                                <textarea name="komentPerdoruesit" class="form-control" rows="5" required></textarea>
+                                                                <small class="text-muted">
+                                                                    Ky koment do të shfaqet në sistemin e komenteve të degëve dhe do të lidhet me këtë produkt.
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulo</button>
+                                                            <button type="submit" class="btn btn-success">
+                                                                <i class="fas fa-paper-plane"></i> Dërgo koment
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Detajet" 
+                                               asp-route-id="@item.Id" 
+                                               class="btn btn-sm btn-info"
+                                               title="Shiko detajet">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="Perditeso" 
+                                               asp-route-id="@item.Id" 
+                                               class="btn btn-sm btn-warning"
+                                               title="Përditesë">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Fshi" 
+                                               asp-route-id="@item.Id" 
+                                               class="btn btn-sm btn-danger"
+                                               title="Fshi">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                rowNum++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="card-footer">
+                    <p class="mb-0 text-center">
+                        <small>Shënimet 1 to @Model.Count() nga @Model.Count()</small>
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center m-3">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <h5>Nuk ka produkte të regjistruara</h5>
+                    <p>Filloni duke shtuar produktin e parë doganor.</p>
+                    <a asp-action="Krijo" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Shto produktin e parë
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+}

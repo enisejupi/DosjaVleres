@@ -1,0 +1,369 @@
+﻿@{
+    ViewData["Title"] = "Ballina - Dogana e Republikës së Kosovës";
+}
+
+<style>
+    .dashboard-welcome {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        border-radius: 15px;
+        padding: 40px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(13, 110, 253, 0.3);
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+        border: none;
+        margin-bottom: 25px;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 15px;
+    }
+    
+    .stat-icon.blue {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        color: white;
+    }
+    
+    .stat-icon.green {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+    
+    .stat-icon.orange {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    
+    .stat-icon.red {
+        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        color: white;
+    }
+    
+    .stat-number {
+        font-size: 36px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 10px 0;
+    }
+    
+    .stat-label {
+        color: #7f8c8d;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 500;
+    }
+    
+    .stat-change {
+        font-size: 13px;
+        margin-top: 10px;
+    }
+    
+    .stat-change.up {
+        color: #27ae60;
+    }
+    
+    .stat-change.down {
+        color: #e74c3c;
+    }
+    
+    .action-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+        border: none;
+        transition: all 0.3s;
+    }
+    
+    .action-card:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    .action-card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    
+    .chart-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+    
+    .recent-activity {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .activity-item {
+        padding: 15px;
+        border-left: 3px solid #667eea;
+        margin-bottom: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    
+    .activity-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+    
+    .activity-time {
+        font-size: 12px;
+        color: #7f8c8d;
+    }
+</style>
+
+
+<div class="dashboard-welcome">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="mb-2">Mirë se vini, @(User.Identity?.Name ?? "Përdorues")!</h2>
+            <p class="mb-0 opacity-75">Këtu është një përmbledhje e aktivitetit tuaj të fundit</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="text-white-50">
+                <i class="fas fa-calendar-alt me-2"></i>
+                <span>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <div class="stat-number">@(ViewBag.TotalProducts ?? 0)</div>
+            <div class="stat-label">Produkte totale</div>
+            <div class="stat-change up">
+                <i class="fas fa-arrow-up me-1"></i> 12% nga muaji i kaluar
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-number">@(ViewBag.ApprovedRequests ?? 156)</div>
+            <div class="stat-label">Kërkesa të miratuara</div>
+            <div class="stat-change up">
+                <i class="fas fa-arrow-up me-1"></i> 8% nga muaji i kaluar
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon orange">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-number">@(ViewBag.PendingRequests ?? 23)</div>
+            <div class="stat-label">Në pritje</div>
+            <div class="stat-change">
+                <i class="fas fa-minus me-1"></i> Pa ndryshim
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div class="stat-number">@(ViewBag.TransportExpenses ?? 89)</div>
+            <div class="stat-label">Shpenzime transporti</div>
+            <div class="stat-change down">
+                <i class="fas fa-arrow-down me-1"></i> 3% nga muaji i kaluar
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h4 class="mb-3"><i class="fas fa-bolt me-2"></i> Veprime të shpejta</h4>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <a href="@Url.Action("Krijo", "VleratProdukteve")" class="text-decoration-none">
+            <div class="action-card">
+                <div class="action-card-icon blue">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <h5>Regjistro produkt</h5>
+                <p class="text-muted mb-0">Shto një produkt të ri në sistem</p>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <a href="@Url.Action("Index", "VleratProdukteve")" class="text-decoration-none">
+            <div class="action-card">
+                <div class="action-card-icon green">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h5>Dosja e vlerave</h5>
+                <p class="text-muted mb-0">Shiko listën e produkteve</p>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <a href="@Url.Action("Index", "ShpenzimetTransportit")" class="text-decoration-none">
+            <div class="action-card">
+                <div class="action-card-icon orange">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h5>Shpenzimet</h5>
+                <p class="text-muted mb-0">Menaxho shpenzimet e transportit</p>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <a href="@Url.Action("Index", "Raportet")" class="text-decoration-none">
+            <div class="action-card">
+                <div class="action-card-icon red">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h5>Raportet</h5>
+                <p class="text-muted mb-0">Shiko raportet statistikore</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-lg-8">
+        <div class="chart-card">
+            <h5 class="mb-4"><i class="fas fa-chart-line me-2"></i> Statistika mujore</h5>
+            <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px;">
+                <div class="text-center text-muted">
+                    <i class="fas fa-chart-area fa-3x mb-3 opacity-25"></i>
+                    <p>Grafikët do të shfaqen këtu</p>
+                    <small>Integrimi i Chart.js ose ApexCharts rekomandohet</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="recent-activity">
+            <h5 class="mb-4"><i class="fas fa-history me-2"></i> Aktiviteti i fundit</h5>
+            
+            <div class="activity-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong>Produkt i ri shtuar</strong>
+                        <p class="mb-0 text-muted small">Produkt XYZ u shtua në sistem</p>
+                    </div>
+                    <div class="activity-time">2h më parë</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong>Kërkesë e miratuar</strong>
+                        <p class="mb-0 text-muted small">Kërkesa #1234 u miratua</p>
+                    </div>
+                    <div class="activity-time">5h më parë</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong>Koment i ri</strong>
+                        <p class="mb-0 text-muted small">Koment nga dega Prishtinë</p>
+                    </div>
+                    <div class="activity-time">1 ditë më parë</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong>Raport i gjeneruar</strong>
+                        <p class="mb-0 text-muted small">Raporti mujor u krijua</p>
+                    </div>
+                    <div class="activity-time">2 ditë më parë</div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <a href="#" class="btn btn-sm btn-outline-primary">Shiko të gjitha</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Info -->
+<div class="row mt-4">
+    <div class="col-lg-4">
+        <div class="stat-card text-center">
+            <div class="stat-icon green mx-auto">
+                <i class="fas fa-server"></i>
+            </div>
+            <div class="stat-label">Statusi i sistemit</div>
+            <div class="stat-number" style="font-size: 24px; color: #27ae60;">Aktiv</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="stat-card text-center">
+            <div class="stat-icon blue mx-auto">
+                <i class="fas fa-database"></i>
+            </div>
+            <div class="stat-label">Baza e të dhënave</div>
+            <div class="stat-number" style="font-size: 24px;">SQLite</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="stat-card text-center">
+            <div class="stat-icon orange mx-auto">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-label">Përdorues aktiv</div>
+            <div class="stat-number" style="font-size: 24px;">@(ViewBag.ActiveUsers ?? 45)</div>
+        </div>
+    </div>
+</div>

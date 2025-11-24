@@ -1,0 +1,96 @@
+@model KosovaDoganaModerne.Modelet.Entitetet.ShpenzimiTransportit
+
+@{
+    ViewData["Title"] = "Fshi Shpenzimin";
+}
+
+<div class="container mt-4">
+    <h2 class="text-danger"><i class="fas fa-exclamation-triangle"></i> Fshi shpenzimin e transportit</h2>
+    
+    <div class="alert alert-danger mt-4">
+        <h5>A jeni të sigurt që dëshironi të fshini këtë shpenzim?</h5>
+        <p class="mb-0">Ky veprim nuk mund të kthehet!</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">Detajet e shpenzimit për t'u fshirë</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Vendi i origjinës:</strong>
+                    <p class="text-muted">@Model.VendiOrigjines</p>
+                </div>
+                <div class="col-md-6">
+                    <strong>Vendi i destinacionit:</strong>
+                    <p class="text-muted">@Model.VendiDestinacionit</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <strong>Lloji i transportit:</strong>
+                    <p class="text-muted">@Model.LlojiTransportit</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>Çmimi për njësi:</strong>
+                    <p class="text-muted">@Model.CmimiPerNjesi.ToString("N2") @Model.Valuta/@Model.NjesiaMatese</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>Statusi:</strong>
+                    <p>
+                        @if (Model.Aktiv)
+                        {
+                            <span class="badge bg-success">Aktiv</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Joaktiv</span>
+                        }
+                    </p>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Shenime))
+            {
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <strong>Shënime:</strong>
+                        <p class="text-muted">@Model.Shenime</p>
+                    </div>
+                </div>
+            }
+
+            <hr />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        <strong>Krijuar:</strong> @Model.DataKrijimit.ToString("dd/MM/yyyy HH:mm") nga @Model.KrijuarNga
+                    </small>
+                </div>
+                @if (Model.DataPerditesimit.HasValue)
+                {
+                    <div class="col-md-6 text-end">
+                        <small class="text-muted">
+                            <strong>Përditësuar:</strong> @Model.DataPerditesimit.Value.ToString("dd/MM/yyyy HH:mm") nga @Model.PerditesoPrejNga
+                        </small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Fshi" method="post" class="mt-4">
+        <input type="hidden" asp-for="Id" />
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-action="Index" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Anulo
+            </a>
+            <button type="submit" class="btn btn-danger btn-lg">
+                <i class="fas fa-trash"></i> Konfirmo fshirjen
+            </button>
+        </div>
+    </form>
+</div>

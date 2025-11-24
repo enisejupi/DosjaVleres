@@ -1,0 +1,604 @@
+﻿<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Dogana e Republikës së Kosovës</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/KosovaDoganaModerne.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            overflow-x: hidden;
+        }
+        
+        /* Modern Header */
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .sidebar-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(3, 23, 53, 0.9);
+            text-decoration: none;
+        }
+        
+        .brand-logo {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 5px;
+        }
+        
+        .brand-text h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.2;
+            color: white;
+        }
+        
+        .brand-text small {
+            font-size: 11px;
+            opacity: 0.9;
+            color: white;
+        }
+        
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .header-icon-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .header-icon-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .header-icon-btn .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 10px;
+        }
+        
+        .user-dropdown {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .user-dropdown:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: white;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        /* Modern Sidebar */
+        .app-sidebar {
+            position: fixed;
+            left: 0;
+            top: 70px;
+            width: 270px;
+            height: calc(100vh - 70px);
+            background: #2c3e50;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+        
+        .app-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .app-sidebar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .app-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-section-title {
+            color: rgba(255,255,255,0.5);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 15px 25px 10px;
+            letter-spacing: 1px;
+        }
+        
+        .menu-item {
+            margin: 0;
+        }
+        
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 25px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            font-size: 15px;
+        }
+        
+        .menu-link:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            border-left-color: #667eea;
+        }
+        
+        .menu-link.active {
+            background: rgba(102,126,234,0.15);
+            color: white;
+            border-left-color: #667eea;
+        }
+        
+        .menu-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+        
+        .menu-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 25px;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-dropdown-toggle:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+        
+        .menu-dropdown-toggle .left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .menu-dropdown-toggle .left i {
+            width: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+        
+        .menu-dropdown-toggle .arrow {
+            transition: transform 0.3s;
+        }
+        
+        .menu-dropdown-toggle.active .arrow {
+            transform: rotate(90deg);
+        }
+        
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .submenu.show {
+            max-height: 500px;
+        }
+        
+        .submenu-item {
+            padding: 12px 25px 12px 60px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .submenu-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            padding-left: 65px;
+        }
+        
+        /* Main Content */
+        .app-content {
+            margin-left: 270px;
+            margin-top: 70px;
+            padding: 30px;
+            min-height: calc(100vh - 70px);
+            transition: margin-left 0.3s;
+        }
+        
+        /* Footer */
+        .app-footer {
+            margin-left: 270px;
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            transition: margin-left 0.3s;
+        }
+        
+        /* Responsive */
+        .app-sidebar.collapsed {
+            margin-left: -270px;
+        }
+        
+        .app-content.expanded,
+        .app-footer.expanded {
+            margin-left: 0;
+        }
+        
+        @@media (max-width: 992px) {
+            .app-sidebar {
+                margin-left: -270px;
+            }
+            
+            .app-sidebar.mobile-show {
+                margin-left: 0;
+            }
+            
+            .app-content,
+            .app-footer {
+                margin-left: 0;
+            }
+            
+            .brand-text h1 {
+                font-size: 16px;
+            }
+            
+            .brand-text small {
+                display: none;
+            }
+        }
+        
+        @@media (max-width: 576px) {
+            .app-header {
+                padding: 0 15px;
+            }
+            
+            .app-content {
+                padding: 20px 15px;
+            }
+            
+            .app-footer {
+                padding: 20px 15px;
+            }
+            
+            .header-right {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="/" class="brand">
+                <div class="brand-logo">
+                    <img src="~/images/dogana-logo.png" alt="Dogana e Kosovës" />
+                </div>
+                <div class="brand-text">
+                    <h1>Dogana e Kosovës</h1>
+                    <small>Sistemi i vlerës doganore</small>
+                </div>
+            </a>
+        </div>
+        <div class="header-right">
+            <button class="header-icon-btn" title="Njoftimet">
+                <i class="fas fa-bell"></i>
+                <span class="badge">3</span>
+            </button>
+            <button class="header-icon-btn" title="Mesazhet">
+                <i class="fas fa-envelope"></i>
+                <span class="badge">5</span>
+            </button>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="dropdown">
+                    <button class="user-dropdown dropdown-toggle" data-bs-toggle="dropdown">
+                        <div class="user-avatar">@User.Identity.Name?.Substring(0, 1).ToUpper()</div>
+                        <span class="d-none d-md-inline">@User.Identity.Name</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/Identity/Account/Manage"><i class="fas fa-user me-2"></i> Profili</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Cilësimet</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i> Dil</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <a href="/Identity/Account/Login" class="btn btn-light btn-sm">
+                    <i class="fas fa-sign-in-alt me-1"></i> Hyr
+                </a>
+            }
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+        <nav class="sidebar-menu">
+            <div class="menu-section-title">Menuja Kryesore</div>
+            
+            <div class="menu-item">
+                <a class="menu-link active" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-home"></i>
+                    <span>Ballina</span>
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <div class="menu-dropdown-toggle" onclick="toggleSubmenu(this)">
+                    <div class="left">
+                        <i class="fas fa-database"></i>
+                        <span>Dosja e vlerave</span>
+                    </div>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-item" asp-controller="VleratProdukteve" asp-action="Index">
+                        <i class="fas fa-list"></i> Dosja e vlerave
+                    </a>
+                    <a class="submenu-item" asp-controller="Raportet" asp-action="DosjaTeDisponueshme">
+                        <i class="fas fa-file-alt"></i> Dosja me të dhëna
+                    </a>
+                    <a class="submenu-item" asp-controller="Raportet" asp-action="ListaNdryshimeve">
+                        <i class="fas fa-history"></i> Historiati
+                    </a>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <a class="menu-link" asp-controller="ShpenzimetTransportit" asp-action="Index">
+                    <i class="fas fa-truck"></i>
+                    <span>Shpenzimet e transportit</span>
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a class="menu-link" asp-controller="KomentetDegeve" asp-action="Index">
+                    <i class="fas fa-comments"></i>
+                    <span>Komentet e degëve</span>
+                </a>
+            </div>
+            
+            <div class="menu-section-title">Raportet</div>
+            
+            <div class="menu-item">
+                <div class="menu-dropdown-toggle" onclick="toggleSubmenu(this)">
+                    <div class="left">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Raportet</span>
+                    </div>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-item" asp-controller="Raportet" asp-action="Index">
+                        <i class="fas fa-eye"></i> Shfaq raportin
+                    </a>
+                    <a class="submenu-item" href="#" onclick="window.print(); return false;">
+                        <i class="fas fa-print"></i> Printo
+                    </a>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <a class="menu-link" asp-controller="KerkesatRegjistrim" asp-action="Index">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Kërkesat</span>
+                </a>
+            </div>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="menu-section-title">Administrimi</div>
+                
+                <div class="menu-item">
+                    <div class="menu-dropdown-toggle" onclick="toggleSubmenu(this)">
+                        <div class="left">
+                            <i class="fas fa-cog"></i>
+                            <span>Admin Panel</span>
+                        </div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <div class="submenu">
+                        <a class="submenu-item" asp-controller="Admin" asp-action="Index">
+                            <i class="fas fa-home"></i> Ballina
+                        </a>
+                        <a class="submenu-item" asp-controller="Admin" asp-action="DatabaseSchema">
+                            <i class="fas fa-database"></i> Skema e DB
+                        </a>
+                        <a class="submenu-item" asp-controller="Admin" asp-action="CustomTables">
+                            <i class="fas fa-table"></i> Tabela Custom
+                        </a>
+                        <a class="submenu-item" asp-controller="Admin" asp-action="PrintFormats">
+                            <i class="fas fa-print"></i> Formate printimi
+                        </a>
+                        <a class="submenu-item" asp-controller="Admin" asp-action="ColorTheme">
+                            <i class="fas fa-palette"></i> Tema ngjyrave
+                        </a>
+                    </div>
+                </div>
+            }
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app-content" id="appContent">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer" id="appFooter">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <p class="mb-0">&copy; 2025 - Dogana e Republikës së Kosovës</p>
+                <small class="text-muted">Të gjitha të drejtat e rezervuara</small>
+            </div>
+            <div>
+                <a asp-controller="Home" asp-action="Privacy" class="text-decoration-none me-3">
+                    <i class="fas fa-shield-alt"></i> Privatësia
+                </a>
+                <span class="text-muted">v1.0.0</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('appSidebar');
+            const content = document.getElementById('appContent');
+            const footer = document.getElementById('appFooter');
+            
+            if (window.innerWidth > 992) {
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('expanded');
+                footer.classList.toggle('expanded');
+            } else {
+                sidebar.classList.toggle('mobile-show');
+            }
+        }
+        
+        function toggleSubmenu(element) {
+            element.classList.toggle('active');
+            const submenu = element.nextElementSibling;
+            submenu.classList.toggle('show');
+        }
+        
+        // Auto-open active menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeLink = document.querySelector('.submenu-item.active');
+            if (activeLink) {
+                const submenu = activeLink.closest('.submenu');
+                const toggle = submenu.previousElementSibling;
+                submenu.classList.add('show');
+                toggle.classList.add('active');
+            }
+        });
+        
+        // Close sidebar on mobile when clicking outside
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 992) {
+                const sidebar = document.getElementById('appSidebar');
+                const toggle = document.querySelector('.sidebar-toggle');
+                
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('mobile-show');
+                }
+            }
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

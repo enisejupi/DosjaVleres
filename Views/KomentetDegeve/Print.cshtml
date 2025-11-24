@@ -1,0 +1,145 @@
+@model KosovaDoganaModerne.Modelet.Entitetet.KomentiDeges
+
+@{
+    ViewData["Title"] = "Printimi - Koment Dege";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <style>
+        @@media print {
+            @@page {
+                size: A4;
+                margin: 1.5cm;
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 11pt;
+            color: #000;
+            margin: 0;
+            padding: 20px;
+            background: white;
+        }
+
+        .document-header {
+            border: 2px solid #000;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .document-header h1 {
+            text-align: center;
+            margin: 0 0 10px 0;
+            font-size: 18pt;
+            color: #1e3c72;
+            text-transform: uppercase;
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 9pt;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-button">
+        <button onclick="window.print()" style="padding: 10px 30px; font-size: 16px; cursor: pointer;">
+            🖨️ Printo Dokumentin
+        </button>
+    </div>
+
+    <div class="header">
+        <img src="~/images/dogana-logo.png" alt="Logo" class="logo" />
+        <div class="title">DOGANA E KOSOVËS</div>
+        <div class="subtitle">Drejtoria e Vlerësimit Doganor</div>
+        <div class="subtitle" style="margin-top: 15px; font-size: 16px; color: #0066cc;">
+            <strong>KOMENTI NGA DEGA</strong>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <div class="info-row">
+            <span class="label">Numri i Komentit:</span>
+            <span>#@Model.Id</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Data e Dërgimit:</span>
+            <span>@Model.DataDergimit.ToString("dd/MM/yyyy HH:mm")</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Dega:</span>
+            <span>@Model.EmriDeges</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Kodi Tarifar:</span>
+            <span><strong>@Model.KodiTarifar</strong></span>
+        </div>
+        <div class="info-row">
+            <span class="label">Dërguar nga:</span>
+            <span>@Model.DergoPrejNga</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Statusi:</span>
+            @if (Model.EshteZgjidhur)
+            {
+                <span class="status-badge status-resolved">✓ Zgjidhur</span>
+            }
+            else
+            {
+                <span class="status-badge status-pending">⏳ Në pritje</span>
+            }
+        </div>
+    </div>
+
+    <div>
+        <h3 style="color: #0066cc;">Mesazhi i Degës:</h3>
+        <div class="content-box">
+            @Model.Mesazhi
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Pergjigja))
+    {
+        <div>
+            <h3 style="color: #0066cc;">Përgjigja Zyrtare:</h3>
+            <div class="response-box">
+                @Model.Pergjigja
+            </div>
+            <div class="info-box">
+                <div class="info-row">
+                    <span class="label">Përgjigjur nga:</span>
+                    <span>@Model.PergjigjetNga</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Data e Përgjigjes:</span>
+                    <span>@Model.DataPergjigjes?.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="footer">
+        <p><strong>Dogana e Kosovës</strong></p>
+        <p>Rruga "Bill Clinton" p.n., 10000 Prishtinë, Kosovë</p>
+        <p>Tel: +383 38 200 33 000 | Email: info@dogana.rks-gov.net | Web: www.dogana.rks-gov.net</p>
+        <p style="margin-top: 10px; font-style: italic;">Printuar më: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+</body>
+</html>

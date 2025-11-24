@@ -1,0 +1,299 @@
+@model KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit
+
+@{
+    ViewData["Title"] = "Printimi - Vlera Produktit";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <style>
+        @@media print {
+            @@page {
+                size: A4;
+                margin: 1.5cm;
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 11pt;
+            color: #000;
+            margin: 0;
+            padding: 20px;
+            background: white;
+        }
+
+        .document-header {
+            border: 2px solid #000;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .document-header h1 {
+            text-align: center;
+            margin: 0 0 10px 0;
+            font-size: 18pt;
+            color: #1e3c72;
+            text-transform: uppercase;
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 9pt;
+        }
+
+        .document-number {
+            text-align: right;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+        }
+
+        .section-title {
+            background-color: #1e3c72;
+            color: white;
+            padding: 8px 12px;
+            margin: -15px -15px 15px -15px;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+
+        .field-row {
+            display: flex;
+            margin-bottom: 10px;
+            border-bottom: 1px dotted #ccc;
+            padding-bottom: 8px;
+        }
+
+        .field-label {
+            font-weight: bold;
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .field-value {
+            flex: 1;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-box {
+            width: 45%;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 60px;
+            padding-top: 5px;
+        }
+
+        .footer-info {
+            margin-top: 30px;
+            font-size: 8pt;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #1e3c72;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .print-button:hover {
+            background-color: #2a5298;
+        }
+
+        .official-stamp {
+            position: absolute;
+            right: 50px;
+            top: 200px;
+            width: 150px;
+            height: 150px;
+            border: 2px solid #1e3c72;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: bold;
+            color: #1e3c72;
+            opacity: 0.3;
+            transform: rotate(-15deg);
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button no-print" onclick="window.print()">
+        🖨️ Printo Dokumentin
+    </button>
+
+    <div class="document-header">
+        <h1>Republika e Kosovës</h1>
+        <h1>Dogana e Kosovës</h1>
+        <div class="header-info">
+            <div>
+                <strong>Adresa:</strong> Rr. Luan Haradinaj, 10000 Prishtinë<br>
+                <strong>Tel:</strong> +383 38 200 300 00<br>
+                <strong>Email:</strong> info@dogana.rks-gov.net
+            </div>
+            <div style="text-align: right;">
+                <strong>Data e printimit:</strong> @DateTime.Now.ToString("dd/MM/yyyy")<br>
+                <strong>Ora:</strong> @DateTime.Now.ToString("HH:mm:ss")<br>
+                <strong>Përdoruesi:</strong> @User.Identity?.Name
+            </div>
+        </div>
+    </div>
+
+    <div class="document-number">
+        <strong>Numri i Dokumentit:</strong> VL-@Model.Id.ToString("D6")
+    </div>
+
+    <div class="official-stamp">
+        VETËM PËR<br>
+        USH ZYRTAR
+    </div>
+
+    <!-- Informacioni bazë -->
+    <div class="section">
+        <div class="section-title">INFORMACIONI I VLERËS SË PRODUKTIT</div>
+        
+        <div class="field-row">
+            <div class="field-label">Kodi Tarifar:</div>
+            <div class="field-value">@Model.KodiHS</div>
+        </div>
+
+        <div class="field-row">
+            <div class="field-label">Përshkrimi i Mallit:</div>
+            <div class="field-value">@Model.Pershkrimi</div>
+        </div>
+
+        <div class="field-row">
+            <div class="field-label">Njësia Matëse:</div>
+            <div class="field-value">@Model.NjesiaMatese</div>
+        </div>
+
+        <div class="field-row">
+            <div class="field-label">Vlera:</div>
+            <div class="field-value"><strong>@Model.VleraDoganore.ToString("N2") @Model.Valuta</strong></div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Origjina))
+        {
+            <div class="field-row">
+                <div class="field-label">Vendi i Origjinës:</div>
+                <div class="field-value">@Model.Origjina</div>
+            </div>
+        }
+    </div>
+
+    <!-- Klasifikimi -->
+    @if (!string.IsNullOrEmpty(Model.Kategoria))
+    {
+        <div class="section">
+            <div class="section-title">KATEGORIZIMI</div>
+            
+            <div class="field-row">
+                <div class="field-label">Kategoria:</div>
+                <div class="field-value">@Model.Kategoria</div>
+            </div>
+        </div>
+    }
+
+    <!-- Komente -->
+    @if (!string.IsNullOrEmpty(Model.Komentet))
+    {
+        <div class="section">
+            <div class="section-title">KOMENTE DHE SHËNIME</div>
+            <div style="white-space: pre-wrap;">@Model.Komentet</div>
+        </div>
+    }
+
+    <!-- Informacioni i auditimit -->
+    <div class="section">
+        <div class="section-title">INFORMACIONI I REGJISTRIT</div>
+        
+        <div class="field-row">
+            <div class="field-label">Regjistruar nga:</div>
+            <div class="field-value">@Model.Krijuar_Nga</div>
+        </div>
+
+        <div class="field-row">
+            <div class="field-label">Data e regjistrimit:</div>
+            <div class="field-value">@Model.Krijuar_Me.ToString("dd/MM/yyyy HH:mm")</div>
+        </div>
+
+        @if (Model.Modifikuar_Me.HasValue)
+        {
+            <div class="field-row">
+                <div class="field-label">Modifikuar nga:</div>
+                <div class="field-value">@Model.Modifikuar_Nga</div>
+            </div>
+
+            <div class="field-row">
+                <div class="field-label">Data e modifikimit:</div>
+                <div class="field-value">@Model.Modifikuar_Me?.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+        }
+
+        <div class="field-row">
+            <div class="field-label">Statusi:</div>
+            <div class="field-value">@(Model.Aktiv ? "AKTIV" : "JOAKTIV")</div>
+        </div>
+    </div>
+
+    <!-- Nënshkrimet -->
+    <div class="signature-section">
+        <div class="signature-box">
+            <div class="signature-line">
+                Pergatitur nga
+            </div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line">
+                Verifikuar nga
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-info">
+        Dogana e Republikës së Kosovës | Ky dokument është gjeneruar automatikisht nga sistemi i menaxhimit të vlerave doganore<br>
+        Për çdo pyetje ose informacion shtesë, ju lutem kontaktoni Departamentin e Vlerës Doganore
+    </div>
+</body>
+</html>

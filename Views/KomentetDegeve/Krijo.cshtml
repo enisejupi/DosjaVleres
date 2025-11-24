@@ -1,0 +1,69 @@
+@model KosovaDoganaModerne.Modelet.Entitetet.KomentiDeges
+
+@{
+    ViewData["Title"] = "Shto Koment";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-comment-medical"></i> Dërgo koment të ri</h2>
+    
+    <form asp-action="Krijo" method="post" class="mt-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="KodiTarifar" class="form-label"></label>
+                            <input asp-for="KodiTarifar" class="form-control" placeholder="p.sh. 8703.23.11" />
+                            <span asp-validation-for="KodiTarifar" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="EmriDeges" class="form-label"></label>
+                            <select asp-for="EmriDeges" class="form-control">
+                                <option value="">-- Zgjidhni degën --</option>
+                                <option value="Prishtinë">Prishtinë (PR-01)</option>
+                                <option value="Pejë">Pejë (PE-01)</option>
+                                <option value="Prizren">Prizren (PZ-01)</option>
+                                <option value="Gjilan">Gjilan (GJ-01)</option>
+                                <option value="Mitrovicë">Mitrovicë (MI-01)</option>
+                                <option value="Gjakovë">Gjakovë (GK-01)</option>
+                                <option value="Podujevë">Podujevë (PD-01)</option>
+                                <option value="Ferizaj">Ferizaj (FE-01)</option>
+                            </select>
+                            <span asp-validation-for="EmriDeges" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Mesazhi" class="form-label"></label>
+                    <textarea asp-for="Mesazhi" class="form-control" rows="6" placeholder="Shkruani komentin tuaj këtu..."></textarea>
+                    <span asp-validation-for="Mesazhi" class="text-danger"></span>
+                    <small class="form-text text-muted">Përshkruani detajisht çështjen ose pyetjen tuaj.</small>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Informacion:</strong> Komenti juaj do t'i dërgohet administratorëve për shqyrtim dhe përgjigje.
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Anulo
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-paper-plane"></i> Dërgo komentin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

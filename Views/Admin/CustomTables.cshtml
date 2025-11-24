@@ -1,0 +1,227 @@
+@model IEnumerable<KosovaDoganaModerne.Modelet.Entitetet.TabelaCustom>
+
+@{
+    ViewData["Title"] = "Tabela Custom";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-table"></i> Tabela Custom</h2>
+        <div>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTableModal">
+                <i class="fas fa-plus"></i> Krijo tabelë të re
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Kthehu
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 
+        <strong>Informacion:</strong> Këtu mund të krijoni tabela të personalizuara për nevojat tuaja specifike. 
+        Përcaktoni kolonat, tipet e të dhënave dhe strukturën e tabelës.
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center p-5">
+            <i class="fas fa-table fa-4x text-muted mb-3"></i>
+            <h4>Nuk ka tabela të krijuara</h4>
+            <p class="text-muted">Klikoni butonin "Krijo tabelë të re" për të filluar</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var tabela in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header @(tabela.EshteAktive ? "bg-success" : "bg-secondary") text-white">
+                            <h5 class="mb-0">@tabela.EmriTabeles</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">@tabela.Pershkrimi</p>
+                            <hr />
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> Krijuar nga: @tabela.KrijuarNga<br />
+                                <i class="fas fa-calendar"></i> @tabela.KrijuarMe.ToString("dd/MM/yyyy")
+                            </small>
+                        </div>
+                        <div class="card-footer">
+                            <div class="btn-group w-100">
+                                <button class="btn btn-sm btn-primary" onclick="viewSchema('@tabela.Id')">
+                                    <i class="fas fa-eye"></i> Shiko
+                                </button>
+                                <button class="btn btn-sm btn-warning" onclick="editTable('@tabela.Id')">
+                                    <i class="fas fa-edit"></i> Edito
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTable('@tabela.Id')">
+                                    <i class="fas fa-trash"></i> Fshi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Create Table Modal -->
+<div class="modal fade" id="createTableModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-plus"></i> Krijo tabelë të re</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createTableForm">
+                    <div class="mb-3">
+                        <label class="form-label">Emri i tabelës *</label>
+                        <input type="text" class="form-control" id="tableName" required placeholder="p.sh. RaportetJavore" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Përshkrimi</label>
+                        <textarea class="form-control" id="tableDescription" rows="2" placeholder="Përshkrim i shkurtër i tabelës"></textarea>
+                    </div>
+                    
+                    <hr />
+                    
+                    <h6><i class="fas fa-columns"></i> Kolonat:</h6>
+                    <div id="columnsContainer">
+                        <div class="row mb-2 column-row">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Emri i kolonës" required />
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-control">
+                                    <option>string</option>
+                                    <option>int</option>
+                                    <option>decimal</option>
+                                    <option>DateTime</option>
+                                    <option>bool</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" />
+                                    <label class="form-check-label">Required</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-sm btn-danger" onclick="removeColumn(this)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-sm btn-success" onclick="addColumn()">
+                        <i class="fas fa-plus"></i> Shto kolonë
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbyll</button>
+                <button type="button" class="btn btn-primary" onclick="saveTable()">
+                    <i class="fas fa-save"></i> Ruaj tabelën
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function addColumn() {
+            const container = document.getElementById('columnsContainer');
+            const newRow = document.querySelector('.column-row').cloneNode(true);
+            newRow.querySelectorAll('input').forEach(input => input.value = '');
+            newRow.querySelector('input[type="checkbox"]').checked = false;
+            container.appendChild(newRow);
+        }
+        
+        function removeColumn(btn) {
+            const rows = document.querySelectorAll('.column-row');
+            if (rows.length > 1) {
+                btn.closest('.column-row').remove();
+            } else {
+                alert('Duhet të ketë të paktën një kolonë!');
+            }
+        }
+        
+        function saveTable() {
+            const tableName = document.getElementById('tableName').value;
+            const description = document.getElementById('tableDescription').value;
+            
+            if (!tableName) {
+                alert('Emri i tabelës është i detyrueshëm!');
+                return;
+            }
+            
+            const columns = [];
+            document.querySelectorAll('.column-row').forEach(row => {
+                const name = row.querySelector('input[type="text"]').value;
+                const type = row.querySelector('select').value;
+                const required = row.querySelector('input[type="checkbox"]').checked;
+                
+                if (name) {
+                    columns.push({ name, type, required });
+                }
+            });
+            
+            if (columns.length === 0) {
+                alert('Shtoni të paktën një kolonë!');
+                return;
+            }
+            
+            const data = {
+                EmriTabeles: tableName,
+                Pershkrimi: description,
+                Skema: JSON.stringify(columns),
+                EshteAktive: true
+            };
+            
+            // AJAX request to save (implement backend endpoint)
+            fetch('/Admin/SaveCustomTable', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('Tabela u krijua me sukses!');
+                    location.reload();
+                } else {
+                    alert('Gabim: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Për momentin kjo funksionalitet është në zhvillim. Tabela do të implementohet së shpejti.');
+            });
+        }
+        
+        function viewSchema(id) {
+            alert('Funksioni për të parë skemën do të implementohet së shpejti.');
+        }
+        
+        function editTable(id) {
+            alert('Funksioni për të edituar tabelën do të implementohet së shpejti.');
+        }
+        
+        function deleteTable(id) {
+            if (confirm('Jeni i sigurt që doni ta fshini këtë tabelë?')) {
+                // Implement delete
+                alert('Funksioni për të fshirë tabelën do të implementohet së shpejti.');
+            }
+        }
+    </script>
+}

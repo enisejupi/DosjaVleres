@@ -1,0 +1,76 @@
+@page
+@{
+    ViewData["Title"] = "Menaxho Llogarinë";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-user-cog"></i> Menaxhimi</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="/Identity/Account/Manage" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-user"></i> Profili
+                    </a>
+                    <a href="/Identity/Account/Manage/ChangePassword" class="list-group-item list-group-item-action">
+                        <i class="fas fa-key"></i> Ndrysho fjalëkalimin
+                    </a>
+                    <a href="/Identity/Account/Manage/Security" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shield-alt"></i> Siguria
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h4><i class="fas fa-user-circle"></i> Informacioni i profilit</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Mirë se vini në faqen e menaxhimit të llogarisë!</strong>
+                        <p class="mb-0 mt-2">Këtu mund të menaxhoni informacionet tuaja personale dhe parametrat e sigurisë.</p>
+                    </div>
+
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Email adresa:</strong></label>
+                            <p class="form-control-plaintext">@User.Identity?.Name</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Statusi i llogarisë:</strong></label>
+                            <p class="form-control-plaintext">
+                                <span class="badge bg-success">Aktive</span>
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Roli:</strong></label>
+                            <p class="form-control-plaintext">
+                                <span class="badge bg-primary">Përdorues</span>
+                            </p>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Shënim:</strong> Faqja e plotë e menaxhimit të llogarisë është në zhvillim. 
+                            Për ndryshime të mëdha, kontaktoni administratorin e sistemit.
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-header.bg-primary {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    }
+</style>

@@ -1,0 +1,198 @@
+@{
+    ViewData["Title"] = "Raportet";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-chart-bar"></i> Raportet e sistemit</h2>
+    <p class="lead text-muted">Zgjidhni llojin e raportit që dëshironi të gjeneroni</p>
+
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-folder-open"></i> Dosja e vlerave</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Gjenero raport të plotë të të gjitha vlerave të produkteve të regjistruara në sistem, duke përfshirë historikun e ndryshimeve.</p>
+                    <form asp-action="DosjaVlerave" method="get">
+                        <div class="mb-3">
+                            <label class="form-label">Data e fillimit</label>
+                            <input type="date" name="dataFillimit" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Data e mbarimit</label>
+                            <input type="date" name="dataMbarimit" class="form-control" />
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="format" value="html" class="btn btn-primary flex-fill">
+                                <i class="fas fa-eye"></i> Shiko
+                            </button>
+                            <button type="submit" name="format" value="pdf" class="btn btn-danger flex-fill">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button type="submit" name="format" value="excel" class="btn btn-success flex-fill">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Dosja e disponueshme</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Raport i vlerave aktive dhe të disponueshme për përdorim në sistem.</p>
+                    <form asp-action="DosjaTeDisponueshme" method="get">
+                        <div class="mb-3">
+                            <label class="form-label">Filtro sipas kategorisë</label>
+                            <input type="text" name="kategoria" class="form-control" placeholder="Emri i produktit..." />
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="format" value="html" class="btn btn-success flex-fill">
+                                <i class="fas fa-eye"></i> Shiko
+                            </button>
+                            <button type="submit" name="format" value="pdf" class="btn btn-danger flex-fill">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button type="submit" name="format" value="excel" class="btn btn-success flex-fill">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Lista e ndryshimeve</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Raport i detajuar i të gjitha ndryshimeve të bëra në vlerat e produkteve.</p>
+                    <form asp-action="ListaNdryshimeve" method="get">
+                        <div class="mb-3">
+                            <label class="form-label">Kodi tarifor</label>
+                            <input type="text" name="kodiTarifar" class="form-control" placeholder="p.sh. 8703.23.11" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Përdoruesi</label>
+                            <input type="text" name="perdoruesi" class="form-control" placeholder="Emri i përdoruesit..." />
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="format" value="html" class="btn btn-info flex-fill">
+                                <i class="fas fa-eye"></i> Shiko
+                            </button>
+                            <button type="submit" name="format" value="pdf" class="btn btn-danger flex-fill">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button type="submit" name="format" value="excel" class="btn btn-success flex-fill">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-comments"></i> Komentet e degëve</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Raport i komenteve dhe pyetjeve të dërguara nga degët doganore.</p>
+                    <form asp-action="KomentetDegeve" method="get">
+                        <div class="mb-3">
+                            <label class="form-label">Dega</label>
+                            <select name="dega" class="form-control">
+                                <option value="">-- Të gjitha --</option>
+                                <option value="Prishtinë">Prishtinë</option>
+                                <option value="Pejë">Pejë</option>
+                                <option value="Prizren">Prizren</option>
+                                <option value="Gjilan">Gjilan</option>
+                                <option value="Mitrovicë">Mitrovicë</option>
+                                <option value="Gjakovë">Gjakovë</option>
+                                <option value="Podujevë">Podujevë</option>
+                                <option value="Ferizaj">Ferizaj</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Statusi</label>
+                            <select name="statusi" class="form-control">
+                                <option value="">-- Të gjitha --</option>
+                                <option value="Zgjedhur">Zgjedhur</option>
+                                <option value="PaZgjedhur">Pa zgjedhur</option>
+                            </select>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="format" value="html" class="btn btn-warning flex-fill">
+                                <i class="fas fa-eye"></i> Shiko
+                            </button>
+                            <button type="submit" name="format" value="pdf" class="btn btn-danger flex-fill">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button type="submit" name="format" value="excel" class="btn btn-success flex-fill">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-truck"></i> Shpenzimet e transportit</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Raport i plotë i shpenzimeve të transportit, duke përfshirë ruget, çmimet dhe ndryshimet.</p>
+                    <form asp-action="ShpenzimetTransportit" method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Vendi i origjinës</label>
+                            <input type="text" name="vendiOrigjines" class="form-control" placeholder="p.sh. Shqipëri" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Vendi i destinacionit</label>
+                            <input type="text" name="vendiDestinacionit" class="form-control" placeholder="p.sh. Kosovë" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Lloji i transportit</label>
+                            <select name="llojiTransportit" class="form-control">
+                                <option value="">-- Të gjitha --</option>
+                                <option value="Tokësor">Tokësor</option>
+                                <option value="Ajror">Ajror</option>
+                                <option value="Detar">Detar</option>
+                                <option value="Hekurudhor">Hekurudhor</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="d-flex gap-2">
+                                <button type="submit" name="format" value="html" class="btn btn-secondary flex-fill">
+                                    <i class="fas fa-eye"></i> Shiko
+                                </button>
+                                <button type="submit" name="format" value="pdf" class="btn btn-danger flex-fill">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button type="submit" name="format" value="excel" class="btn btn-success flex-fill">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info mt-4">
+        <i class="fas fa-info-circle"></i> 
+        <strong>Shënim:</strong> Raportet gjenerohen në kohë reale bazuar në të dhënat aktuale të sistemit. 
+        Për raporte PDF dhe Excel, ju lutemi prisni disa sekonda për prodhimin e skedarit.
+    </div>
+</div>

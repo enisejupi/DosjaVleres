@@ -1,0 +1,191 @@
+@model IEnumerable<KosovaDoganaModerne.Modelet.Entitetet.KerkeseRegjistrim>
+@{
+    ViewData["Title"] = "Kërkesat e Regjistrimit - Në Pritje";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-user-clock"></i> Kërkesat e Regjistrimit - Në Pritje</h2>
+        <div>
+            <a asp-action="TeGjitha" class="btn btn-outline-primary">
+                <i class="fas fa-list"></i> Të gjitha kërkesat
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Sukses"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Sukses"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Gabim"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Gabim"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nr.</th>
+                                <th>Email</th>
+                                <th>Emri i Plotë</th>
+                                <th>Departamenti</th>
+                                <th>Pozicioni</th>
+                                <th>AD Username</th>
+                                <th>Data e Kërkesës</th>
+                                <th>Veprime</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int count = 1;}
+                            @foreach (var kerkese in Model)
+                            {
+                                <tr>
+                                    <td>@count</td>
+                                    <td>
+                                        <i class="fas fa-envelope text-primary"></i> @kerkese.Email
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(kerkese.EmriPlote))
+                                        {
+                                            <i class="fas fa-user"></i> @kerkese.EmriPlote
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(kerkese.Departamenti))
+                                        {
+                                            <span class="badge bg-info">@kerkese.Departamenti</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(kerkese.Pozicioni))
+                                        {
+                                            @kerkese.Pozicioni
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(kerkese.ADUsername))
+                                        {
+                                            <code>@kerkese.ADUsername</code>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <small>@kerkese.DataKerkeses.ToString("dd.MM.yyyy HH:mm")</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Detajet" asp-route-id="@kerkese.Id" 
+                                               class="btn btn-sm btn-outline-info" title="Shiko detajet">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-success" 
+                                                    onclick="aprovoKerkesen(@kerkese.Id, '@kerkese.Email')" title="Aprovo">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    onclick="refuzoKerkesen(@kerkese.Id, '@kerkese.Email')" title="Refuzo">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">Nuk ka kërkesa në pritje</h4>
+                    <p class="text-muted">Të gjitha kërkesat janë shqyrtuar</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal për refuzim -->
+<div class="modal fade" id="refuzoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="refuzoForm" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-times-circle"></i> Refuzo Kërkesën</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>A jeni të sigurt që dëshironi të refuzoni kërkesën për: <strong id="refuzoEmail"></strong>?</p>
+                    <div class="mb-3">
+                        <label for="arsyeRefuzimi" class="form-label">Arsyeja e refuzimit:</label>
+                        <textarea class="form-control" id="arsyeRefuzimi" name="arsyeRefuzimi" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulo</button>
+                    <button type="submit" class="btn btn-danger">Refuzo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function aprovoKerkesen(id, email) {
+            if (confirm('A jeni të sigurt që dëshironi të aprovoni kërkesën për: ' + email + '?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("Aprovo", "KerkesatRegjistrim")/' + id;
+                
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = token;
+                form.appendChild(tokenInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function refuzoKerkesen(id, email) {
+            document.getElementById('refuzoEmail').textContent = email;
+            document.getElementById('refuzoForm').action = '@Url.Action("Refuzo", "KerkesatRegjistrim")/' + id;
+            
+            const modal = new bootstrap.Modal(document.getElementById('refuzoModal'));
+            modal.show();
+        }
+    </script>
+}

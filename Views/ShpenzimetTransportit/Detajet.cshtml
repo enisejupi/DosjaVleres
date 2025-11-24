@@ -1,0 +1,152 @@
+@model KosovaDoganaModerne.Modelet.Entitetet.ShpenzimiTransportit
+
+@{
+    ViewData["Title"] = "Detajet e shpenzimit";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-info-circle"></i> Detajet e shpenzimit të transportit</h2>
+        <div>
+            <a asp-action="Perditeso" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Përditëso
+            </a>
+            <a asp-action="Fshi" asp-route-id="@Model.Id" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Fshi
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Kthehu
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Informacioni kryesor</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Vendi i origjinës:</strong>
+                    <p class="text-muted">@Model.VendiOrigjines</p>
+                </div>
+                <div class="col-md-6">
+                    <strong>Vendi i destinacionit:</strong>
+                    <p class="text-muted">@Model.VendiDestinacionit</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <strong>Lloji i transportit:</strong>
+                    <p class="text-muted">
+                        @if (Model.LlojiTransportit == "Tokësor")
+                        {
+                            <i class="fas fa-truck text-primary"></i>
+                        }
+                        else if (Model.LlojiTransportit == "Ajror")
+                        {
+                            <i class="fas fa-plane text-info"></i>
+                        }
+                        else if (Model.LlojiTransportit == "Detar")
+                        {
+                            <i class="fas fa-ship text-primary"></i>
+                        }
+                        else if (Model.LlojiTransportit == "Hekurudhor")
+                        {
+                            <i class="fas fa-train text-secondary"></i>
+                        }
+                        @Model.LlojiTransportit
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <strong>Çmimi për njësi:</strong>
+                    <p class="text-muted">@Model.CmimiPerNjesi.ToString("N2") @Model.Valuta</p>
+                </div>
+                <div class="col-md-3">
+                    <strong>Njësia matëse:</strong>
+                    <p class="text-muted">@Model.NjesiaMatese</p>
+                </div>
+                <div class="col-md-3">
+                    <strong>Statusi:</strong>
+                    <p>
+                        @if (Model.Aktiv)
+                        {
+                            <span class="badge bg-success">Aktiv</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Joaktiv</span>
+                        }
+                    </p>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Shenime))
+            {
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <strong>Shënime:</strong>
+                        <p class="text-muted">@Model.Shenime</p>
+                    </div>
+                </div>
+            }
+
+            <hr />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        <strong>Krijuar:</strong> @Model.DataKrijimit.ToString("dd/MM/yyyy HH:mm")<br />
+                        <strong>Nga:</strong> @Model.KrijuarNga
+                    </small>
+                </div>
+                @if (Model.DataPerditesimit.HasValue)
+                {
+                    <div class="col-md-6 text-end">
+                        <small class="text-muted">
+                            <strong>Përditësuar:</strong> @Model.DataPerditesimit.Value.ToString("dd/MM/yyyy HH:mm")<br />
+                            <strong>Nga:</strong> @Model.PerditesoPrejNga
+                        </small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Ndryshimet != null && Model.Ndryshimet.Any())
+    {
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-history"></i> Historia e ndryshimeve</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Përdoruesi</th>
+                                <th>Fusha</th>
+                                <th>Vlera e vjetër</th>
+                                <th>Vlera e re</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ndryshim in Model.Ndryshimet.OrderByDescending(n => n.DataNdryshimit))
+                            {
+                                <tr>
+                                    <td>@ndryshim.DataNdryshimit.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@ndryshim.Perdoruesi</td>
+                                    <td><strong>@ndryshim.FushaENdryshuar</strong></td>
+                                    <td>@ndryshim.VleraVjeter</td>
+                                    <td><span class="text-primary fw-bold">@ndryshim.VleraRe</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

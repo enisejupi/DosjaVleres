@@ -1,0 +1,266 @@
+﻿@model KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit
+
+@{
+    ViewData["Title"] = "Shto vlerë të re produkti";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <!-- Koka -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle"></i> Shto vlerë të re produkti doganor
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Krijo" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <!-- Informacioni bazik -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-info-circle text-primary"></i> Informacioni bazik
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="KodiProduktit" class="form-label">
+                                    KODI I PRODUKTIT <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="KodiProduktit" 
+                                       class="form-control" 
+                                       placeholder="PROD-001" 
+                                       required />
+                                <span asp-validation-for="KodiProduktit" class="text-danger"></span>
+                                <small class="form-text text-muted">Kodi unik i produktit</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EmriProduktit" class="form-label">
+                                    EMRI I PRODUKTIT <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="EmriProduktit" 
+                                       class="form-control" 
+                                       placeholder="Laptop HP ProBook" 
+                                       required />
+                                <span asp-validation-for="EmriProduktit" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Kodi" class="form-label">
+                                    KODI (HS) <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Kodi" 
+                                       class="form-control" 
+                                       placeholder="7615" 
+                                       required />
+                                <span asp-validation-for="Kodi" class="text-danger"></span>
+                                <small class="form-text text-muted">Kodi HS (Harmonized System)</small>
+                            </div>
+
+                            <div class="col-md-8 mb-3">
+                                <label asp-for="Pershkrimi" class="form-label">
+                                    PËRSHKRIMI <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Pershkrimi" 
+                                       class="form-control" 
+                                       placeholder="Përshkrimi i detajuar i produktit" 
+                                       required />
+                                <span asp-validation-for="Pershkrimi" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Origjina" class="form-label">
+                                    ORIGJINA <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Origjina" 
+                                       class="form-control" 
+                                       placeholder="TR, CN, TE NDRYSHME"
+                                       required />
+                                <span asp-validation-for="Origjina" class="text-danger"></span>
+                                <small class="form-text text-muted">Vendi i origjinës</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Pariteti" class="form-label">PARITETI</label>
+                                <select asp-for="Pariteti" class="form-select">
+                                    <option value="">-- Zgjidhni --</option>
+                                    <option value="DAT">DAT</option>
+                                    <option value="EXW">EXW</option>
+                                    <option value="FOB">FOB</option>
+                                    <option value="CIF">CIF</option>
+                                    <option value="CFR">CFR</option>
+                                </select>
+                                <span asp-validation-for="Pariteti" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Vlera doganore -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-euro-sign text-success"></i> Vlera dhe njësia
+                                </h5>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Njesia" class="form-label">
+                                    NJËSIA <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Njesia" class="form-select" required>
+                                    <option value="">-- Zgjidhni --</option>
+                                    <option value="Copë">Copë</option>
+                                    <option value="KG">KG</option>
+                                    <option value="TON">TON</option>
+                                    <option value="Metër">Metër</option>
+                                    <option value="Litër">Litër</option>
+                                    <option value="Kompleti">Kompleti</option>
+                                    <option value="M²">M²</option>
+                                    <option value="M³">M³</option>
+                                </select>
+                                <span asp-validation-for="Njesia" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-5 mb-3">
+                                <label asp-for="Cmimi" class="form-label">ÇMIMI</label>
+                                <input asp-for="Cmimi" 
+                                       class="form-control" 
+                                       placeholder="1.20 ; 1.45" />
+                                <span asp-validation-for="Cmimi" class="text-danger"></span>
+                                <small class="form-text text-muted">Mund të jetë më shumë se një çmim</small>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="Valuta" class="form-label">
+                                    VALUTA <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Valuta" class="form-select" required>
+                                    <option value="EUR">EUR (Euro)</option>
+                                    <option value="USD">USD (Dollar)</option>
+                                    <option value="GBP">GBP (Pound)</option>
+                                    <option value="CHF">CHF (Franc)</option>
+                                </select>
+                                <span asp-validation-for="Valuta" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="VleraDoganore" class="form-label">
+                                    VLERA DOGANORE <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="VleraDoganore" 
+                                           class="form-control" 
+                                           type="number" 
+                                           step="0.01" 
+                                           placeholder="850.00" 
+                                           required />
+                                    <span class="input-group-text">
+                                        <i class="fas fa-coins"></i>
+                                    </span>
+                                </div>
+                                <span asp-validation-for="VleraDoganore" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Klasifikimi -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-tags text-warning"></i> Klasifikimi dhe Komentet
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Kategoria" class="form-label">
+                                    KATEGORIA <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Kategoria" class="form-select" required>
+                                    <option value="">-- Zgjidhni kategorinë --</option>
+                                    <option value="Tjera">Tjera</option>
+                                    <option value="Pemë-Perime">Pemë-Perime</option>
+                                    <option value="Çmimi nga Bursa">Çmimi nga Bursa</option>
+                                    <option value="Elektronikë">Elektronikë</option>
+                                    <option value="Ushqim">Ushqim</option>
+                                    <option value="Veshje">Veshje</option>
+                                    <option value="Materiale Ndërtimi">Materiale ndërtimi</option>
+                                </select>
+                                <span asp-validation-for="Kategoria" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Komentet" class="form-label">KOMENTET</label>
+                                <textarea asp-for="Komentet" 
+                                          class="form-control" 
+                                          rows="3"
+                                          placeholder="Komente shtesë..."></textarea>
+                                <span asp-validation-for="Komentet" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Statusi -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input asp-for="Eshte_Aktiv" 
+                                           class="form-check-input" 
+                                           type="checkbox"
+                                           checked />
+                                    <label asp-for="Eshte_Aktiv" class="form-check-label">
+                                        Produkti është aktiv
+                                    </label>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Nëse jo aktiv, produkti nuk do të shfaqet në lista
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Butonat -->
+                        <div class="row">
+                            <div class="col-12">
+                                <hr />
+                                <div class="d-flex justify-content-between">
+                                    <a asp-action="Index" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Kthehu
+                                    </a>
+                                    <button type="submit" class="btn btn-success btn-lg text-white">
+                                        <i class="fas fa-save"></i> Ruaj vlerën
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Shënimet -->
+            <div class="alert alert-info mt-4">
+                <h6><i class="fas fa-lightbulb"></i> Këshilla:</h6>
+                <ul class="mb-0">
+                    <li>Fushat me <span class="text-danger">*</span> janë të detyrueshme</li>
+                    <li>Kodi i produktit duhet të jetë unik</li>
+                    <li>Vlera doganore duhet të jetë në formatin e saktë (p.sh. 850.00)</li>
+                    <li>Kodi HS ndihmon në identifikimin ndërkombëtar të produktit</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        var vleraInput = document.getElementById('VleraDoganore');
+        if (vleraInput) {
+            vleraInput.addEventListener('blur', function(e) {
+                let value = parseFloat(e.target.value);
+                if (!isNaN(value)) {
+                    e.target.value = value.toFixed(2);
+                }
+            });
+        }
+    </script>
+}

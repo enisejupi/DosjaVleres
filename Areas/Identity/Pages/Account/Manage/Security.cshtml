@@ -1,0 +1,123 @@
+@page
+@model SecurityModel
+@{
+    ViewData["Title"] = "Siguria";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-user-cog"></i> Menaxhimi</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="/Identity/Account/Manage" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user"></i> Profili
+                    </a>
+                    <a href="/Identity/Account/Manage/ChangePassword" class="list-group-item list-group-item-action">
+                        <i class="fas fa-key"></i> Ndrysho fjalëkalimin
+                    </a>
+                    <a href="/Identity/Account/Manage/Security" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-shield-alt"></i> Siguria
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h4><i class="fas fa-shield-alt"></i> Cilësimet e sigurisë</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.StatusMessage != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @Model.StatusMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <h5 class="mb-3">Autentifikimi me dy faktorë</h5>
+                    
+                    @if (Model.Is2faEnabled)
+                    {
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> Autentifikimi me dy faktorë është <strong>aktiv</strong>.
+                        </div>
+                        <form method="post" asp-page-handler="Disable2fa">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-times-circle"></i> Çaktivizo 2FA
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Autentifikimi me dy faktorë është <strong>joaktiv</strong>.
+                        </div>
+                        <p class="mb-3">
+                            Autentifikimi me dy faktorë (2FA) shton një shtresë shtesë sigurie në llogarinë tuaj. 
+                            Kur 2FA është aktivizuar, do t'ju kërkohet të jepni një kod të dytë përveç fjalëkalimit tuaj kur hyni në llogari.
+                        </p>
+                        <a href="/Identity/Account/Manage/EnableAuthenticator" class="btn btn-primary">
+                            <i class="fas fa-shield-alt"></i> Aktivizo 2FA
+                        </a>
+                    }
+
+                    <hr class="my-4">
+
+                    <h5 class="mb-3">Sesionet aktive</h5>
+                    
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <p class="mb-2"><strong>Sesioni aktual:</strong></p>
+                            <ul class="mb-0">
+                                <li>Email: @User.Identity?.Name</li>
+                                <li>Statusi: <span class="badge bg-success">Aktiv</span></li>
+                                <li>Kyçur më: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <form method="post" asp-page-handler="LogoutEverywhere">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt"></i> Dil nga të gjitha pajisjet
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <h5 class="mb-3">Regjistri i sigurisë</h5>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Këtu do të shfaqen aktivitetet e fundit të sigurisë për llogarinë tuaj (duke përfshirë hyrjet, ndryshimet e fjalëkalimit, etj.)
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Veprim</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>Kyçje në sistem</td>
+                                    <td><span class="badge bg-success">Sukses</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

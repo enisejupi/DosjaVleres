@@ -1,0 +1,15 @@
+@page
+@model LogoutModel
+@{
+    ViewData["Title"] = "Dil";
+}
+
+<div class="text-center mt-5">
+    <h2 class="display-4">@ViewData["Title"]</h2>
+    <p class="lead">Ju keni dalë me sukses nga llogaria juaj.</p>
+    <hr class="my-4" />
+    <p>Faleminderit që përdorët sistemin e Doganës së Republikës së Kosovës.</p>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+        <i class="fas fa-home"></i> Kthehu në Ballinë
+    </a>
+</div>

@@ -1,0 +1,18 @@
+# Docker ignore file
+bin/
+obj/
+.vs/
+.vscode/
+*.db
+*.db-shm
+*.db-wal
+*.user
+.dockerignore
+Dockerfile
+docker-compose.yml
+*.md
+.git/
+.gitignore
+*.log
+wwwroot/uploads/
+logs/

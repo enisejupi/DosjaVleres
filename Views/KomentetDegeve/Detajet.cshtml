@@ -1,0 +1,120 @@
+@model KosovaDoganaModerne.Modelet.Entitetet.KomentiDeges
+
+@{
+    ViewData["Title"] = "Detajet e komentit";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-comment-dots"></i> Detajet e komentit</h2>
+        <div>
+            @if (string.IsNullOrWhiteSpace(Model.Pergjigja))
+            {
+                <a asp-action="Pergjigju" asp-route-id="@Model.Id" class="btn btn-primary">
+                    <i class="fas fa-reply"></i> Përgjigju
+                </a>
+            }
+            <a asp-action="Print" asp-route-id="@Model.Id" target="_blank" class="btn btn-secondary">
+                <i class="fas fa-print"></i> Printo
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Kthehu
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header @(Model.EshteLexuar ? "bg-light" : "bg-primary text-white")">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building"></i> @Model.EmriDeges
+                        @if (!Model.EshteLexuar)
+                        {
+                            <span class="badge bg-warning text-dark ms-2">I ri</span>
+                        }
+                        @if (Model.EshteZgjidhur)
+                        {
+                            <span class="badge bg-success ms-2">✓ Zgjidhur</span>
+                        }
+                    </h5>
+                    <small class="@(Model.EshteLexuar ? "text-muted" : "")">
+                        Kodi tarifar: <strong>@Model.KodiTarifar</strong>
+                    </small>
+                </div>
+                <div class="col-md-4 text-end">
+                    <small class="@(Model.EshteLexuar ? "text-muted" : "")">
+                        <i class="fas fa-calendar"></i> @Model.DataDergimit.ToString("dd/MM/yyyy HH:mm")
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h6 class="text-muted">Mesazhi:</h6>
+                <p class="lead">@Model.Mesazhi</p>
+            </div>
+
+            <hr />
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <small>
+                        <strong><i class="fas fa-user"></i> Dërguar nga:</strong> @Model.DergoPrejNga<br />
+                        <strong><i class="fas fa-clock"></i> Data e dërgimit:</strong> @Model.DataDergimit.ToString("dd/MM/yyyy HH:mm")
+                    </small>
+                </div>
+                <div class="col-md-6 text-end">
+                    @if (Model.EshteLexuar)
+                    {
+                        <small>
+                            <strong><i class="fas fa-check-circle text-success"></i> Lexuar:</strong> @Model.DataLeximit?.ToString("dd/MM/yyyy HH:mm")<br />
+                            <strong>Nga:</strong> @Model.LexoNga
+                        </small>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Pa u lexuar</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Pergjigja))
+    {
+        <div class="card mt-4 border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-reply"></i> Përgjigja zyrtare</h5>
+            </div>
+            <div class="card-body">
+                <p class="lead">@Model.Pergjigja</p>
+                
+                <hr />
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <small>
+                            <strong><i class="fas fa-user-tie"></i> Përgjigjur nga:</strong> @Model.PergjigjetNga<br />
+                            <strong><i class="fas fa-clock"></i> Data e përgjigjes:</strong> @Model.DataPergjigjes?.ToString("dd/MM/yyyy HH:mm")
+                        </small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        @if (Model.EshteZgjidhur)
+                        {
+                            <span class="badge bg-success fs-6">
+                                <i class="fas fa-check-double"></i> Çështja është zgjidhur
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning mt-4">
+            <i class="fas fa-hourglass-half"></i> Ky koment ende nuk ka marrë përgjigje.
+        </div>
+    }
+</div>

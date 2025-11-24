@@ -1,0 +1,81 @@
+@model KosovaDoganaModerne.Modelet.Entitetet.KomentiDeges
+
+@{
+    ViewData["Title"] = "Përgjigju Komentit";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-reply"></i> Përgjigju komentit</h2>
+    
+    <div class="card mt-4 mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Komenti origjinal</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <strong>Dega:</strong> @Model.EmriDeges
+                </div>
+                <div class="col-md-6">
+                    <strong>Kodi tarifar:</strong> @Model.KodiTarifar
+                </div>
+            </div>
+            <div class="mb-2">
+                <strong>Mesazhi:</strong>
+                <p class="text-muted mb-0">@Model.Mesazhi</p>
+            </div>
+            <small class="text-muted">
+                Dërguar nga @Model.DergoPrejNga më @Model.DataDergimit.ToString("dd/MM/yyyy HH:mm")
+            </small>
+        </div>
+    </div>
+
+    <form asp-action="Pergjigju" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="KodiTarifar" />
+        <input type="hidden" asp-for="EmriDeges" />
+        <input type="hidden" asp-for="Mesazhi" />
+        <input type="hidden" asp-for="DergoPrejNga" />
+        <input type="hidden" asp-for="DataDergimit" />
+        
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Shkruaj përgjigjen</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label asp-for="Pergjigja" class="form-label"></label>
+                    <textarea asp-for="Pergjigja" class="form-control" rows="8" placeholder="Shkruani përgjigjen tuaj këtu..." required></textarea>
+                    <span asp-validation-for="Pergjigja" class="text-danger"></span>
+                    <small class="form-text text-muted">Jepni një përgjigje të detajuar dhe profesionale.</small>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input asp-for="EshteZgjidhur" class="form-check-input" type="checkbox" />
+                    <label asp-for="EshteZgjidhur" class="form-check-label"></label>
+                    <small class="form-text text-muted d-block">Nëse çështja është zgjidhur plotësisht, shënoni këtë opsion.</small>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Informacion:</strong> Përgjigja juaj do t'i dërgohet degës përkatëse dhe do të regjistrohet në sistemin e auditimit.
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Detajet" asp-route-id="@Model.Id" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Anulo
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-paper-plane"></i> Dërgo përgjigjen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

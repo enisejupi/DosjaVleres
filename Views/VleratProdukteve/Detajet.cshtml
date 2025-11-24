@@ -1,0 +1,261 @@
+@model KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit
+
+@{
+    ViewData["Title"] = "Detajet e produktit";
+    var historia = ViewBag.Historia as IEnumerable<KosovaDoganaModerne.Modelet.Entitetet.HistoriaVlerave>;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Informacioni i produktit-->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-box-open"></i> @Model.EmriProduktit
+                        @if (Model.Eshte_Aktiv)
+                        {
+                            <span class="badge bg-success float-end">Aktiv</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger float-end">Jo aktiv</span>
+                        }
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">
+                            <i class="fas fa-barcode"></i> Kodi i produktit:
+                        </dt>
+                        <dd class="col-sm-8">
+                            <strong class="text-primary">@Model.KodiProduktit</strong>
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-align-left"></i> Përshkrimi:
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrEmpty(Model.Pershkrimi))
+                            {
+                                @Model.Pershkrimi
+                            }
+                            else
+                            {
+                                <em class="text-muted">Nuk ka përshkrim</em>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-euro-sign"></i> Vlera doganore:
+                        </dt>
+                        <dd class="col-sm-8">
+                            <h4 class="text-success mb-0">
+                                @Model.VleraDoganore.ToString("N2") @Model.Valuta
+                            </h4>
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-balance-scale"></i> Njësia e matjes:
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrEmpty(Model.NjesiaMatese))
+                            {
+                                <span class="badge bg-info">@Model.NjesiaMatese</span>
+                            }
+                            else
+                            {
+                                <em class="text-muted">Nuk është specifikuar</em>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-hashtag"></i> Kodi HS:
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrEmpty(Model.KodiHS))
+                            {
+                                <code class="text-dark">@Model.KodiHS</code>
+                            }
+                            else
+                            {
+                                <em class="text-muted">Nuk është specifikuar</em>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-tags"></i> Kategoria:
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrEmpty(Model.Kategoria))
+                            {
+                                <span class="badge bg-secondary">@Model.Kategoria</span>
+                            }
+                            else
+                            {
+                                <em class="text-muted">Nuk është specifikuar</em>
+                            }
+                        </dd>
+                    </dl>
+
+                    <hr />
+
+                    <!-- Informacioni i auditimit-->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">
+                                <i class="fas fa-plus-circle"></i> Krijuar
+                            </h6>
+                            <p class="mb-1">
+                                <strong>Nga:</strong> @Model.Krijuar_Nga
+                            </p>
+                            <p class="mb-0">
+                                <strong>Më:</strong> @Model.Krijuar_Me.ToString("dd/MM/yyyy HH:mm")
+                            </p>
+                        </div>
+                        @if (Model.Modifikuar_Me.HasValue)
+                        {
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-3">
+                                    <i class="fas fa-edit"></i> Modifikuar
+                                </h6>
+                                <p class="mb-1">
+                                    <strong>Nga:</strong> @Model.Modifikuar_Nga
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Më:</strong> @Model.Modifikuar_Me?.ToString("dd/MM/yyyy HH:mm")
+                                </p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historia e ndryshimeve -->
+            @if (historia != null && historia.Any())
+            {
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-history"></i> Historia e ndryshimeve
+                            <span class="badge bg-dark float-end">@historia.Count() ndryshime</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Ver.</th>
+                                        <th>Data</th>
+                                        <th>Vlera e vjetër</th>
+                                        <th>Vlera e re</th>
+                                        <th>Ndryshuar nga</th>
+                                        <th>Arsyeja</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var h in historia.OrderByDescending(x => x.Ndryshuar_Me))
+                                    {
+                                        <tr>
+                                            <td><strong>v@h.NumriVersionit</strong></td>
+                                            <td>@h.Ndryshuar_Me.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>
+                                                <span class="text-danger">
+                                                    @h.Vlera_Mepar.ToString("N2") @h.Valuta_Mepar
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="text-success">
+                                                    @h.Vlera_Re.ToString("N2") @h.Valuta_Re
+                                                </span>
+                                            </td>
+                                            <td>@h.Ndryshuar_Nga</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(h.ArsyejaE_Ndryshimit))
+                                                {
+                                                    <small>@h.ArsyejaE_Ndryshimit</small>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Veprimet -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs"></i> Veprimet
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Print" asp-route-id="@Model.Id" class="btn btn-primary" target="_blank">
+                            <i class="fas fa-print"></i> Printo dokumentin
+                        </a>
+                        <hr />
+                        <a asp-action="Perditeso" asp-route-id="@Model.Id" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Përditëso produktin
+                        </a>
+                        <a asp-action="Fshi" asp-route-id="@Model.Id" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Fshi produktin
+                        </a>
+                        <hr />
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Kthehu në listë
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistikat e shpejta -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> Statistikat
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Totali i ndryshimeve</small>
+                        <h4 class="mb-0">@(historia?.Count() ?? 0)</h4>
+                    </div>
+                    @if (historia != null && historia.Any())
+                    {
+                        <div class="mb-3">
+                            <small class="text-muted">Ndryshimi i fundit</small>
+                            <p class="mb-0">
+                                @historia.OrderByDescending(h => h.Ndryshuar_Me).First().Ndryshuar_Me.ToString("dd/MM/yyyy")
+                            </p>
+                        </div>
+                        <div>
+                            <small class="text-muted">Versioni aktual</small>
+                            <h5 class="mb-0">
+                                <span class="badge bg-primary">
+                                    v@(historia.Max(h => h.NumriVersionit))
+                                </span>
+                            </h5>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Sinjalizimi -->
+            @if (!Model.Eshte_Aktiv)
+            {
+                <div class="alert alert-warning mt-4">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Kujdes!</strong>
+                    Ky produkt është jo aktiv dhe nuk do të shfaqet në lista.
+                </div>
+            }
+        </div>
+    </div>
+</div>
