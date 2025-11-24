@@ -138,7 +138,7 @@ using (var scope = app.Services.CreateScope())
             {
                 UserName = adminEmail,
                 Email = adminEmail,
-                EmriPlote = "Administrator Sistemi",
+                EmriPlote = "Administrator sistemi",
                 Departamenti = "IT",
                 Pozicioni = "Administrator",
                 KodiZyrtarit = "CS-0001",
