@@ -329,7 +329,7 @@ namespace KosovaDoganaModerne.Controllers
                 }
 
                 await _konteksti.SaveChangesAsync();
-                TempData["Sukses"] = "Tema e ngjyrave u ruajt me sukses!";
+                TempData["Sukses"] = "Thema e ngjyrave u ruajt me sukses!";
                 return RedirectToAction(nameof(ColorTheme));
             }
             catch (Exception ex)
