@@ -1,25 +1,26 @@
 @page
+@model IndexModel
 @{
-    ViewData["Title"] = "Menaxho Llogarinë";
+    ViewData["Title"] = "Profili im";
 }
 
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-3">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-company-blue text-white">
                     <h5><i class="fas fa-user-cog"></i> Menaxhimi</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="/Identity/Account/Manage" class="list-group-item list-group-item-action active">
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" class="list-group-item list-group-item-action active">
                         <i class="fas fa-user"></i> Profili
                     </a>
-                    <a href="/Identity/Account/Manage/ChangePassword" class="list-group-item list-group-item-action">
-                        <i class="fas fa-key"></i> Ndrysho fjalëkalimin
-                    </a>
-                    <a href="/Identity/Account/Manage/Security" class="list-group-item list-group-item-action">
-                        <i class="fas fa-shield-alt"></i> Siguria
-                    </a>
+                    @if (Model.IsAdmin)
+                    {
+                        <a asp-controller="Admin" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users-cog"></i> Menaxho përdoruesit
+                        </a>
+                    }
                 </div>
             </div>
         </div>
@@ -29,40 +30,99 @@
                     <h4><i class="fas fa-user-circle"></i> Informacioni i profilit</h4>
                 </div>
                 <div class="card-body">
+                    @if (TempData["Warning"] != null)
+                    {
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle"></i> @TempData["Warning"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Mirë se vini në faqen e menaxhimit të llogarisë!</strong>
-                        <p class="mb-0 mt-2">Këtu mund të menaxhoni informacionet tuaja personale dhe parametrat e sigurisë.</p>
+                        <strong>Profili juaj!</strong>
+                        <p class="mb-0 mt-2">Këtu mund të shikoni informacionet tuaja personale. Të gjitha të dhënat menaxhohen nga Active Directory dhe nuk mund të ndryshohen drejtpërdrejt në sistem.</p>
                     </div>
 
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label"><strong>Email adresa:</strong></label>
-                            <p class="form-control-plaintext">@User.Identity?.Name</p>
+                    @if (Model.CurrentUser != null)
+                    {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><strong><i class="fas fa-user"></i> Emri i plotë:</strong></label>
+                                    <p class="form-control-plaintext">@Model.CurrentUser.EmriPlote</p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label"><strong><i class="fas fa-envelope"></i> Email adresa:</strong></label>
+                                    <p class="form-control-plaintext">@Model.CurrentUser.Email</p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label"><strong><i class="fas fa-building"></i> Departamenti:</strong></label>
+                                    <p class="form-control-plaintext">@(Model.CurrentUser.Departamenti ?? "N/A")</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><strong><i class="fas fa-briefcase"></i> Pozicioni:</strong></label>
+                                    <p class="form-control-plaintext">@(Model.CurrentUser.Pozicioni ?? "N/A")</p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label"><strong><i class="fas fa-id-card"></i> Kodi i zyrtarit:</strong></label>
+                                    <p class="form-control-plaintext">@(Model.CurrentUser.KodiZyrtarit ?? "N/A")</p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label"><strong><i class="fas fa-shield-alt"></i> Roli:</strong></label>
+                                    <p class="form-control-plaintext">
+                                        @if (Model.IsAdmin)
+                                        {
+                                            <span class="badge bg-danger"><i class="fas fa-crown"></i> Administrator</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-primary"><i class="fas fa-user"></i> Përdorues</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label"><strong>Statusi i llogarisë:</strong></label>
-                            <p class="form-control-plaintext">
-                                <span class="badge bg-success">Aktive</span>
-                            </p>
-                        </div>
+                        <hr class="my-4">
 
-                        <div class="mb-3">
-                            <label class="form-label"><strong>Roli:</strong></label>
-                            <p class="form-control-plaintext">
-                                <span class="badge bg-primary">Përdorues</span>
-                            </p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><strong><i class="fas fa-check-circle"></i> Statusi i llogarisë:</strong></label>
+                                    <p class="form-control-plaintext">
+                                        @if (Model.CurrentUser.EshteAktiv)
+                                        {
+                                            <span class="badge bg-success">Aktive</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Joaktive</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label"><strong><i class="fas fa-calendar-alt"></i> Anëtarësuar më:</strong></label>
+                                    <p class="form-control-plaintext">@Model.CurrentUser.DataKrijimit.ToString("dd/MM/yyyy HH:mm")</p>
+                                </div>
+                            </div>
                         </div>
 
                         <hr class="my-4">
 
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <strong>Shënim:</strong> Faqja e plotë e menaxhimit të llogarisë është në zhvillim. 
-                            Për ndryshime të mëdha, kontaktoni administratorin e sistemit.
+                            <strong>Shënim:</strong> Të gjitha ndryshimet në të dhënat personale (emër, email, fjalëkalim) bëhen përmes Active Directory. Ndryshimet do të sinkronizohen automatikisht gjatë hyrjes së radhës në sistem. Për çdo ndryshim, kontaktoni departamentin IT.
                         </div>
-                    </form>
+                    }
                 </div>
             </div>
         </div>
@@ -70,7 +130,10 @@
 </div>
 
 <style>
-    .card-header.bg-primary {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    .form-control-plaintext {
+        background-color: #f8f9fa;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.25rem;
+        border: 1px solid #e0e6ed;
     }
 </style>

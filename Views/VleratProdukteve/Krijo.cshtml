@@ -15,7 +15,7 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Krijo" method="post">
+                    <form asp-action="Krijo" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                         <!-- Informacioni bazik -->
@@ -169,7 +169,7 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h5 class="border-bottom pb-2 mb-3">
-                                    <i class="fas fa-tags text-warning"></i> Klasifikimi dhe Komentet
+                                    <i class="fas fa-tags text-warning"></i> Klasifikimi dhe komentet
                                 </h5>
                             </div>
 
@@ -197,6 +197,29 @@
                                           rows="3"
                                           placeholder="Komente shtesë..."></textarea>
                                 <span asp-validation-for="Komentet" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Bashkëngjitje -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-paperclip text-info"></i> Bashkëngjitje (Dokumente, imazhe)
+                                </h5>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-file-upload"></i> NGARKONI BASHKËNGJITJE
+                                </label>
+                                <input type="file" 
+                                       name="bashkangjitja" 
+                                       id="bashkangjitja"
+                                       class="form-control" 
+                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif" />
+                                <small class="form-text text-muted">
+                                    Formatet e lejuara: PDF, Word, Excel, Imazhe (max 10MB)
+                                </small>
                             </div>
                         </div>
 
@@ -244,6 +267,7 @@
                     <li>Kodi i produktit duhet të jetë unik</li>
                     <li>Vlera doganore duhet të jetë në formatin e saktë (p.sh. 850.00)</li>
                     <li>Kodi HS ndihmon në identifikimin ndërkombëtar të produktit</li>
+                    <li>Mund të bashkëngisni dokumente mbështetëse si PDF, Word, Excel ose imazhe</li>
                 </ul>
             </div>
         </div>
@@ -259,6 +283,37 @@
                 let value = parseFloat(e.target.value);
                 if (!isNaN(value)) {
                     e.target.value = value.toFixed(2);
+                }
+            });
+        }
+
+        // File upload validation
+        var fileInput = document.getElementById('bashkangjitja');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (file) {
+                    // Check file size (10MB = 10 * 1024 * 1024 bytes)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('Skedari është shumë i madh! Madhësia maksimale: 10MB');
+                        e.target.value = '';
+                        return;
+                    }
+
+                    // Check file type
+                    var allowedTypes = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.jpg', '.jpeg', '.png', '.gif'];
+                    var fileName = file.name.toLowerCase();
+                    var isAllowed = allowedTypes.some(function(ext) {
+                        return fileName.endsWith(ext);
+                    });
+
+                    if (!isAllowed) {
+                        alert('Formati i skedarit nuk është i lejuar!');
+                        e.target.value = '';
+                        return;
+                    }
+
+                    console.log('Skedari u zgjedh: ' + file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)');
                 }
             });
         }

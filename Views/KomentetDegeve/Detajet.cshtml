@@ -14,8 +14,11 @@
                     <i class="fas fa-reply"></i> Përgjigju
                 </a>
             }
+            <a asp-action="PrintEditor" asp-route-id="@Model.Id" target="_blank" class="btn btn-info">
+                <i class="fas fa-edit"></i> Editor Printimi
+            </a>
             <a asp-action="Print" asp-route-id="@Model.Id" target="_blank" class="btn btn-secondary">
-                <i class="fas fa-print"></i> Printo
+                <i class="fas fa-print"></i> Printo (klasike)
             </a>
             <a asp-action="Index" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Kthehu

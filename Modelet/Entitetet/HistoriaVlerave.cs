@@ -34,6 +34,13 @@ namespace KosovaDoganaModerne.Modelet.Entitetet
         [Column("ArsyejaE_Ndryshimit")]
         public string? ArsyejaE_Ndryshimit { get; set; }
 
+        /// <summary>
+        /// Path to the photo/image uploaded with this change
+        /// </summary>
+        [MaxLength(500)]
+        [Column("FotoNdryshimit")]
+        public string? FotoNdryshimit { get; set; }
+
         [Column("Ndryshuar_Me")]
         public DateTime Ndryshuar_Me { get; set; } = DateTime.UtcNow;
 

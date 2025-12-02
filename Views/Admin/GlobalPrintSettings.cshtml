@@ -1,0 +1,258 @@
+@model KosovaDoganaModerne.Controllers.GlobalPrintSettingsViewModel
+
+@{
+    ViewData["Title"] = "Formatet globale të printimit";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-globe"></i> Formatet globale të printimit</h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kthehu
+        </a>
+    </div>
+
+    @if (TempData["Sukses"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Sukses"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Gabim"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Gabim"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <strong>Informacion i rëndësishëm për sigurinë:</strong>
+        <ul class="mb-0 mt-2">
+            <li>Formati global aplikohet për të gjithë përdoruesit e sistemit</li>
+            <li>Vetëm administratorët mund të ndryshojnë format globale</li>
+            <li>Të gjitha printimet, PDF dhe Excel gjenerimi përdorin formatin e konfiguruar këtu</li>
+            <li>Çdo printim, PDF ose Excel eksport logohet automatikisht për auditim</li>
+        </ul>
+    </div>
+
+    <!-- Formatet globale aktive -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-check-circle"></i> Formatet aktive globale
+            </h5>
+        </div>
+        <div class="card-body">
+            @if (Model.GlobalFormats.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Lloji i modulit</th>
+                                <th>Emri i formatit</th>
+                                <th>Vendosur nga</th>
+                                <th>Data e vendosjes</th>
+                                <th>Modifikuar më</th>
+                                <th class="text-center">Veprimet</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var format in Model.GlobalFormats)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">@format.LlojiModulit</span>
+                                    </td>
+                                    <td>
+                                        <strong>@format.FormatPrintimi?.EmriFormatit</strong>
+                                        @if (!string.IsNullOrEmpty(format.Pershkrimi))
+                                        {
+                                            <br />
+                                            <small class="text-muted">@format.Pershkrimi</small>
+                                        }
+                                    </td>
+                                    <td>@format.VendosurNga</td>
+                                    <td>@format.DataVendosjes.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @if (format.ModifikuarMe.HasValue)
+                                        {
+                                            @format.ModifikuarMe.Value.ToString("dd/MM/yyyy HH:mm")
+                                            <br />
+                                            <small class="text-muted">nga @format.ModifikuarNga</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <form method="post" asp-action="RemoveGlobalPrintFormat" class="d-inline" 
+                                              onsubmit="return confirm('A jeni të sigurt që dëshironi ta çaktivizoni këtë format global?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@format.Id" />
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-times"></i> Çaktivizo
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                    <h5>Nuk ka formate globale aktive</h5>
+                    <p>Vendosni një format global për secilin modul më poshtë</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Vendos format të ri global -->
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-plus-circle"></i> Vendos/Ndrysho format global
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="SetGlobalPrintFormat">
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="llojiModulit" class="form-label">
+                            <strong>Lloji i modulit:</strong> <span class="text-danger">*</span>
+                        </label>
+                        <select name="llojiModulit" id="llojiModulit" class="form-select" required 
+                                onchange="filtroFormate(this.value)">
+                            <option value="">-- Zgjedh modulin --</option>
+                            @foreach (var modul in Model.ModuletDisponueshme)
+                            {
+                                <option value="@modul">@modul</option>
+                            }
+                        </select>
+                        <small class="text-muted">
+                            Moduli për të cilin do të aplikohet formati
+                        </small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="formatPrintimiId" class="form-label">
+                            <strong>Formati i printimit:</strong> <span class="text-danger">*</span>
+                        </label>
+                        <select name="formatPrintimiId" id="formatPrintimiId" class="form-select" required>
+                            <option value="">-- Zgjedh formatin --</option>
+                            @foreach (var format in Model.FormateDisponueshme)
+                            {
+                                <option value="@format.Id" 
+                                        data-modul="@format.LlojiModulit"
+                                        data-logo="@format.LogoUrl"
+                                        data-paper="@format.PaperSize">
+                                    @format.EmriFormatit (@format.LlojiModulit - @format.PaperSize)
+                                    @if (format.EshteDefault)
+                                    {
+                                        <text> [Default]</text>
+                                    }
+                                </option>
+                            }
+                        </select>
+                        <small class="text-muted">
+                            Formati që do të përdoret për të gjithë përdoruesit
+                        </small>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-save"></i> Vendos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pamja paraprake e formatit -->
+                <div id="formatPreview" class="alert alert-light d-none mt-3">
+                    <h6><i class="fas fa-eye"></i> Pamja paraprake:</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Logo URL:</strong> <span id="previewLogo" class="text-muted">-</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Madhësia e letrës:</strong> <span id="previewPaper" class="text-muted">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lidhje drejt print audit logs -->
+    <div class="card mt-4 border-info">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-9">
+                    <h5><i class="fas fa-history"></i> Shiko auditimin e printimeve</h5>
+                    <p class="mb-0 text-muted">
+                        Monitoroni të gjitha printimet, PDF dhe Excel gjeneruar nga përdoruesit e sistemit
+                    </p>
+                </div>
+                <div class="col-md-3 text-end">
+                    <a asp-action="PrintAuditLogs" class="btn btn-info">
+                        <i class="fas fa-chart-line"></i> Shiko log-et
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Filtro formatet bazuar në modulin e zgjedhur
+        function filtroFormate(modul) {
+            const select = document.getElementById('formatPrintimiId');
+            const options = select.getElementsByTagName('option');
+            
+            // Reset selection
+            select.value = '';
+            document.getElementById('formatPreview').classList.add('d-none');
+            
+            // Show/hide options
+            for (let i = 1; i < options.length; i++) {
+                const option = options[i];
+                const modulOption = option.getAttribute('data-modul');
+                
+                if (!modul || modulOption === modul) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+        }
+
+        // Shfaq pamjen paraprake kur zgjidhet një format
+        document.getElementById('formatPrintimiId').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (this.value) {
+                const logo = selectedOption.getAttribute('data-logo');
+                const paper = selectedOption.getAttribute('data-paper');
+                
+                document.getElementById('previewLogo').textContent = logo || 'Nuk ka logo';
+                document.getElementById('previewPaper').textContent = paper;
+                document.getElementById('formatPreview').classList.remove('d-none');
+            } else {
+                document.getElementById('formatPreview').classList.add('d-none');
+            }
+        });
+
+        // Auto fade alerts
+        setTimeout(function() {
+            $('.alert-dismissible').fadeOut('slow');
+        }, 5000);
+    </script>
+}

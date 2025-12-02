@@ -1,0 +1,301 @@
+@{
+    ViewData["Title"] = "Diagnostic - Ndihmë për zgjidhjen e problemeve";
+}
+
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        body { padding: 20px; background-color: #f8f9fa; }
+        .diagnostic-card { margin-bottom: 20px; }
+        .url-box { 
+            background: #f4f4f4; 
+            padding: 10px; 
+            border-radius: 5px; 
+            font-family: monospace; 
+            word-break: break-all;
+        }
+        .test-button { margin: 5px; }
+        .result-box {
+            margin-top: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .result-success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .result-error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .spinner-border { width: 20px; height: 20px; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card diagnostic-card">
+            <div class="card-header bg-primary text-white">
+                <h3><i class="fas fa-stethoscope"></i> Diagnostic Tool - Zgjidhja e problemit 404</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle"></i> Përshkrimi i problemit</h5>
+                    <p>Nëse po merrni gabimin <strong>HTTP ERROR 404</strong> kur tentoni të qaseni në faqen <code>Historia</code>, ky diagnostic do t'ju ndihmojë të gjeni shkakun.</p>
+                </div>
+
+                <!-- Test 1: System Info -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5><i class="fas fa-server"></i> 1. Informacioni i Sistemit</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary test-button" onclick="testSystemInfo()">
+                            <i class="fas fa-play"></i> Testo Sistemin
+                        </button>
+                        <div id="systemInfoResult" class="result-box"></div>
+                    </div>
+                </div>
+
+                <!-- Test 2: Database Connection -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5><i class="fas fa-database"></i> 2. Lidhja me Bazën e të Dhënave</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary test-button" onclick="testDatabase()">
+                            <i class="fas fa-play"></i> Testo Bazën e të Dhënave
+                        </button>
+                        <div id="databaseResult" class="result-box"></div>
+                    </div>
+                </div>
+
+                <!-- Test 3: Routes -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5><i class="fas fa-route"></i> 3. Routing dhe URL-të</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary test-button" onclick="testRoutes()">
+                            <i class="fas fa-play"></i> Shfaq Rrugët
+                        </button>
+                        <div id="routesResult" class="result-box"></div>
+                    </div>
+                </div>
+
+                <!-- Test 4: Test Historia -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5><i class="fas fa-history"></i> 4. Test faqja Historia</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Vendos ID e një produkti për të testuar faqen Historia:</p>
+                        <div class="input-group mb-3">
+                            <input type="number" id="productId" class="form-control" value="1" placeholder="ID e produktit">
+                            <button class="btn btn-primary" onclick="testHistoria()">
+                                <i class="fas fa-play"></i> Testo Historia
+                            </button>
+                        </div>
+                        <div id="historiaResult" class="result-box"></div>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="card mb-3">
+                    <div class="card-header bg-success text-white">
+                        <h5><i class="fas fa-link"></i> Linqe të Shpejta për Testim</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group" id="quickLinks">
+                            <a href="#" class="list-group-item list-group-item-action" onclick="openLink('/'); return false;">
+                                <i class="fas fa-home"></i> Home (Faqja Kryesore)
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="openLink('/VleratProdukteve/Index'); return false;">
+                                <i class="fas fa-box"></i> Vlerat e Produkteve - Lista
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="openLink('/VleratProdukteve/Historia/1'); return false;">
+                                <i class="fas fa-history"></i> Historia (ID=1)
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="openLink('/KomentetDegeve/Index'); return false;">
+                                <i class="fas fa-comments"></i> Komentet e Degëve
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Solutions -->
+                <div class="card mb-3">
+                    <div class="card-header bg-warning">
+                        <h5><i class="fas fa-wrench"></i> Zgjidhje të mundshme</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Nëse faqja nuk po funksionon:</h6>
+                        <ol>
+                            <li><strong>Kontrolloni nëse aplikacioni është duke u ekzekutuar:</strong>
+                                <ul>
+                                    <li>Në IIS, sigurohuni që aplikacioni është startuar</li>
+                                    <li>Kontrolloni Event Viewer për gabime</li>
+                                    <li>Shikoni logs në dosjen <code>logs</code> në rrënjën e aplikacionit</li>
+                                </ul>
+                            </li>
+                            <li><strong>Kontrolloni PathBase konfigurimin:</strong>
+                                <ul>
+                                    <li>Në <code>appsettings.json</code>, PathBase duhet të përputhet me IIS virtual directory</li>
+                                    <li>Nëse aplikacioni është në root, hiqeni PathBase ose vendoseni si ""</li>
+                                </ul>
+                            </li>
+                            <li><strong>Restart aplikacionin:</strong>
+                                <ul>
+                                    <li>Në IIS Manager, klikoni me të djathtë në Application Pool dhe zgjidhni Recycle</li>
+                                    <li>Ose restart IIS komplet: <code>iisreset</code></li>
+                                </ul>
+                            </li>
+                            <li><strong>Kontrolloni ID-në e produktit:</strong>
+                                <ul>
+                                    <li>Sigurohuni që ID-ja që po kërkoni ekziston në bazën e të dhënave</li>
+                                    <li>Përdorni testin më sipër për të konfirmuar</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getBaseUrl() {
+            return window.location.origin + (window.location.pathname.includes('/Diagnostic/') ? 
+                   window.location.pathname.substring(0, window.location.pathname.indexOf('/Diagnostic/')) : '');
+        }
+
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'result-box';
+            element.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Duke testuar...';
+        }
+
+        function showResult(elementId, success, content) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = success ? 'result-box result-success' : 'result-box result-error';
+            element.innerHTML = content;
+        }
+
+        async function testSystemInfo() {
+            showLoading('systemInfoResult');
+            try {
+                const response = await fetch(getBaseUrl() + '/Diagnostic/Index');
+                const data = await response.json();
+                const html = `
+                    <h6><i class="fas fa-check-circle"></i> Sistemi është aktiv!</h6>
+                    <table class="table table-sm table-bordered">
+                        <tr><th>PathBase</th><td><code>${data.pathBase || 'N/A'}</code></td></tr>
+                        <tr><th>Environment</th><td>${data.environment}</td></tr>
+                        <tr><th>Current URL</th><td><code>${data.currentUrl}</code></td></tr>
+                        <tr><th>Expected Historia URL</th><td><code>${data.routeInfo.expectedHistoriaUrl}</code></td></tr>
+                        <tr><th>Is Authenticated</th><td>${data.isAuthenticated ? 'Po' : 'Jo'}</td></tr>
+                        <tr><th>User</th><td>${data.userName}</td></tr>
+                    </table>
+                `;
+                showResult('systemInfoResult', true, html);
+            } catch (error) {
+                showResult('systemInfoResult', false, `<i class="fas fa-times-circle"></i> Gabim: ${error.message}`);
+            }
+        }
+
+        async function testDatabase() {
+            showLoading('databaseResult');
+            try {
+                const response = await fetch(getBaseUrl() + '/Diagnostic/TestDatabase');
+                const data = await response.json();
+                if (data.success) {
+                    let html = `
+                        <h6><i class="fas fa-check-circle"></i> ${data.message}</h6>
+                        <p><strong>Totali i produkteve:</strong> ${data.productCount}</p>
+                    `;
+                    if (data.sampleProducts && data.sampleProducts.length > 0) {
+                        html += '<p><strong>Produkte të disponueshme:</strong></p><ul>';
+                        data.sampleProducts.forEach(p => {
+                            html += `<li>ID: ${p.id} - ${p.emriProduktit} (<code>${p.kodiProduktit}</code>) 
+                                    <a href="${p.historiaUrl}" target="_blank" class="btn btn-sm btn-primary">Shiko Historinë</a></li>`;
+                        });
+                        html += '</ul>';
+                    }
+                    showResult('databaseResult', true, html);
+                } else {
+                    showResult('databaseResult', false, `<i class="fas fa-times-circle"></i> ${data.message}<br><pre>${data.error}</pre>`);
+                }
+            } catch (error) {
+                showResult('databaseResult', false, `<i class="fas fa-times-circle"></i> Gabim: ${error.message}`);
+            }
+        }
+
+        async function testRoutes() {
+            showLoading('routesResult');
+            try {
+                const response = await fetch(getBaseUrl() + '/Diagnostic/Routes');
+                const data = await response.json();
+                let html = `
+                    <h6><i class="fas fa-check-circle"></i> Rrugët e Regjistruara</h6>
+                    <p><strong>Base URL:</strong> <code>${data.baseUrl}</code></p>
+                    <p><strong>PathBase:</strong> <code>${data.pathBase || '(empty)'}</code></p>
+                    <h6>URL-të e plota:</h6>
+                    <ul>
+                `;
+                data.fullUrls.forEach(url => {
+                    html += `<li><code>${url}</code></li>`;
+                });
+                html += '</ul>';
+                html += '<h6>Linqe për testim të shpejtë:</h6><div class="list-group">';
+                for (const [key, value] of Object.entries(data.testLinks)) {
+                    html += `<a href="${value}" target="_blank" class="list-group-item list-group-item-action">${key}: ${value}</a>`;
+                }
+                html += '</div>';
+                showResult('routesResult', true, html);
+            } catch (error) {
+                showResult('routesResult', false, `<i class="fas fa-times-circle"></i> Gabim: ${error.message}`);
+            }
+        }
+
+        async function testHistoria() {
+            const productId = document.getElementById('productId').value;
+            showLoading('historiaResult');
+            try {
+                const response = await fetch(getBaseUrl() + `/Diagnostic/TestHistoria/${productId}`);
+                const data = await response.json();
+                if (data.success) {
+                    const html = `
+                        <h6><i class="fas fa-check-circle"></i> ${data.message}</h6>
+                        <table class="table table-sm table-bordered">
+                            <tr><th>ID</th><td>${data.productId}</td></tr>
+                            <tr><th>Emri</th><td>${data.productName}</td></tr>
+                            <tr><th>Kodi</th><td><code>${data.productCode}</code></td></tr>
+                            <tr><th>Ndryshime në histori</th><td>${data.historyCount}</td></tr>
+                            <tr><th>Historia URL</th><td><code>${data.fullHistoriaUrl}</code></td></tr>
+                        </table>
+                        <a href="${data.fullHistoriaUrl}" target="_blank" class="btn btn-success">
+                            <i class="fas fa-external-link-alt"></i> Hap Historia në tab të ri
+                        </a>
+                    `;
+                    showResult('historiaResult', true, html);
+                } else {
+                    let html = `<h6><i class="fas fa-times-circle"></i> ${data.message}</h6>`;
+                    if (data.availableIds) {
+                        html += '<p><strong>ID-të e disponueshme:</strong> ' + data.availableIds.join(', ') + '</p>';
+                    }
+                    showResult('historiaResult', false, html);
+                }
+            } catch (error) {
+                showResult('historiaResult', false, `<i class="fas fa-times-circle"></i> Gabim: ${error.message}`);
+            }
+        }
+
+        function openLink(path) {
+            const url = getBaseUrl() + path;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>

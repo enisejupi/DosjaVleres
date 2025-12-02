@@ -2,7 +2,9 @@
 
 @{
     ViewData["Title"] = "Dosja e Disponueshme - Raport";
-    var kategoria = ViewData["Kategoria"] as string;
+    ViewData["PrintController"] = "Raportet";
+    ViewData["PrintAction"] = "DosjaTeDisponueshme";
+    ViewData["AdditionalParams"] = "";
 }
 
 <div class="container-fluid mt-4">
@@ -10,26 +12,14 @@
         <div>
             <h2><i class="fas fa-check-circle"></i> Dosja e vlerave të disponueshme</h2>
             <p class="text-muted mb-0">
-                @if (!string.IsNullOrWhiteSpace(kategoria))
-                {
-                    <text>Kategoria: @kategoria</text>
-                }
-                else
-                {
-                    <text>Të gjitha vlerat aktive</text>
-                }
+                Të gjitha vlerat aktive dhe të disponueshme
             </p>
         </div>
-        <div>
+        <div class="d-flex gap-2">
             <a asp-action="Index" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Kthehu
             </a>
-            <a asp-action="DosjaTeDisponueshme_Excel" class="btn btn-success">
-                <i class="fas fa-file-excel"></i> Eksporto në Excel
-            </a>
-            <button onclick="window.print()" class="btn btn-success">
-                <i class="fas fa-print"></i> Printo
-            </button>
+            <partial name="_PrintExcelButtons" />
         </div>
     </div>
 
@@ -42,28 +32,28 @@
                         <thead class="table-success">
                             <tr>
                                 <th>Nr.</th>
-                                <th>Kodi tarifor</th>
+                                <th>Kodi</th>
                                 <th>Emri i produktit</th>
-                                <th>Vlera</th>
+                                <th>Përshkrimi</th>
+                                <th>Vlera doganore</th>
                                 <th>Njësia</th>
-                                <th>Vendi i origjinës</th>
-                                <th>Data e regjistrimit</th>
-                                <th>Burimi</th>
+                                <th>Origjina</th>
+                                <th>Kategoria</th>
                             </tr>
                         </thead>
                         <tbody>
                             @{ var nr = 1; }
-                            @foreach (var vlera in Model.Where(v => v.Aktiv))
+                            @foreach (var vlera in Model.Where(v => v.Eshte_Aktiv).OrderBy(v => v.Kodi).ThenBy(v => v.KodiProduktit))
                             {
                                 <tr>
                                     <td>@nr</td>
-                                    <td><strong>@vlera.KodiTarifar</strong></td>
+                                    <td><strong>@vlera.KodiProduktit</strong></td>
                                     <td>@vlera.EmriProduktit</td>
-                                    <td class="text-end">@vlera.Vlera.ToString("N2") @vlera.Valuta</td>
-                                    <td>@vlera.NjesiaMatese</td>
-                                    <td>@vlera.VendiOrigjines</td>
-                                    <td>@vlera.DataRegjistrimit.ToString("dd/MM/yyyy")</td>
-                                    <td><small>@vlera.BurimiInformacionit</small></td>
+                                    <td>@(vlera.Pershkrimi.Length > 50 ? vlera.Pershkrimi.Substring(0, 50) + "..." : vlera.Pershkrimi)</td>
+                                    <td class="text-end">@vlera.VleraDoganore.ToString("N2") @vlera.Valuta</td>
+                                    <td>@vlera.Njesia</td>
+                                    <td>@vlera.Origjina</td>
+                                    <td>@vlera.Kategoria</td>
                                 </tr>
                                 nr++;
                             }
@@ -71,7 +61,7 @@
                         <tfoot>
                             <tr class="table-light">
                                 <td colspan="8">
-                                    <strong>Totali i vlerave aktive:</strong> @Model.Count(v => v.Aktiv) produkte
+                                    <strong>Totali i vlerave aktive:</strong> @Model.Count(v => v.Eshte_Aktiv) produkte
                                 </td>
                             </tr>
                         </tfoot>
@@ -80,12 +70,13 @@
             </div>
         </div>
 
-        <div class="alert alert-info mt-3">
+        <div class="alert alert-info mt-3 no-print">
             <i class="fas fa-info-circle"></i>
             <strong>Shënim:</strong> Ky raport përfshin vetëm vlerat aktive dhe të disponueshme për përdorim.
+            Të gjitha eksportimet dhe printimet logohen automatikisht për auditim të sigurisë.
         </div>
 
-        <div class="mt-3">
+        <div class="mt-3 no-print">
             <small class="text-muted">
                 Gjeneruar më: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")
             </small>
@@ -94,14 +85,14 @@
     else
     {
         <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle"></i> Nuk ka vlera aktive për kriteret e zgjedhura.
+            <i class="fas fa-exclamation-triangle"></i> Nuk ka vlera aktive për t'u shfaqur.
         </div>
     }
 </div>
 
 <style>
     @@media print {
-        .btn { display: none !important; }
+        .btn, .no-print { display: none !important; }
         body { font-size: 12px; }
         .table { font-size: 11px; }
     }

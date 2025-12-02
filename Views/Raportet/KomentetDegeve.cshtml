@@ -3,7 +3,19 @@
 @{
     ViewData["Title"] = "Komentet e Degëve - Raport";
     var dega = ViewData["Dega"] as string;
-    var statusi = ViewData["Statusi"] as string;
+    var dataFillimit = ViewData["DataFillimit"] as DateTime?;
+    var dataMbarimit = ViewData["DataMbarimit"] as DateTime?;
+    
+    // Build query string for partial
+    var queryParams = new List<string>();
+    if (!string.IsNullOrEmpty(dega)) queryParams.Add($"dega={dega}");
+    if (dataFillimit.HasValue) queryParams.Add($"dataFillimit={dataFillimit.Value:yyyy-MM-dd}");
+    if (dataMbarimit.HasValue) queryParams.Add($"dataMbarimit={dataMbarimit.Value:yyyy-MM-dd}");
+    var additionalParams = queryParams.Any() ? "?" + string.Join("&", queryParams) : "";
+    
+    ViewData["PrintController"] = "Raportet";
+    ViewData["PrintAction"] = "KomentetDegeve";
+    ViewData["AdditionalParams"] = additionalParams;
 }
 
 <div class="container-fluid mt-4">
@@ -13,30 +25,29 @@
             <p class="text-muted mb-0">
                 @if (!string.IsNullOrWhiteSpace(dega))
                 {
-                    <text>Dega: @dega</text>
+                    <text>Dega: <strong>@dega</strong></text>
                 }
-                @if (!string.IsNullOrWhiteSpace(statusi))
+                @if (dataFillimit.HasValue)
                 {
-                    <text> | Statusi: @statusi</text>
+                    <text> | Nga: <strong>@dataFillimit.Value.ToString("dd/MM/yyyy")</strong></text>
+                }
+                @if (dataMbarimit.HasValue)
+                {
+                    <text> | Deri: <strong>@dataMbarimit.Value.ToString("dd/MM/yyyy")</strong></text>
                 }
             </p>
         </div>
-        <div>
+        <div class="d-flex gap-2">
             <a asp-action="Index" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Kthehu
             </a>
-            <a asp-action="KomentetDegeve_Excel" asp-route-dega="@ViewData["Dega"]" asp-route-dataFillimit="@ViewData["DataFillimit"]" asp-route-dataMbarimit="@ViewData["DataMbarimit"]" class="btn btn-success">
-                <i class="fas fa-file-excel"></i> Eksporto në Excel
-            </a>
-            <button onclick="window.print()" class="btn btn-warning">
-                <i class="fas fa-print"></i> Printo
-            </button>
+            <partial name="_PrintExcelButtons" />
         </div>
     </div>
 
     @if (Model != null && Model.Any())
     {
-        <div class="row mb-3">
+        <div class="row mb-3 no-print">
             <div class="col-md-3">
                 <div class="card text-center">
                     <div class="card-body">
@@ -97,7 +108,7 @@
                                     <td><strong>@koment.EmriDeges</strong></td>
                                     <td>@koment.KodiTarifar</td>
                                     <td>
-                                        <small>@(koment.Mesazhi.Length > 50 ? koment.Mesazhi.Substring(0, 50) + "..." : koment.Mesazhi)</small>
+                                        <small>@(koment.Mesazhi.Length > 100 ? koment.Mesazhi.Substring(0, 100) + "..." : koment.Mesazhi)</small>
                                     </td>
                                     <td>@koment.DergoPrejNga</td>
                                     <td>
@@ -133,7 +144,12 @@
             </div>
         </div>
 
-        <div class="mt-3">
+        <div class="alert alert-info mt-3 no-print">
+            <i class="fas fa-info-circle"></i>
+            <strong>Shënim:</strong> Të gjitha eksportimet dhe printimet e këtij raporti logohen automatikisht për auditim të sigurisë.
+        </div>
+
+        <div class="mt-3 no-print">
             <small class="text-muted">
                 Gjeneruar më: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")
             </small>
@@ -149,7 +165,7 @@
 
 <style>
     @@media print {
-        .btn { display: none !important; }
+        .btn, .no-print { display: none !important; }
         body { font-size: 12px; }
         .table { font-size: 11px; }
     }

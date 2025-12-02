@@ -1,0 +1,346 @@
+@model KosovaDoganaModerne.Controllers.PrintAuditLogsViewModel
+
+@{
+    ViewData["Title"] = "Auditimi i printimeve";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-clipboard-list"></i> Auditimi i printimeve</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-info">
+                <i class="fas fa-print"></i> Printo këtë raport
+            </button>
+            <a asp-action="GlobalPrintSettings" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Kthehu
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>Kujdes - Informacion i ndjeshëm i sigurisë!</strong>
+        <p class="mb-0 mt-2">
+            Ky regjistër përmban të gjitha printimet, PDF dhe Excel që janë gjeneruar nga përdoruesit.
+            Përdoret për kontrollin e sigurisë dhe parandalimin e manipulimeve të doganës.
+        </p>
+    </div>
+
+    <!-- Forma e kërkimit dhe filtrave -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-filter"></i> Filtrat dhe kërkimi</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="PrintAuditLogs">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="perdoruesi" class="form-label">Përdoruesi:</label>
+                        <input type="text" class="form-control" id="perdoruesi" name="perdoruesi" 
+                               value="@Model.Perdoruesi" placeholder="Emri i përdoruesit">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="llojiRaportit" class="form-label">Lloji i raportit:</label>
+                        <select class="form-select" id="llojiRaportit" name="llojiRaportit">
+                            <option value="">-- Të gjitha --</option>
+                            <option value="VleratProdukteve" selected="@(Model.LlojiRaportit == "VleratProdukteve")">Vlerat Produkteve</option>
+                            <option value="KomentetDegeve" selected="@(Model.LlojiRaportit == "KomentetDegeve")">Komentet Degëve</option>
+                            <option value="ShpenzimiTransportit" selected="@(Model.LlojiRaportit == "ShpenzimiTransportit")">Shpenzimet Transportit</option>
+                            <option value="DosjaTeDisponueshme" selected="@(Model.LlojiRaportit == "DosjaTeDisponueshme")">Dosja Te Disponueshme</option>
+                            <option value="RaportiKomentetDegeve" selected="@(Model.LlojiRaportit == "RaportiKomentetDegeve")">Raporti Komentet Degëve</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="ngaData" class="form-label">Nga data:</label>
+                        <input type="date" class="form-control" id="ngaData" name="ngaData" 
+                               value="@Model.NgaData?.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="deriData" class="form-label">Deri në datë:</label>
+                        <input type="date" class="form-control" id="deriData" name="deriData" 
+                               value="@Model.DeriData?.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Kërko
+                            </button>
+                            <a asp-action="PrintAuditLogs" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-redo"></i> Rivendos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistikat e shpejta -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h2 class="mb-0">@Model.TotaliRekordet</h2>
+                    <small>Totali i printimeve</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h2 class="mb-0">@Model.Logs.Count(l => l.FormatiEksportimit == "Print")</h2>
+                    <small>Printime</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h2 class="mb-0">@Model.Logs.Count(l => l.FormatiEksportimit == "PDF")</h2>
+                    <small>PDF të gjeneruar</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h2 class="mb-0">@Model.Logs.Count(l => l.FormatiEksportimit == "Excel")</h2>
+                    <small>Excel të gjeneruar</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela e log-eve -->
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-list"></i> Regjistri i printimeve
+                <span class="badge bg-light text-dark float-end">
+                    Faqja @Model.FaqjaAktuale nga @Model.TotaliFaqeve
+                </span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Logs.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">ID</th>
+                                <th>Përdoruesi</th>
+                                <th>Lloji i raportit</th>
+                                <th>Formati</th>
+                                <th class="text-center">Rekordet</th>
+                                <th>Data e printimit</th>
+                                <th>IP Adresa</th>
+                                <th>Format Printimi</th>
+                                <th>Status</th>
+                                <th>Detajet</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var log in Model.Logs)
+                            {
+                                <tr class="@(log.EshteSuksesshem ? "" : "table-danger")">
+                                    <td>@log.Id</td>
+                                    <td>
+                                        <strong>@log.Perdoruesi</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@log.LlojiRaportit</span>
+                                    </td>
+                                    <td>
+                                        @if (log.FormatiEksportimit == "Print")
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-print"></i> Print
+                                            </span>
+                                        }
+                                        else if (log.FormatiEksportimit == "PDF")
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-file-pdf"></i> PDF
+                                            </span>
+                                        }
+                                        else if (log.FormatiEksportimit == "Excel")
+                                        {
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-file-excel"></i> Excel
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">@log.NumriRekordeve</span>
+                                    </td>
+                                    <td>
+                                        @log.DataPrintimit.ToString("dd/MM/yyyy HH:mm:ss")
+                                    </td>
+                                    <td>
+                                        <code class="text-dark">@log.AdresaIP</code>
+                                    </td>
+                                    <td>
+                                        @if (log.FormatPrintimi != null)
+                                        {
+                                            <small>@log.FormatPrintimi.EmriFormatit</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (log.EshteSuksesshem)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> Sukses
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times"></i> Gabim
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(log.Filtrat) || !string.IsNullOrEmpty(log.Shenime) || !string.IsNullOrEmpty(log.MesazhiGabimit))
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-info" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#detailsModal@(log.Id)">
+                                                <i class="fas fa-info-circle"></i>
+                                            </button>
+
+                                            <!-- Modal për detajet -->
+                                            <div class="modal fade" id="detailsModal@(log.Id)" tabindex="-1">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Detajet e printimit #@log.Id</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            @if (!string.IsNullOrEmpty(log.Filtrat))
+                                                            {
+                                                                <h6>Filtrat e aplikuar:</h6>
+                                                                <pre class="bg-light p-3 rounded">@log.Filtrat</pre>
+                                                            }
+                                                            @if (!string.IsNullOrEmpty(log.Shenime))
+                                                            {
+                                                                <h6>Shënime:</h6>
+                                                                <p>@log.Shenime</p>
+                                                            }
+                                                            @if (!string.IsNullOrEmpty(log.MesazhiGabimit))
+                                                            {
+                                                                <div class="alert alert-danger">
+                                                                    <h6>Mesazhi i gabimit:</h6>
+                                                                    <p class="mb-0">@log.MesazhiGabimit</p>
+                                                                </div>
+                                                            }
+                                                            @if (!string.IsNullOrEmpty(log.UserAgent))
+                                                            {
+                                                                <h6>User Agent:</h6>
+                                                                <small class="text-muted">@log.UserAgent</small>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginimi -->
+                @if (Model.TotaliFaqeve > 1)
+                {
+                    <div class="card-footer">
+                        <nav>
+                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                @if (Model.FaqjaAktuale > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" 
+                                           asp-action="PrintAuditLogs" 
+                                           asp-route-faqja="@(Model.FaqjaAktuale - 1)"
+                                           asp-route-perdoruesi="@Model.Perdoruesi"
+                                           asp-route-llojiRaportit="@Model.LlojiRaportit"
+                                           asp-route-ngaData="@Model.NgaData?.ToString("yyyy-MM-dd")"
+                                           asp-route-deriData="@Model.DeriData?.ToString("yyyy-MM-dd")">
+                                            <i class="fas fa-chevron-left"></i> Para
+                                        </a>
+                                    </li>
+                                }
+
+                                @for (int i = Math.Max(1, Model.FaqjaAktuale - 2); i <= Math.Min(Model.TotaliFaqeve, Model.FaqjaAktuale + 2); i++)
+                                {
+                                    <li class="page-item @(i == Model.FaqjaAktuale ? "active" : "")">
+                                        <a class="page-link" 
+                                           asp-action="PrintAuditLogs" 
+                                           asp-route-faqja="@i"
+                                           asp-route-perdoruesi="@Model.Perdoruesi"
+                                           asp-route-llojiRaportit="@Model.LlojiRaportit"
+                                           asp-route-ngaData="@Model.NgaData?.ToString("yyyy-MM-dd")"
+                                           asp-route-deriData="@Model.DeriData?.ToString("yyyy-MM-dd")">
+                                            @i
+                                        </a>
+                                    </li>
+                                }
+
+                                @if (Model.FaqjaAktuale < Model.TotaliFaqeve)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" 
+                                           asp-action="PrintAuditLogs" 
+                                           asp-route-faqja="@(Model.FaqjaAktuale + 1)"
+                                           asp-route-perdoruesi="@Model.Perdoruesi"
+                                           asp-route-llojiRaportit="@Model.LlojiRaportit"
+                                           asp-route-ngaData="@Model.NgaData?.ToString("yyyy-MM-dd")"
+                                           asp-route-deriData="@Model.DeriData?.ToString("yyyy-MM-dd")">
+                                            Tjetra <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                        <p class="text-center text-muted mt-2 mb-0">
+                            <small>Duke shfaqur @Model.Logs.Count() nga @Model.TotaliRekordet rekordet</small>
+                        </p>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info text-center m-3">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <h5>Nuk ka log-e të printimeve</h5>
+                    <p>Nuk ka asnjë printim të regjistruar me filtrat e zgjedhur</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto refresh çdo 30 sekonda nëse jemi në faqen e parë pa filtra
+        @if (Model.FaqjaAktuale == 1 && string.IsNullOrEmpty(Model.Perdoruesi) && string.IsNullOrEmpty(Model.LlojiRaportit))
+        {
+            <text>
+            setTimeout(function() {
+                location.reload();
+            }, 30000);
+            </text>
+        }
+    </script>
+}

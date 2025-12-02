@@ -21,12 +21,25 @@
         </div>
 
         <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-search-plus fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Shikues i databazës</h5>
+                    <p class="card-text">Shfleto dhe eksporto të dhënat e databazës SQLite</p>
+                    <a asp-action="DatabaseViewer" class="btn btn-success">
+                        <i class="fas fa-database"></i> Hap shikuesin
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
             <div class="card h-100 shadow-sm">
                 <div class="card-body text-center">
-                    <i class="fas fa-table fa-3x text-success mb-3"></i>
+                    <i class="fas fa-table fa-3x text-info mb-3"></i>
                     <h5 class="card-title">Tabela Custom</h5>
                     <p class="card-text">Krijoni dhe menaxhoni tabelat tuaja të personalizuara</p>
-                    <a asp-action="CustomTables" class="btn btn-success">
+                    <a asp-action="CustomTables" class="btn btn-info">
                         <i class="fas fa-plus"></i> Menaxho tabelat
                     </a>
                 </div>
@@ -37,7 +50,33 @@
             <div class="card h-100 shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-print fa-3x text-info mb-3"></i>
-                    <h5 class="card-title">Formatet e printimit</h5>
+                    <h5 class="card-title">Formatet globale të printimit</h5>
+                    <p class="card-text">Menaxhoni formatet globale që aplikohen për të gjithë përdoruesit</p>
+                    <a asp-action="GlobalPrintSettings" class="btn btn-info">
+                        <i class="fas fa-globe"></i> Menaxho formatet globale
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-clipboard-list fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">Auditimi i printimeve</h5>
+                    <p class="card-text">Monitoroni të gjitha printimet, PDF dhe Excel të gjeneruar</p>
+                    <a asp-action="PrintAuditLogs" class="btn btn-warning">
+                        <i class="fas fa-history"></i> Shiko log-et
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-print fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Formatet e printimit (të vjetër)</h5>
                     <p class="card-text">Dizajnoni formatet e printimit për raporte dhe dokumente</p>
                     <a asp-action="PrintFormats" class="btn btn-info">
                         <i class="fas fa-edit"></i> Menaxho formatet
@@ -78,7 +117,7 @@
                     <i class="fas fa-users fa-3x text-secondary mb-3"></i>
                     <h5 class="card-title">Përdoruesit</h5>
                     <p class="card-text">Menaxhoni përdoruesit dhe rolet e tyre</p>
-                    <a href="/Identity/Account/Manage" class="btn btn-secondary">
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn btn-secondary">
                         <i class="fas fa-user-cog"></i> Menaxho përdoruesit
                     </a>
                 </div>

@@ -1,0 +1,355 @@
+@{
+    ViewData["Title"] = "Shikues i bazës së të dhënave";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-database"></i> Shikues i bazës së të dhënave SQLite
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Informacion:</strong> Ky është një shikues i thjeshtë i bazës së të dhënave. Për funksionalitet më të avancuar, përdorni:
+                        <ul class="mb-0 mt-2">
+                            <li><strong>DB Browser for SQLite</strong> - <a href="https://sqlitebrowser.org/" target="_blank">Download here</a></li>
+                            <li><strong>Visual Studio Extension</strong> - SQLite/SQL Server Compact Toolbox (Extensions ? Manage Extensions)</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tableSelect" class="form-label"><strong>Zgjedh tabelën:</strong></label>
+                        <select id="tableSelect" class="form-select" onchange="loadTableData()">
+                            <option value="">-- Zgjedh tabelën --</option>
+                        </select>
+                    </div>
+
+                    <div id="tableInfo" class="mb-3" style="display: none;">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6><i class="fas fa-info-circle"></i> Informacion i tabelës</h6>
+                                <div id="tableInfoContent"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tableDataContainer" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Të dhënat e tabelës: <span id="currentTableName"></span></h5>
+                            <button class="btn btn-sm btn-secondary" onclick="refreshTable()">
+                                <i class="fas fa-sync-alt"></i> Rifresko
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover table-sm" id="dataTable">
+                                <thead class="table-dark">
+                                    <tr id="tableHeaders"></tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="pagination" class="mt-3"></div>
+                    </div>
+
+                    <div id="loadingSpinner" class="text-center py-5" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Duke ngarkuar...</span>
+                        </div>
+                        <p class="mt-2">Duke ngarkuar të dhënat...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-terminal"></i> Ekzekuto SQL Query (Vetëm SELECT)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="sqlQuery" class="form-label"><strong>SQL Query:</strong></label>
+                        <textarea id="sqlQuery" class="form-control" rows="6" placeholder="SELECT * FROM VleratProdukteve LIMIT 10;"></textarea>
+                        <small class="text-muted">
+                            <i class="fas fa-exclamation-triangle"></i> Vetëm query-të SELECT lejohen për siguri.
+                        </small>
+                    </div>
+                    <button class="btn btn-success" onclick="executeQuery()">
+                        <i class="fas fa-play"></i> Ekzekuto Query
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-download"></i> Eksporto të dhënat</h5>
+                </div>
+                <div class="card-body">
+                    <p>Eksporto tabelën aktuale ose të gjithë bazën e të dhënave.</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success" onclick="exportCurrentTable()">
+                            <i class="fas fa-file-csv"></i> Eksporto tabelën aktuale në CSV
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="exportAllTables()">
+                            <i class="fas fa-database"></i> Eksporto të gjitha tabelat
+                        </button>
+                        <a href="/admin/backup-database" class="btn btn-outline-danger">
+                            <i class="fas fa-save"></i> Krijo Backup të plotë
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentTable = '';
+        let currentPage = 1;
+        let pageSize = 50;
+
+        // Ngarko listën e tabelave kur faqja hapet
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTables();
+        });
+
+        // Ngarko listën e tabelave
+        function loadTables() {
+            fetch('/api/database/tables')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('tableSelect');
+                    select.innerHTML = '<option value="">-- Zgjedh tabelën --</option>';
+                    
+                    data.forEach(table => {
+                        const option = document.createElement('option');
+                        option.value = table;
+                        option.textContent = table;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading tables:', error);
+                    alert('Gabim gjatë ngarkimit të tabelave: ' + error.message);
+                });
+        }
+
+        // Ngarko të dhënat e një tabele
+        function loadTableData() {
+            const table = document.getElementById('tableSelect').value;
+            if (!table) {
+                document.getElementById('tableDataContainer').style.display = 'none';
+                document.getElementById('tableInfo').style.display = 'none';
+                return;
+            }
+
+            currentTable = table;
+            currentPage = 1;
+
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('tableDataContainer').style.display = 'none';
+            document.getElementById('tableInfo').style.display = 'none';
+
+            // Ngarko informacionin e tabelës
+            fetch(`/api/database/table-info/${table}`)
+                .then(response => response.json())
+                .then(data => {
+                    const infoContent = document.getElementById('tableInfoContent');
+                    infoContent.innerHTML = `
+                        <strong>Numri i rreshtave:</strong> ${data.rowCount}<br>
+                        <strong>Numri i kolonave:</strong> ${data.columnCount}<br>
+                        <strong>Kolonat:</strong> ${data.columns.join(', ')}
+                    `;
+                    document.getElementById('tableInfo').style.display = 'block';
+                });
+
+            // Ngarko të dhënat
+            fetchTableData();
+        }
+
+        function fetchTableData() {
+            fetch(`/api/database/table-data/${currentTable}?page=${currentPage}&pageSize=${pageSize}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    document.getElementById('tableDataContainer').style.display = 'block';
+                    document.getElementById('currentTableName').textContent = currentTable;
+
+                    // Krijo headers
+                    const headersRow = document.getElementById('tableHeaders');
+                    headersRow.innerHTML = '';
+                    data.columns.forEach(column => {
+                        const th = document.createElement('th');
+                        th.textContent = column;
+                        headersRow.appendChild(th);
+                    });
+
+                    // Krijo rows
+                    const tbody = document.getElementById('tableBody');
+                    tbody.innerHTML = '';
+                    
+                    if (data.rows.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="100" class="text-center text-muted py-4">Nuk ka të dhëna në këtë tabelë</td></tr>';
+                    } else {
+                        data.rows.forEach(row => {
+                            const tr = document.createElement('tr');
+                            data.columns.forEach(column => {
+                                const td = document.createElement('td');
+                                let value = row[column];
+                                
+                                // Format special values
+                                if (value === null) {
+                                    td.innerHTML = '<em class="text-muted">NULL</em>';
+                                } else if (typeof value === 'boolean') {
+                                    td.innerHTML = value ? '<span class="badge bg-success">True</span>' : '<span class="badge bg-secondary">False</span>';
+                                } else if (column.toLowerCase().includes('date') || column.toLowerCase().includes('data')) {
+                                    td.textContent = new Date(value).toLocaleString('sq-AL');
+                                } else {
+                                    td.textContent = value;
+                                }
+                                
+                                tr.appendChild(td);
+                            });
+                            tbody.appendChild(tr);
+                        });
+                    }
+
+                    // Pagination
+                    createPagination(data.totalRows);
+                })
+                .catch(error => {
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    console.error('Error:', error);
+                    alert('Gabim gjatë ngarkimit të të dhënave: ' + error.message);
+                });
+        }
+
+        function createPagination(totalRows) {
+            const totalPages = Math.ceil(totalRows / pageSize);
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = '<nav><ul class="pagination justify-content-center">';
+            
+            // Previous button
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">Mbrapa</a>
+                     </li>`;
+
+            // Page numbers
+            for (let i = 1; i <= Math.min(totalPages, 10); i++) {
+                html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                         </li>`;
+            }
+
+            if (totalPages > 10) {
+                html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+
+            // Next button
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">Para</a>
+                     </li>`;
+
+            html += '</ul></nav>';
+            html += `<p class="text-center text-muted">Faqja ${currentPage} nga ${totalPages} (${totalRows} rreshta totalisht)</p>`;
+            
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            fetchTableData();
+        }
+
+        function refreshTable() {
+            loadTableData();
+        }
+
+        function executeQuery() {
+            const query = document.getElementById('sqlQuery').value.trim();
+            if (!query) {
+                alert('Ju lutem shkruani një SQL query.');
+                return;
+            }
+
+            if (!query.toLowerCase().startsWith('select')) {
+                alert('Vetëm query-të SELECT lejohen për siguri.');
+                return;
+            }
+
+            fetch('/api/database/execute-query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Gabim: ' + data.error);
+                    return;
+                }
+
+                // Shfaq rezultatet në tabelë
+                const headersRow = document.getElementById('tableHeaders');
+                headersRow.innerHTML = '';
+                data.columns.forEach(column => {
+                    const th = document.createElement('th');
+                    th.textContent = column;
+                    headersRow.appendChild(th);
+                });
+
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+                data.rows.forEach(row => {
+                    const tr = document.createElement('tr');
+                    data.columns.forEach(column => {
+                        const td = document.createElement('td');
+                        td.textContent = row[column] ?? 'NULL';
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+
+                document.getElementById('tableDataContainer').style.display = 'block';
+                document.getElementById('currentTableName').textContent = 'Query Results';
+                document.getElementById('pagination').innerHTML = '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Gabim gjatë ekzekutimit të query-së: ' + error.message);
+            });
+        }
+
+        function exportCurrentTable() {
+            if (!currentTable) {
+                alert('Ju lutem zgjidhni një tabelë fillimisht.');
+                return;
+            }
+            window.location.href = `/api/database/export-table/${currentTable}`;
+        }
+
+        function exportAllTables() {
+            window.location.href = '/api/database/export-all';
+        }
+    </script>
+}

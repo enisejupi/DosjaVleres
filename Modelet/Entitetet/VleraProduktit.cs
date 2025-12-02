@@ -61,7 +61,7 @@ namespace KosovaDoganaModerne.Modelet.Entitetet
         }
 
         /// <summary>
-        /// ëmimi i produktit (mund të jetë më shumë se një ëmim, p.sh. "1.20 ; 1.45")
+        /// Çmimi i produktit (mund të jetë më shumë se një çmim, p.sh. "1.20 ; 1.45")
         /// </summary>
         [MaxLength(200)]
         [Column("Cmimi")]
@@ -83,6 +83,22 @@ namespace KosovaDoganaModerne.Modelet.Entitetet
         [MaxLength(2000)]
         [Column("Komentet")]
         public string? Komentet { get; set; }
+
+        /// <summary>
+        /// Shtegu i bashkëngjitjes (dokumenti, imazhi, etj.)
+        /// </summary>
+        [MaxLength(500)]
+        [Column("Bashkangjitje")]
+        [Display(Name = "Bashkëngjitje")]
+        public string? Bashkangjitje { get; set; }
+
+        /// <summary>
+        /// Emri origjinal i skedarit të bashkëngjitur
+        /// </summary>
+        [MaxLength(255)]
+        [Column("EmeriBashkangjitjes")]
+        [Display(Name = "Emëri i bashkëngjitjes")]
+        public string? EmeriBashkangjitjes { get; set; }
 
         [Column("Eshte_Aktiv")]
         public bool Eshte_Aktiv { get; set; } = true;
@@ -107,9 +123,15 @@ namespace KosovaDoganaModerne.Modelet.Entitetet
         [Column("Modifikuar_Nga")]
         public string? Modifikuar_Nga { get; set; }
 
+        // Navigation properties
         public virtual ICollection<Komenti>? KomentList { get; set; }
 
         public virtual ICollection<HistoriaVlerave>? HistoriaVlerave { get; set; }
+
+        /// <summary>
+        /// Navigation property për imazhet e produktit
+        /// </summary>
+        public virtual ICollection<ImazhetProduktit>? Imazhet { get; set; }
 
         
         [NotMapped]

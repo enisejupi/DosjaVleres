@@ -110,10 +110,11 @@
             @if (Model.Any())
             {
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover table-sm mb-0">
+                    <table class="table table-striped table-hover table-sm mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th style="width: 50px;">id</th>
+                                <th style="width: 60px;">Foto</th>
                                 <th style="width: 80px;">kodi (*)</th>
                                 <th>Përshkrimi (*)</th>
                                 <th style="width: 120px;">Origjina (*)</th>
@@ -132,6 +133,33 @@
                             {
                                 <tr class="@(item.Eshte_Aktiv ? "" : "table-secondary")">
                                     <td class="text-center">@rowNum</td>
+                                    <td class="text-center">
+                                        @if (!string.IsNullOrEmpty(item.Bashkangjitje))
+                                        {
+                                            var extension = System.IO.Path.GetExtension(item.Bashkangjitje)?.ToLowerInvariant();
+                                            var isImage = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" }.Contains(extension);
+                                            
+                                            if (isImage)
+                                            {
+                                                <img src="@item.Bashkangjitje" 
+                                                     alt="@item.EmriProduktit" 
+                                                     class="img-thumbnail" 
+                                                     style="max-width: 50px; max-height: 50px; cursor: pointer;"
+                                                     onclick="shfaqImazhin('@item.Bashkangjitje', '@item.EmriProduktit')"
+                                                     title="Kliko për ta zmadhuar" />
+                                            }
+                                            else
+                                            {
+                                                <a href="@item.Bashkangjitje" target="_blank" title="Shkarko bashkëngjitjen">
+                                                    <i class="fas fa-file fa-2x text-primary"></i>
+                                                </a>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-image fa-2x text-muted"></i>
+                                        }
+                                    </td>
                                     <td><strong>@item.Kodi</strong></td>
                                     <td>@item.Pershkrimi</td>
                                     <td>@item.Origjina</td>
@@ -148,14 +176,12 @@
                                             var komentet = komentetPerProdukt?.ContainsKey(item.Id) == true ? komentetPerProdukt[item.Id] : new List<KosovaDoganaModerne.Modelet.Entitetet.KomentiDeges>();
                                             var numriKomenteve = komentet.Count;
                                             var paLexuara = komentet.Count(k => !k.EshteLexuar);
-                                            var paZgjidhura = komentet.Count(k => !k.EshteZgjidhur);
                                         }
                                         
                                         @if (numriKomenteve > 0)
                                         {
                                             <button type="button" class="btn btn-sm btn-info" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#komentetModal@(item.Id)"
+                                                    onclick="shfaqKomentet(@item.Id, '@item.Kodi')"
                                                     title="Shiko komentet">
                                                 <i class="fas fa-comments"></i> @numriKomenteve
                                                 @if (paLexuara > 0)
@@ -163,74 +189,6 @@
                                                     <span class="badge bg-warning text-dark">@paLexuara të reja</span>
                                                 }
                                             </button>
-                                            
-                                            <!-- Modal për komentet -->
-                                            <div class="modal fade" id="komentetModal@(item.Id)" tabindex="-1">
-                                                <div class="modal-dialog modal-lg">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header bg-primary text-white">
-                                                            <h5 class="modal-title">
-                                                                <i class="fas fa-comments"></i> Komentet e degëve për produktin: @item.Kodi
-                                                            </h5>
-                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            @foreach (var koment in komentet)
-                                                            {
-                                                                <div class="card mb-3 @(koment.EshteLexuar ? "" : "border-primary")">
-                                                                    <div class="card-header @(koment.EshteLexuar ? "bg-light" : "bg-primary text-white")">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <div>
-                                                                                <strong><i class="fas fa-building"></i> @koment.EmriDeges</strong>
-                                                                                @if (!koment.EshteLexuar)
-                                                                                {
-                                                                                    <span class="badge bg-warning text-dark ms-2">i ri</span>
-                                                                                }
-                                                                                @if (koment.EshteZgjidhur)
-                                                                                {
-                                                                                    <span class="badge bg-success ms-2">✓ Zgjidhur</span>
-                                                                                }
-                                                                            </div>
-                                                                            <small>@koment.DataDergimit.ToString("dd/MM/yyyy HH:mm")</small>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="card-body">
-                                                                        <p>@koment.Mesazhi</p>
-                                                                        
-                                                                        @if (!string.IsNullOrWhiteSpace(koment.Pergjigja))
-                                                                        {
-                                                                            <div class="alert alert-success mb-0 mt-2">
-                                                                                <strong><i class="fas fa-reply"></i> Përgjigje:</strong>
-                                                                                <p class="mb-1 mt-2">@koment.Pergjigja</p>
-                                                                                @if (koment.DataPergjigjes.HasValue)
-                                                                                {
-                                                                                    <small class="text-muted">
-                                                                                        @koment.DataPergjigjes.Value.ToString("dd/MM/yyyy HH:mm") - @koment.PergjigjetNga
-                                                                                    </small>
-                                                                                }
-                                                                            </div>
-                                                                        }
-                                                                    </div>
-                                                                    <div class="card-footer">
-                                                                        <small class="text-muted">
-                                                                            Dërguar nga: @koment.DergoPrejNga
-                                                                            <a href="@Url.Action("Detajet", "KomentetDegeve", new { id = koment.Id })" 
-                                                                               class="btn btn-sm btn-outline-primary float-end"
-                                                                               target="_blank">
-                                                                                <i class="fas fa-external-link-alt"></i> Shiko në komentet e degëve
-                                                                            </a>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            }
-                                                            @if (numriKomenteve == 0)
-                                                            {
-                                                                <p class="text-muted text-center">Nuk ka komente për këtë produkt.</p>
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         }
                                         else
                                         {
@@ -238,61 +196,10 @@
                                         }
                                         <br />
                                         <button type="button" class="btn btn-sm btn-primary mt-1" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#shtoKomentModal@(item.Id)"
+                                                onclick="hapModalinShtoKoment(@item.Id, '@item.Kodi')"
                                                 title="Shto koment">
                                             <i class="fas fa-plus"></i> Shto koment
                                         </button>
-                                        
-                                        <!-- Modal për shtim komenti -->
-                                        <div class="modal fade" id="shtoKomentModal@(item.Id)" tabindex="-1">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <form asp-action="ShtoKoment" method="post">
-                                                        <div class="modal-header bg-success text-white">
-                                                            <h5 class="modal-title">
-                                                                <i class="fas fa-plus-circle"></i> Shto koment të ri për degën
-                                                            </h5>
-                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <input type="hidden" name="id" value="@item.Id" />
-                                                            <div class="mb-3">
-                                                                <label class="form-label"><strong>Emri i degës:</strong></label>
-                                                                <select name="emriDeges" class="form-select" required>
-                                                                    <option value="">-- Zgjedh degën --</option>
-                                                                    <option value="Prishtinë">Prishtinë</option>
-                                                                    <option value="Pejë">Pejë</option>
-                                                                    <option value="Prizren">Prizren</option>
-                                                                    <option value="Gjilan">Gjilan</option>
-                                                                    <option value="Mitrovicë">Mitrovicë</option>
-                                                                    <option value="Gjakovë">Gjakovë</option>
-                                                                    <option value="Podujevë">Podujevë</option>
-                                                                    <option value="Ferizaj">Ferizaj</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label class="form-label"><strong>Kodi tarifar:</strong></label>
-                                                                <input type="text" class="form-control" value="@item.Kodi" readonly />
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label class="form-label"><strong>Mesazhi i komentit:</strong></label>
-                                                                <textarea name="komentPerdoruesit" class="form-control" rows="5" required></textarea>
-                                                                <small class="text-muted">
-                                                                    Ky koment do të shfaqet në sistemin e komenteve të degëve dhe do të lidhet me këtë produkt.
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulo</button>
-                                                            <button type="submit" class="btn btn-success">
-                                                                <i class="fas fa-paper-plane"></i> Dërgo koment
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
@@ -301,6 +208,12 @@
                                                class="btn btn-sm btn-info"
                                                title="Shiko detajet">
                                                 <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="Historia" 
+                                               asp-route-id="@item.Id" 
+                                               class="btn btn-sm btn-secondary"
+                                               title="Shiko historinë">
+                                                <i class="fas fa-history"></i>
                                             </a>
                                             <a asp-action="Perditeso" 
                                                asp-route-id="@item.Id" 
@@ -344,11 +257,214 @@
     </div>
 </div>
 
+<!-- Modal për shtim komenti (një modal i vetëm për të gjithë produktet) -->
+<div class="modal fade" id="shtoKomentModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="shtoKomentForm" method="post" asp-action="ShtoKoment">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle"></i> Shto koment të ri për degën
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="produktId" />
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Emri i degës:</strong></label>
+                        <select name="emriDeges" id="emriDeges" class="form-select" required>
+                            <option value="">-- Zgjedh degën --</option>
+                            <option value="Prishtinë">Prishtinë</option>
+                            <option value="Pejë">Pejë</option>
+                            <option value="Prizren">Prizren</option>
+                            <option value="Gjilan">Gjilan</option>
+                            <option value="Mitrovicë">Mitrovicë</option>
+                            <option value="Gjakovë">Gjakovë</option>
+                            <option value="Podujevë">Podujevë</option>
+                            <option value="Ferizaj">Ferizaj</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Kodi tarifar:</strong></label>
+                        <input type="text" id="kodiTarifarDisplay" class="form-control" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Mesazhi i komentit:</strong></label>
+                        <textarea name="komentPerdoruesit" id="komentPerdoruesit" class="form-control" rows="5" required></textarea>
+                        <small class="text-muted">
+                            Ky koment do të shfaqet në sistemin e komenteve të degëve dhe do të lidhet me këtë produkt.
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulo</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-paper-plane"></i> Dërgo koment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal për shfaqjen e komenteve (një modal i vetëm) -->
+<div class="modal fade" id="komentetModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-comments"></i> Komentet e degëve për produktin: <span id="komentetKodiTarifar"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="komentetContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Duke ngarkuar...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal për shfaqjen e imazhit -->
+<div class="modal fade" id="imazhiModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="imazhiModalTitull">
+                    <i class="fas fa-image"></i> Imazhi i produktit
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center" style="background-color: #f8f9fa;">
+                <img id="imazhiModalImg" src="" alt="" class="img-fluid" style="max-height: 80vh;" />
+            </div>
+            <div class="modal-footer">
+                <a id="imazhiModalShkarko" href="" download class="btn btn-primary">
+                    <i class="fas fa-download"></i> Shkarko imazhin
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbyll</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
         setTimeout(function() {
             $('.alert').fadeOut('slow');
         }, 5000);
+
+        // Funksion për të hapur modalin e shtimit të komentit
+        function hapModalinShtoKoment(produktId, kodiTarifar) {
+            // Vendos vlerat në modal
+            document.getElementById('produktId').value = produktId;
+            document.getElementById('kodiTarifarDisplay').value = kodiTarifar;
+            
+            // Pastro fushat
+            document.getElementById('emriDeges').value = '';
+            document.getElementById('komentPerdoruesit').value = '';
+            
+            // Hap modalin
+            var modal = new bootstrap.Modal(document.getElementById('shtoKomentModal'));
+            modal.show();
+        }
+
+        // Funksion për të shfaqur imazhin në modal
+        function shfaqImazhin(url, emri) {
+            document.getElementById('imazhiModalTitull').innerHTML = '<i class="fas fa-image"></i> ' + emri;
+            document.getElementById('imazhiModalImg').src = url;
+            document.getElementById('imazhiModalImg').alt = emri;
+            document.getElementById('imazhiModalShkarko').href = url;
+            
+            var modal = new bootstrap.Modal(document.getElementById('imazhiModal'));
+            modal.show();
+        }
+
+        // Funksion për të shfaqur komentet
+        function shfaqKomentet(produktId, kodiTarifar) {
+            // Vendos kodin tarifar në titull
+            document.getElementById('komentetKodiTarifar').textContent = kodiTarifar;
+            
+            // Shfaq loading
+            document.getElementById('komentetContent').innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Duke ngarkuar...</span>
+                    </div>
+                </div>
+            `;
+            
+            // Hap modalin
+            var modal = new bootstrap.Modal(document.getElementById('komentetModal'));
+            modal.show();
+            
+            // Ngarko komentet me AJAX
+            fetch('/api/komentet/' + produktId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        document.getElementById('komentetContent').innerHTML = `
+                            <p class="text-muted text-center py-5">Nuk ka komente për këtë produkt.</p>
+                        `;
+                        return;
+                    }
+                    
+                    let html = '';
+                    data.forEach(koment => {
+                        html += `
+                            <div class="card mb-3 ${koment.eshteLexuar ? '' : 'border-primary'}">
+                                <div class="card-header ${koment.eshteLexuar ? 'bg-light' : 'bg-primary text-white'}">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong><i class="fas fa-building"></i> ${koment.emriDeges}</strong>
+                                            ${!koment.eshteLexuar ? '<span class="badge bg-warning text-dark ms-2">i ri</span>' : ''}
+                                            ${koment.eshteZgjidhur ? '<span class="badge bg-success ms-2">✓ Zgjidhur</span>' : ''}
+                                        </div>
+                                        <small>${new Date(koment.dataDergimit).toLocaleString('sq-AL')}</small>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <p>${koment.mesazhi}</p>
+                                    ${koment.pergjigja ? `
+                                        <div class="alert alert-success mb-0 mt-2">
+                                            <strong><i class="fas fa-reply"></i> Përgjigje:</strong>
+                                            <p class="mb-1 mt-2">${koment.pergjigja}</p>
+                                            ${koment.dataPergjigjes ? `
+                                                <small class="text-muted">
+                                                    ${new Date(koment.dataPergjigjes).toLocaleString('sq-AL')} - ${koment.pergjigjetNga}
+                                                </small>
+                                            ` : ''}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div class="card-footer">
+                                    <small class="text-muted">
+                                        Dërguar nga: ${koment.dergoPrejNga}
+                                        <a href="/KomentetDegeve/Detajet/${koment.id}" 
+                                           class="btn btn-sm btn-outline-primary float-end"
+                                           target="_blank">
+                                            <i class="fas fa-external-link-alt"></i> Shiko në komentet e degëve
+                                        </a>
+                                    </small>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('komentetContent').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('komentetContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Gabim gjatë ngarkimit të komenteve.
+                        </div>
+                    `;
+                });
+        }
     </script>
 }

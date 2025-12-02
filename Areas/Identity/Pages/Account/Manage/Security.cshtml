@@ -8,18 +8,15 @@
     <div class="row">
         <div class="col-md-3">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-company-blue text-white">
                     <h5><i class="fas fa-user-cog"></i> Menaxhimi</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="/Identity/Account/Manage" class="list-group-item list-group-item-action">
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" class="list-group-item list-group-item-action">
                         <i class="fas fa-user"></i> Profili
                     </a>
-                    <a href="/Identity/Account/Manage/ChangePassword" class="list-group-item list-group-item-action">
+                    <a asp-area="Identity" asp-page="/Account/Manage/ChangePassword" class="list-group-item list-group-item-action">
                         <i class="fas fa-key"></i> Ndrysho fjalëkalimin
-                    </a>
-                    <a href="/Identity/Account/Manage/Security" class="list-group-item list-group-item-action active">
-                        <i class="fas fa-shield-alt"></i> Siguria
                     </a>
                 </div>
             </div>
@@ -60,7 +57,7 @@
                             Autentifikimi me dy faktorë (2FA) shton një shtresë shtesë sigurie në llogarinë tuaj. 
                             Kur 2FA është aktivizuar, do t'ju kërkohet të jepni një kod të dytë përveç fjalëkalimit tuaj kur hyni në llogari.
                         </p>
-                        <a href="/Identity/Account/Manage/EnableAuthenticator" class="btn btn-primary">
+                        <a asp-area="Identity" asp-page="/Account/Manage/EnableAuthenticator" class="btn btn-primary">
                             <i class="fas fa-shield-alt"></i> Aktivizo 2FA
                         </a>
                     }

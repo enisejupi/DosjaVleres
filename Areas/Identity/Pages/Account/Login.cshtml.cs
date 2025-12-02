@@ -47,9 +47,9 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required(ErrorMessage = "Email adresa ose username është i detyrueshëm.")]
-            [Display(Name = "Email ose Username")]
-            public string Email { get; set; }
+            [Required(ErrorMessage = "Username është i detyrueshëm.")]
+            [Display(Name = "Username")]
+            public string Username { get; set; }
 
             [Required(ErrorMessage = "Fjalëkalimi është i detyrueshëm.")]
             [DataType(DataType.Password)]
@@ -85,33 +85,32 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 // HAPI 1: Provo autentifikimin në Active Directory së pari
-                var (adAuthSuccess, adUserInfo) = await _adSherbimi.AutontifikoNeActiveDirectory(Input.Email, Input.Password);
+                var (adAuthSuccess, adUserInfo) = await _adSherbimi.AutontifikoNeActiveDirectory(Input.Username, Input.Password);
 
                 if (!adAuthSuccess || adUserInfo == null)
                 {
-                    ModelState.AddModelError(string.Empty, "Email/Username ose fjalëkalimi i Active Directory është i pasaktë.");
-                    _logger.LogWarning("Tentativë hyrje dështoi: Kredencialet e AD janë të pasakta për {Email}", Input.Email);
+                    ModelState.AddModelError(string.Empty, "Username ose fjalëkalimi i Active Directory është i pasaktë.");
+                    _logger.LogWarning("Tentativë hyrje dështoi: Kredencialet e AD janë të pasakta për {Username}", Input.Username);
                     return Page();
                 }
 
                 // HAPI 2: Autentifikimi në AD është i suksesshëm, tani kontrollo nëse përdoruesi ekziston në sistemin lokal
-                var user = await _userManager.FindByEmailAsync(Input.Email) ?? 
-                           await _userManager.FindByNameAsync(Input.Email);
+                var user = await _userManager.FindByNameAsync(Input.Username);
 
                 // HAPI 3: Nëse përdoruesi nuk ekziston, krijon automatikisht bazuar në të dhënat e AD
                 if (user == null)
                 {
-                    _logger.LogInformation("Përdoruesi {Email} nuk ekziston në sistem, po krijohet bazuar në të dhënat e AD...", Input.Email);
+                    _logger.LogInformation("Përdoruesi {Username} nuk ekziston në sistem, po krijohet bazuar në të dhënat e AD...", Input.Username);
                     
                     // Krijo përdoruesin e ri bazuar në të dhënat e AD
                     user = new Perdoruesi
                     {
-                        UserName = adUserInfo.Email ?? adUserInfo.SamAccountName,
-                        Email = adUserInfo.Email ?? $"{adUserInfo.SamAccountName}@dogana.rks",
+                        UserName = adUserInfo.SamAccountName ?? Input.Username,
+                        Email = adUserInfo.Email ?? $"{Input.Username}@dogana.rks",
                         EmriPlote = adUserInfo.DisplayName ?? $"{adUserInfo.FirstName} {adUserInfo.LastName}",
                         Departamenti = adUserInfo.Department ?? "N/A",
                         Pozicioni = adUserInfo.Title ?? "N/A",
-                        KodiZyrtarit = adUserInfo.SamAccountName ?? "N/A",
+                        KodiZyrtarit = adUserInfo.SamAccountName ?? Input.Username,
                         EmailConfirmed = true,
                         EshteAktiv = true,
                         DataKrijimit = DateTime.UtcNow
@@ -124,13 +123,13 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
                     {
                         // Shto rolin default "Zyrtar"
                         await _userManager.AddToRoleAsync(user, RoletSistemit.Zyrtar);
-                        _logger.LogInformation("Përdoruesi i ri u krijua automatikisht nga AD: {Email}", user.Email);
+                        _logger.LogInformation("Përdoruesi i ri u krijua automatikisht nga AD: {Username}", user.UserName);
                     }
                     else
                     {
                         ModelState.AddModelError(string.Empty, "Gabim gjatë krijimit të llogarisë. Ju lutem kontaktoni administratorin.");
-                        _logger.LogError("Dështoi krijimi i përdoruesit nga AD: {Email}. Errors: {Errors}", 
-                            Input.Email, string.Join(", ", createResult.Errors.Select(e => e.Description)));
+                        _logger.LogError("Dështoi krijimi i përdoruesit nga AD: {Username}. Errors: {Errors}", 
+                            Input.Username, string.Join(", ", createResult.Errors.Select(e => e.Description)));
                         return Page();
                     }
                 }
@@ -160,7 +159,7 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
                     if (needsUpdate)
                     {
                         await _userManager.UpdateAsync(user);
-                        _logger.LogInformation("Të dhënat e përdoruesit u përditësuan nga AD: {Email}", user.Email);
+                        _logger.LogInformation("Të dhënat e përdoruesit u përditësuan nga AD: {Username}", user.UserName);
                     }
                 }
 
@@ -168,7 +167,7 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
                 if (!user.EshteAktiv)
                 {
                     ModelState.AddModelError(string.Empty, "Llogaria juaj është çaktivizuar. Ju lutem kontaktoni administratorin.");
-                    _logger.LogWarning("Tentativë hyrje dështoi: Llogaria {Email} është çaktivizuar", user.Email);
+                    _logger.LogWarning("Tentativë hyrje dështoi: Llogaria {Username} është çaktivizuar", user.UserName);
                     return Page();
                 }
 
@@ -179,7 +178,7 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
                 user.HyrjaEFundit = DateTime.UtcNow;
                 await _userManager.UpdateAsync(user);
 
-                _logger.LogInformation("Përdoruesi {Email} hyri me sukses përmes Active Directory", user.Email);
+                _logger.LogInformation("Përdoruesi {Username} hyri me sukses përmes Active Directory", user.UserName);
                 return LocalRedirect(returnUrl);
             }
 

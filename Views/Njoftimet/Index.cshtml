@@ -1,0 +1,79 @@
+@model IEnumerable<KosovaDoganaModerne.Modelet.Entitetet.Njoftim>
+
+@{
+    ViewData["Title"] = "Njoftimet";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-bell"></i> Njoftimet</h2>
+        <div>
+            <form asp-action="ShenjositegjitheNjoftimet" method="post" style="display: inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check-double"></i> Shënjoji të gjitha si të lexuara
+                </button>
+            </form>
+        </div>
+    </div>
+
+    @if (TempData["Sukses"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Sukses"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var njoftim in Model)
+            {
+                var iconClass = njoftim.Lloji == "Success" ? "bg-success" :
+                              njoftim.Lloji == "Warning" ? "bg-warning" :
+                              njoftim.Lloji == "Danger" ? "bg-danger" : "bg-info";
+                var icon = njoftim.Ikona ?? "fa-bell";
+
+                <div class="col-md-6 mb-3">
+                    <div class="card @(!njoftim.EshteLexuar ? "border-primary" : "")">
+                        <div class="card-body">
+                            <div class="d-flex gap-3">
+                                <div class="notification-icon @iconClass" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0;">
+                                    <i class="fas @icon fa-lg"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title">
+                                        @njoftim.Titulli
+                                        @if (!njoftim.EshteLexuar)
+                                        {
+                                            <span class="badge bg-primary">E re</span>
+                                        }
+                                    </h5>
+                                    <p class="card-text">@njoftim.Pershkrimi</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> @njoftim.DataKrijimit.ToString("dd/MM/yyyy HH:mm")
+                                    </small>
+                                    @if (!string.IsNullOrWhiteSpace(njoftim.Linku))
+                                    {
+                                        <a href="@njoftim.Linku" class="btn btn-sm btn-outline-primary mt-2">
+                                            <i class="fas fa-arrow-right"></i> Shiko detajet
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle fa-3x mb-3"></i>
+            <h4>Nuk ka njoftime</h4>
+            <p class="mb-0">Aktualisht nuk ka njoftime për ju.</p>
+        </div>
+    }
+</div>
