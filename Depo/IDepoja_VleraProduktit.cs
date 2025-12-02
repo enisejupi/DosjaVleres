@@ -28,5 +28,18 @@ namespace KosovaDoganaModerne.Depo
         Task<IEnumerable<HistoriaVlerave>> MerrHistorine(int produktId);
 
         Task<HistoriaVlerave> ShtoNeHistori(HistoriaVlerave historia);
+
+        // Image operations
+        Task<IEnumerable<ImazhetProduktit>> MerrImazhetProduktit(int produktId);
+        
+        Task<ImazhetProduktit?> MerrImazhSipasID(int imazhId);
+        
+        Task<ImazhetProduktit> ShtoImazh(ImazhetProduktit imazh);
+        
+        Task ShtoImazhe(List<ImazhetProduktit> imazhet);
+        
+        Task<bool> FshiImazhin(int imazhId);
+        
+        Task VendosImazhKryesor(int imazhId, int produktId);
     }
 }

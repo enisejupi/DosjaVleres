@@ -15,27 +15,35 @@ namespace KosovaDoganaModerne.Te_dhenat
 
         public DbSet<HistoriaVlerave> HistoriaVlerave { get; set; }
 
-        public DbSet<RegjistriAuditimit> RegjistriAuditimit { get; set; }
-
-        public DbSet<SesioniPerdoruesit> SesionetPerdoruesve { get; set; }
-
-        public DbSet<Komenti> Komentet { get; set; }
-
-        public DbSet<Dega> Deget { get; set; }
-
         public DbSet<ShpenzimiTransportit> ShpenzimetTransportit { get; set; }
 
         public DbSet<NdryshimiTransportit> NdryshimetTransportit { get; set; }
 
         public DbSet<KomentiDeges> KomentetDegeve { get; set; }
 
+        public DbSet<Komenti> Komentet { get; set; }
+
+        public DbSet<Dega> Deget { get; set; }
+
         public DbSet<KerkeseRegjistrim> KerkesatRegjistrim { get; set; }
+
+        public DbSet<RegjistriAuditimit> RegjistriAuditimit { get; set; }
+
+        public DbSet<SesioniPerdoruesit> SesionetPerdoruesve { get; set; }
+
+        public DbSet<Njoftim> Njoftimet { get; set; }
 
         public DbSet<PreferencatPerdoruesit> PreferencatPerdoruesve { get; set; }
 
         public DbSet<TabelaCustom> TabelatCustom { get; set; }
 
         public DbSet<FormatPrintimi> FormatetiPrintimit { get; set; }
+
+        public DbSet<PrintAuditLog> PrintAuditLogs { get; set; }
+
+        public DbSet<GlobalPrintFormat> GlobalPrintFormats { get; set; }
+
+        public DbSet<ImazhetProduktit> ImazhetProduktit { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -51,15 +59,24 @@ namespace KosovaDoganaModerne.Te_dhenat
                 entity.HasIndex(e => e.Origjina);
 
                 // Marrëdhënia një-me-shumë me HistoriaVlerave
+                // Use NoAction to prevent circular reference issues
                 entity.HasMany(p => p.HistoriaVlerave)
                       .WithOne(h => h.VleraProduktit)
                       .HasForeignKey(h => h.VleraProduktit_Id)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .IsRequired(false); // Make navigation property optional to break cycle
 
                 // Marrëdhënia një-me-shumë me Komentet
                 entity.HasMany(p => p.KomentList)
                       .WithOne(k => k.VleraProduktit)
                       .HasForeignKey(k => k.VleraProduktitId)
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .IsRequired(false); // Make navigation property optional
+
+                // Marrëdhënia një-me-shumë me Imazhet
+                entity.HasMany(p => p.Imazhet)
+                      .WithOne(i => i.VleraProduktit)
+                      .HasForeignKey(i => i.VleraProduktit_Id)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -78,6 +95,13 @@ namespace KosovaDoganaModerne.Te_dhenat
                 entity.HasIndex(e => e.VleraProduktit_Id);
                 entity.HasIndex(e => e.Ndryshuar_Me);
                 entity.HasIndex(e => e.Ndryshuar_Nga);
+                
+                // Configure the relationship without requiring the navigation property
+                entity.HasOne(h => h.VleraProduktit)
+                      .WithMany(p => p.HistoriaVlerave)
+                      .HasForeignKey(h => h.VleraProduktit_Id)
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .IsRequired(false); // Optional navigation
             });
 
             // Konfigurimi i RegjistriAuditimit
@@ -151,6 +175,59 @@ namespace KosovaDoganaModerne.Te_dhenat
                       .WithMany()
                       .HasForeignKey(k => k.VleraProduktit_Id)
                       .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // Konfigurimi i Njoftim
+            modelBuilder.Entity<Njoftim>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.Perdoruesi);
+                entity.HasIndex(e => e.EshteLexuar);
+                entity.HasIndex(e => e.DataKrijimit);
+                entity.HasIndex(e => e.Lloji);
+            });
+
+            // Konfigurimi i PrintAuditLog
+            modelBuilder.Entity<PrintAuditLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.Perdoruesi);
+                entity.HasIndex(e => e.LlojiRaportit);
+                entity.HasIndex(e => e.FormatiEksportimit);
+                entity.HasIndex(e => e.DataPrintimit);
+                entity.HasIndex(e => e.SesioniId);
+                
+                entity.HasOne(p => p.FormatPrintimi)
+                      .WithMany()
+                      .HasForeignKey(p => p.FormatPrintimiId)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // Konfigurimi i GlobalPrintFormat
+            modelBuilder.Entity<GlobalPrintFormat>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.LlojiModulit).IsUnique();
+                entity.HasIndex(e => e.EshteAktiv);
+                
+                entity.HasOne(g => g.FormatPrintimi)
+                      .WithMany()
+                      .HasForeignKey(g => g.FormatPrintimiId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Konfigurimi i ImazhetProduktit
+            modelBuilder.Entity<ImazhetProduktit>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.VleraProduktit_Id);
+                entity.HasIndex(e => e.LlojiImazhit);
+                entity.HasIndex(e => e.EshteImazhKryesor);
+
+                entity.HasOne(i => i.VleraProduktit)
+                      .WithMany()
+                      .HasForeignKey(i => i.VleraProduktit_Id)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Të dhënat fillestare për testim

@@ -15,7 +15,7 @@ namespace KosovaDoganaModerne.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
 
             modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.Dega", b =>
                 {
@@ -71,6 +71,110 @@ namespace KosovaDoganaModerne.Migrations
                     b.ToTable("Deget");
                 });
 
+            modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.FormatPrintimi", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CssStyle")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmriFormatit")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EshteDefault")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("HtmlTemplate")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("KrijuarMe")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("KrijuarNga")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LlojiModulit")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LogoPosition")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PaperSize")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("PerditesomMe")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FormatetiPrintimit");
+                });
+
+            modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.GlobalPrintFormat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataVendosjes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EshteAktiv")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("FormatPrintimiId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LlojiModulit")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ModifikuarMe")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ModifikuarNga")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Pershkrimi")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VendosurNga")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EshteAktiv");
+
+                    b.HasIndex("FormatPrintimiId");
+
+                    b.HasIndex("LlojiModulit")
+                        .IsUnique();
+
+                    b.ToTable("GlobalPrintFormats");
+                });
+
             modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.HistoriaVlerave", b =>
                 {
                     b.Property<int>("Id")
@@ -86,6 +190,11 @@ namespace KosovaDoganaModerne.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT")
                         .HasColumnName("ArsyejaE_Ndryshimit");
+
+                    b.Property<string>("FotoNdryshimit")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("FotoNdryshimit");
 
                     b.Property<DateTime>("Ndryshuar_Me")
                         .HasColumnType("TEXT")
@@ -132,6 +241,76 @@ namespace KosovaDoganaModerne.Migrations
                     b.HasIndex("VleraProduktit_Id");
 
                     b.ToTable("HistoriaVlerave");
+                });
+
+            modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.ImazhetProduktit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("EmriOrigjinal")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("EmriOrigjinal");
+
+                    b.Property<bool>("EshteImazhKryesor")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("EshteImazhKryesor");
+
+                    b.Property<string>("LlojiImazhit")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("LlojiImazhit");
+
+                    b.Property<long>("MadhesiaBytes")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("MadhesiaBytes");
+
+                    b.Property<DateTime>("NgarkuarMe")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("NgarkuarMe");
+
+                    b.Property<string>("NgarkuarNga")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("NgarkuarNga");
+
+                    b.Property<string>("Pershkrimi")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("Pershkrimi");
+
+                    b.Property<int>("RradhaShfaqjes")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("RradhaShfaqjes");
+
+                    b.Property<string>("ShtegimaImazhit")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("ShtegimaImazhit");
+
+                    b.Property<int?>("VleraProduktitId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("VleraProduktit_Id")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("VleraProduktit_Id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EshteImazhKryesor");
+
+                    b.HasIndex("LlojiImazhit");
+
+                    b.HasIndex("VleraProduktitId");
+
+                    b.HasIndex("VleraProduktit_Id");
+
+                    b.ToTable("ImazhetProduktit");
                 });
 
             modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.KerkeseRegjistrim", b =>
@@ -355,6 +534,62 @@ namespace KosovaDoganaModerne.Migrations
                     b.ToTable("NdryshimetTransportit");
                 });
 
+            modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.Njoftim", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataKrijimit")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataLeximit")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EshteLexuar")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Ikona")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Linku")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Lloji")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Perdoruesi")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Pershkrimi")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Titulli")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DataKrijimit");
+
+                    b.HasIndex("EshteLexuar");
+
+                    b.HasIndex("Lloji");
+
+                    b.HasIndex("Perdoruesi");
+
+                    b.ToTable("Njoftimet");
+                });
+
             modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.Perdoruesi", b =>
                 {
                     b.Property<string>("Id")
@@ -447,6 +682,110 @@ namespace KosovaDoganaModerne.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.PreferencatPerdoruesit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("KrijuarMe")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LlojiPreferences")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("PerditesomMe")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Perdoruesi")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Vlera")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PreferencatPerdoruesit");
+                });
+
+            modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.PrintAuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AdresaIP")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DataPrintimit")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EshteSuksesshem")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Filtrat")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("FormatPrintimiId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FormatiEksportimit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LlojiRaportit")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MesazhiGabimit")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("NumriRekordeve")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Perdoruesi")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SesioniId")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Shenime")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DataPrintimit");
+
+                    b.HasIndex("FormatPrintimiId");
+
+                    b.HasIndex("FormatiEksportimit");
+
+                    b.HasIndex("LlojiRaportit");
+
+                    b.HasIndex("Perdoruesi");
+
+                    b.HasIndex("SesioniId");
+
+                    b.ToTable("PrintAuditLogs");
                 });
 
             modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.RegjistriAuditimit", b =>
@@ -664,16 +1003,64 @@ namespace KosovaDoganaModerne.Migrations
                     b.ToTable("ShpenzimetTransportit");
                 });
 
+            modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.TabelaCustom", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("EmriTabeles")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EshteAktive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("KrijuarMe")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("KrijuarNga")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("PerditesomMe")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Pershkrimi")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Skema")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TabelatCustom");
+                });
+
             modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Bashkangjitje")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("Bashkangjitje");
+
                     b.Property<string>("Cmimi")
                         .HasMaxLength(200)
                         .HasColumnType("TEXT")
                         .HasColumnName("Cmimi");
+
+                    b.Property<string>("EmeriBashkangjitjes")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("EmeriBashkangjitjes");
 
                     b.Property<string>("EmriProduktit")
                         .IsRequired()
@@ -1266,10 +1653,35 @@ namespace KosovaDoganaModerne.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.GlobalPrintFormat", b =>
+                {
+                    b.HasOne("KosovaDoganaModerne.Modelet.Entitetet.FormatPrintimi", "FormatPrintimi")
+                        .WithMany()
+                        .HasForeignKey("FormatPrintimiId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FormatPrintimi");
+                });
+
             modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.HistoriaVlerave", b =>
                 {
                     b.HasOne("KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit", "VleraProduktit")
                         .WithMany("HistoriaVlerave")
+                        .HasForeignKey("VleraProduktit_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("VleraProduktit");
+                });
+
+            modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.ImazhetProduktit", b =>
+                {
+                    b.HasOne("KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit", null)
+                        .WithMany("Imazhet")
+                        .HasForeignKey("VleraProduktitId");
+
+                    b.HasOne("KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit", "VleraProduktit")
+                        .WithMany()
                         .HasForeignKey("VleraProduktit_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1282,8 +1694,7 @@ namespace KosovaDoganaModerne.Migrations
                     b.HasOne("KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit", "VleraProduktit")
                         .WithMany("KomentList")
                         .HasForeignKey("VleraProduktitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("VleraProduktit");
                 });
@@ -1317,6 +1728,16 @@ namespace KosovaDoganaModerne.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Dega");
+                });
+
+            modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.PrintAuditLog", b =>
+                {
+                    b.HasOne("KosovaDoganaModerne.Modelet.Entitetet.FormatPrintimi", "FormatPrintimi")
+                        .WithMany()
+                        .HasForeignKey("FormatPrintimiId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("FormatPrintimi");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1383,6 +1804,8 @@ namespace KosovaDoganaModerne.Migrations
             modelBuilder.Entity("KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit", b =>
                 {
                     b.Navigation("HistoriaVlerave");
+
+                    b.Navigation("Imazhet");
 
                     b.Navigation("KomentList");
                 });

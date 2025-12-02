@@ -249,6 +249,170 @@ namespace KosovaDoganaModerne.Controllers
             return View();
         }
 
+        [HttpGet("GlobalPrintSettings")]
+        public async Task<IActionResult> GlobalPrintSettings()
+        {
+            try
+            {
+                // Merr të gjitha format globale
+                var globalFormats = await _konteksti.GlobalPrintFormats
+                    .Include(g => g.FormatPrintimi)
+                    .Where(g => g.EshteAktiv)
+                    .ToListAsync();
+
+                // Merr të gjitha formatet e disponueshme
+                var formateDisponueshme = await _konteksti.FormatetiPrintimit
+                    .OrderBy(f => f.LlojiModulit)
+                    .ThenBy(f => f.EmriFormatit)
+                    .ToListAsync();
+
+                var model = new GlobalPrintSettingsViewModel
+                {
+                    GlobalFormats = globalFormats,
+                    FormateDisponueshme = formateDisponueshme,
+                    ModuletDisponueshme = new List<string> 
+                    { 
+                        "VleratProdukteve", 
+                        "KomentetDegeve", 
+                        "ShpenzimiTransportit", 
+                        "DosjaTeDisponueshme",
+                        "RaportiKomentetDegeve"
+                    }
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["Gabim"] = "Gabim gjatë ngarkimit të formateve: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpPost("SetGlobalPrintFormat")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetGlobalPrintFormat(string llojiModulit, int formatPrintimiId)
+        {
+            try
+            {
+                var perdoruesi = User.Identity?.Name ?? "Anonim";
+
+                // Kontrollo nëse ekziston një format global për këtë modul
+                var ekzistues = await _konteksti.GlobalPrintFormats
+                    .FirstOrDefaultAsync(g => g.LlojiModulit == llojiModulit && g.EshteAktiv);
+
+                if (ekzistues != null)
+                {
+                    // Përditëso formatin ekzistues
+                    ekzistues.FormatPrintimiId = formatPrintimiId;
+                    ekzistues.ModifikuarNga = perdoruesi;
+                    ekzistues.ModifikuarMe = DateTime.UtcNow;
+                }
+                else
+                {
+                    // Krijo një format të ri global
+                    var formatGlobal = new Modelet.Entitetet.GlobalPrintFormat
+                    {
+                        LlojiModulit = llojiModulit,
+                        FormatPrintimiId = formatPrintimiId,
+                        VendosurNga = perdoruesi,
+                        DataVendosjes = DateTime.UtcNow,
+                        Pershkrimi = $"Format global për modulin {llojiModulit}",
+                        EshteAktiv = true
+                    };
+                    _konteksti.GlobalPrintFormats.Add(formatGlobal);
+                }
+
+                await _konteksti.SaveChangesAsync();
+                TempData["Sukses"] = $"Formati global për modulin '{llojiModulit}' u vendos me sukses!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Gabim"] = "Gabim gjatë vendosjes së formatit: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(GlobalPrintSettings));
+        }
+
+        [HttpPost("RemoveGlobalPrintFormat")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveGlobalPrintFormat(int id)
+        {
+            try
+            {
+                var formatGlobal = await _konteksti.GlobalPrintFormats.FindAsync(id);
+                if (formatGlobal != null)
+                {
+                    formatGlobal.EshteAktiv = false;
+                    formatGlobal.ModifikuarNga = User.Identity?.Name ?? "Anonim";
+                    formatGlobal.ModifikuarMe = DateTime.UtcNow;
+                    await _konteksti.SaveChangesAsync();
+                    TempData["Sukses"] = "Formati global u çaktivizua me sukses!";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Gabim"] = "Gabim gjatë çaktivizimit të formatit: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(GlobalPrintSettings));
+        }
+
+        [HttpGet("PrintAuditLogs")]
+        public async Task<IActionResult> PrintAuditLogs(string? perdoruesi = null, string? llojiRaportit = null, 
+            DateTime? ngaData = null, DateTime? deriData = null, int faqja = 1, int madhesiaFaqes = 50)
+        {
+            try
+            {
+                var query = _konteksti.PrintAuditLogs
+                    .Include(p => p.FormatPrintimi)
+                    .AsQueryable();
+
+                // Filtrat
+                if (!string.IsNullOrWhiteSpace(perdoruesi))
+                    query = query.Where(p => p.Perdoruesi.Contains(perdoruesi));
+
+                if (!string.IsNullOrWhiteSpace(llojiRaportit))
+                    query = query.Where(p => p.LlojiRaportit == llojiRaportit);
+
+                if (ngaData.HasValue)
+                    query = query.Where(p => p.DataPrintimit >= ngaData.Value);
+
+                if (deriData.HasValue)
+                    query = query.Where(p => p.DataPrintimit <= deriData.Value.AddDays(1));
+
+                // Totali para paginimit
+                var totali = await query.CountAsync();
+
+                // Paginimi
+                var logs = await query
+                    .OrderByDescending(p => p.DataPrintimit)
+                    .Skip((faqja - 1) * madhesiaFaqes)
+                    .Take(madhesiaFaqes)
+                    .ToListAsync();
+
+                var model = new PrintAuditLogsViewModel
+                {
+                    Logs = logs,
+                    FaqjaAktuale = faqja,
+                    MadhesiaFaqes = madhesiaFaqes,
+                    TotaliFaqeve = (int)Math.Ceiling(totali / (double)madhesiaFaqes),
+                    TotaliRekordet = totali,
+                    Perdoruesi = perdoruesi,
+                    LlojiRaportit = llojiRaportit,
+                    NgaData = ngaData,
+                    DeriData = deriData
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["Gabim"] = "Gabim gjatë ngarkimit të log-eve: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
         [HttpPost("SavePrintFormat")]
         public async Task<IActionResult> SavePrintFormat([FromBody] Modelet.Entitetet.FormatPrintimi format)
         {
@@ -338,6 +502,15 @@ namespace KosovaDoganaModerne.Controllers
                 return View(model);
             }
         }
+
+        /// <summary>
+        /// Shikues i databazës SQLite
+        /// </summary>
+        [HttpGet("DatabaseViewer")]
+        public IActionResult DatabaseViewer()
+        {
+            return View();
+        }
     }
 
     // View Models
@@ -396,5 +569,25 @@ namespace KosovaDoganaModerne.Controllers
         public int TotalKerkesa { get; set; }
         public int KerkesaPritje { get; set; }
         public int TotalDege { get; set; }
+    }
+
+    public class GlobalPrintSettingsViewModel
+    {
+        public List<Modelet.Entitetet.GlobalPrintFormat> GlobalFormats { get; set; } = new();
+        public List<Modelet.Entitetet.FormatPrintimi> FormateDisponueshme { get; set; } = new();
+        public List<string> ModuletDisponueshme { get; set; } = new();
+    }
+
+    public class PrintAuditLogsViewModel
+    {
+        public List<Modelet.Entitetet.PrintAuditLog> Logs { get; set; } = new();
+        public int FaqjaAktuale { get; set; }
+        public int MadhesiaFaqes { get; set; }
+        public int TotaliFaqeve { get; set; }
+        public int TotaliRekordet { get; set; }
+        public string? Perdoruesi { get; set; }
+        public string? LlojiRaportit { get; set; }
+        public DateTime? NgaData { get; set; }
+        public DateTime? DeriData { get; set; }
     }
 }

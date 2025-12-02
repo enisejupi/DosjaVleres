@@ -1,0 +1,816 @@
+/* ===================================================================
+   KOSOVO CUSTOMS - MOBILE RESPONSIVE STYLES
+   Dosja e Vlerave (Value File Application)
+   Mobile-First Responsive Design
+   =================================================================== */
+
+/* ===================================================================
+   1. BASE MOBILE STYLES (Mobile First Approach)
+   =================================================================== */
+
+/* Ensure viewport is set correctly */
+@viewport {
+    width: device-width;
+    zoom: 1.0;
+}
+
+/* Base mobile styles for all devices */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+/* ===================================================================
+   2. MOBILE NAVIGATION
+   =================================================================== */
+
+@media (max-width: 768px) {
+    /* Hamburger menu styles */
+    .navbar-toggler {
+        padding: 0.5rem;
+        font-size: 1.5rem;
+        border: 2px solid #007bff;
+    }
+
+    .navbar-collapse {
+        background-color: #fff;
+        padding: 1rem;
+        margin-top: 0.5rem;
+        border-radius: 0.25rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .navbar-nav {
+        margin-top: 0.5rem;
+    }
+
+    .navbar-nav .nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.75rem 1rem;
+        border-radius: 0.25rem;
+        transition: background-color 0.3s;
+    }
+
+    .navbar-nav .nav-link:hover {
+        background-color: #f8f9fa;
+    }
+}
+
+/* ===================================================================
+   3. MOBILE TABLES - RESPONSIVE CARDS
+   =================================================================== */
+
+@media (max-width: 768px) {
+    /* Hide table headers on mobile */
+    .table thead {
+        display: none;
+    }
+
+    /* Make table rows into cards */
+    .table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+    }
+
+    .table tbody td {
+        display: block;
+        text-align: right;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
+    }
+
+    .table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    /* Add labels to each cell */
+    .table tbody td:before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        color: #495057;
+    }
+
+    /* Action buttons in mobile view */
+    .table tbody td:last-child {
+        text-align: center;
+        padding-top: 1rem;
+    }
+
+    .table tbody td .btn {
+        margin: 0.25rem;
+        width: calc(50% - 0.5rem);
+    }
+}
+
+/* ===================================================================
+   4. MOBILE FORMS
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-control {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+        padding: 0.75rem;
+        height: auto;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    /* Full width buttons on mobile */
+    .btn {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Side-by-side buttons on mobile when needed */
+    .btn-group-mobile {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-group-mobile .btn {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    /* Select inputs */
+    select.form-control {
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+    }
+
+    /* Textarea */
+    textarea.form-control {
+        min-height: 120px;
+    }
+}
+
+/* ===================================================================
+   5. MOBILE SEARCH AND FILTERS
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .search-container {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .search-input-group {
+        margin-bottom: 0.75rem;
+    }
+
+    .search-input-group input,
+    .search-input-group select {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Filter chips/tags */
+    .filter-chip {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        background-color: #e9ecef;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .filter-chip.active {
+        background-color: #007bff;
+        color: #fff;
+    }
+}
+
+/* ===================================================================
+   6. MOBILE CARDS AND CONTAINERS
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+    }
+
+    .card-header {
+        padding: 1rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    /* Product/Item cards */
+    .product-card {
+        display: block;
+        width: 100%;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #212529;
+    }
+
+    .product-card-details {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+    }
+
+    .product-card-actions {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+}
+
+/* ===================================================================
+   7. MOBILE PAGINATION
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .page-item {
+        margin: 0.125rem;
+    }
+
+    .page-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Hide pagination numbers on very small screens */
+    @media (max-width: 400px) {
+        .page-item:not(.disabled):not(.active):not(:first-child):not(:last-child) {
+            display: none;
+        }
+    }
+}
+
+/* ===================================================================
+   8. MOBILE MODALS AND DIALOGS
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-content {
+        border-radius: 0.5rem;
+    }
+
+    .modal-header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-body {
+        padding: 1rem;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: 1rem;
+        flex-direction: column;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+}
+
+/* ===================================================================
+   9. MOBILE ALERTS AND NOTIFICATIONS
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .alert {
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .alert-dismissible .close {
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* ===================================================================
+   10. MOBILE COMMENTS SECTION
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .comment-container {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .comment-item {
+        padding: 1rem;
+        background-color: #fff;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .comment-body {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .comment-form {
+        margin-top: 1rem;
+    }
+
+    .comment-form textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* ===================================================================
+   11. MOBILE IMAGE GALLERY (FOR PRODUCT PHOTOS)
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .image-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .image-gallery-item {
+        position: relative;
+        padding-bottom: 100%;
+        overflow: hidden;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-gallery-item img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Full screen image viewer */
+    .image-fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.9);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-fullscreen img {
+        max-width: 95%;
+        max-height: 95%;
+    }
+}
+
+/* ===================================================================
+   12. MOBILE REPORTS AND PRINT PREVIEW
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .report-container {
+        padding: 1rem;
+    }
+
+    .report-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .report-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .report-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .report-actions .btn {
+        width: 100%;
+    }
+}
+
+/* ===================================================================
+   13. MOBILE TYPOGRAPHY
+   =================================================================== */
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.875rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.625rem;
+    }
+
+    p {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .small,
+    small {
+        font-size: 0.875rem;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+    }
+}
+
+/* ===================================================================
+   14. MOBILE SPACING AND LAYOUT
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .row {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+    }
+
+    .col,
+    [class*="col-"] {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    /* Section spacing */
+    section {
+        padding: 1.5rem 0;
+    }
+
+    /* Remove excessive margins */
+    .mb-5 {
+        margin-bottom: 2rem !important;
+    }
+
+    .mt-5 {
+        margin-top: 2rem !important;
+    }
+
+    .py-5 {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+}
+
+/* ===================================================================
+   15. MOBILE TOUCH-FRIENDLY INTERACTIONS
+   =================================================================== */
+
+@media (max-width: 768px) {
+    /* Larger touch targets */
+    a,
+    button,
+    .btn,
+    input[type="button"],
+    input[type="submit"] {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Prevent text selection on buttons */
+    .btn {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    /* Active state for touch */
+    .btn:active,
+    a:active {
+        opacity: 0.7;
+    }
+
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Better tap highlighting */
+    * {
+        -webkit-tap-highlight-color: rgba(0, 123, 255, 0.1);
+    }
+}
+
+/* ===================================================================
+   16. MOBILE HEADER AND FOOTER
+   =================================================================== */
+
+@media (max-width: 768px) {
+    header {
+        padding: 0.5rem 0;
+    }
+
+    footer {
+        padding: 1rem 0;
+        text-align: center;
+        font-size: 0.875rem;
+    }
+
+    .footer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+}
+
+/* ===================================================================
+   17. MOBILE BREADCRUMBS
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .breadcrumb {
+        flex-wrap: wrap;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        background-color: transparent;
+    }
+
+    .breadcrumb-item {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* ===================================================================
+   18. MOBILE LOADING STATES
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .loading-spinner {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .loading-text {
+        margin-top: 1rem;
+        font-size: 1rem;
+        color: #6c757d;
+    }
+}
+
+/* ===================================================================
+   19. MOBILE TABS
+   =================================================================== */
+
+@media (max-width: 768px) {
+    .nav-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .nav-tabs .nav-link {
+        white-space: nowrap;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .tab-content {
+        padding: 1rem;
+    }
+}
+
+/* ===================================================================
+   20. MOBILE UTILITY CLASSES
+   =================================================================== */
+
+@media (max-width: 768px) {
+    /* Hide on mobile */
+    .d-mobile-none {
+        display: none !important;
+    }
+
+    /* Show only on mobile */
+    .d-mobile-block {
+        display: block !important;
+    }
+
+    .d-mobile-flex {
+        display: flex !important;
+    }
+
+    /* Text alignment on mobile */
+    .text-mobile-center {
+        text-align: center !important;
+    }
+
+    /* Full width on mobile */
+    .w-mobile-100 {
+        width: 100% !important;
+    }
+
+    /* Stacking on mobile */
+    .stack-mobile {
+        flex-direction: column !important;
+    }
+
+    .stack-mobile > * {
+        width: 100% !important;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* ===================================================================
+   21. LANDSCAPE ORIENTATION ADJUSTMENTS
+   =================================================================== */
+
+@media (max-width: 768px) and (orientation: landscape) {
+    .modal-dialog {
+        max-height: 90vh;
+    }
+
+    .modal-body {
+        max-height: 50vh;
+        overflow-y: auto;
+    }
+
+    /* Reduce padding in landscape for more content */
+    .container {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* ===================================================================
+   22. VERY SMALL SCREENS (< 400px)
+   =================================================================== */
+
+@media (max-width: 400px) {
+    body {
+        font-size: 13px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .btn {
+        font-size: 0.875rem;
+        padding: 0.625rem 0.75rem;
+    }
+
+    .form-control {
+        font-size: 14px;
+    }
+}
+
+/* ===================================================================
+   23. PRINT STYLES (Mobile Print)
+   =================================================================== */
+
+@media print {
+    /* Hide navigation and buttons */
+    nav,
+    .navbar,
+    .btn,
+    .pagination,
+    .modal,
+    footer {
+        display: none !important;
+    }
+
+    /* Ensure content fits on page */
+    body {
+        font-size: 12pt;
+        line-height: 1.5;
+    }
+
+    /* Avoid page breaks inside elements */
+    .card,
+    .product-card,
+    tr {
+        page-break-inside: avoid;
+    }
+
+    /* Black text for print */
+    * {
+        color: #000 !important;
+        background: #fff !important;
+    }
+
+    /* Show links in print */
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+}
+
+/* ===================================================================
+   END OF MOBILE RESPONSIVE STYLES
+   =================================================================== */

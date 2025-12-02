@@ -1,0 +1,54 @@
+@page
+@model EnableAuthenticatorModel
+@{
+    ViewData["Title"] = "Aktivizo Autentifikuesin";
+    ViewData["ActivePage"] = "TwoFactorAuthentication";
+}
+
+<partial name="_StatusMessage" for="StatusMessage" />
+<h3>@ViewData["Title"]</h3>
+<div class="card">
+    <div class="card-body">
+        <p>Për të aktivizuar autentifikimin me dy faktorë, skanoni kodin QR më poshtë me aplikacionin tuaj autentifikues, ose shkruani manualisht çelësin.</p>
+        <div class="alert alert-info">
+            <strong>Aplikacione të rekomanduara:</strong>
+            <ul>
+                <li>Microsoft Authenticator</li>
+                <li>Google Authenticator</li>
+                <li>Authy</li>
+            </ul>
+        </div>
+        
+        <div id="qrCode"></div>
+        <div id="qrCodeData" data-url="@Model.AuthenticatorUri"></div>
+        
+        <div class="mt-4">
+            <p><strong>Çelësi Manual:</strong></p>
+            <kbd>@Model.SharedKey</kbd>
+        </div>
+
+        <div class="mt-4">
+            <form id="send-code" method="post">
+                <div class="form-floating mb-3">
+                    <input asp-for="Code" class="form-control" autocomplete="off" placeholder="Kodi" />
+                    <label asp-for="Code">Kodi Verifikues</label>
+                    <span asp-validation-for="Code" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Verifiko dhe Aktivizo</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script type="text/javascript">
+        new QRCode(document.getElementById("qrCode"),
+            {
+                text: document.getElementById("qrCodeData").getAttribute("data-url"),
+                width: 200,
+                height: 200
+            });
+    </script>
+}

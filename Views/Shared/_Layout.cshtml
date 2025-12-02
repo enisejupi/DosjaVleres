@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - Dogana e Republikës së Kosovës</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/mobile-responsive.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/KosovaDoganaModerne.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
@@ -186,7 +187,7 @@
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
             display: flex;
             align-items: center;
@@ -254,7 +255,7 @@
             height: 35px;
             border-radius: 50%;
             background: white;
-            color: #667eea;
+            color: #1e3c72;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -320,13 +321,13 @@
         .menu-link:hover {
             background: rgba(255,255,255,0.05);
             color: white;
-            border-left-color: #667eea;
+            border-left-color: #1e3c72;
         }
         
         .menu-link.active {
-            background: rgba(102,126,234,0.15);
+            background: rgba(30,60,114,0.15);
             color: white;
-            border-left-color: #667eea;
+            border-left-color: #1e3c72;
         }
         
         .menu-link i {
@@ -450,6 +451,161 @@
             }
         }
         
+        /* ============================================
+           UNIVERSAL TABLE STYLING
+           ============================================ */
+        
+        /* Modern table styling with consistent look */
+        .table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            padding: 14px 12px;
+            border: none;
+            white-space: nowrap;
+        }
+        
+        .table-light thead th {
+            background: #f8f9fa;
+            color: #2c3e50;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .table-dark thead th {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        .table tbody td {
+            padding: 12px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f0f0f0;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: translateX(2px);
+            box-shadow: -3px 0 0 0 #667eea;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0,0,0,0.02);
+        }
+        
+        /* Table responsive wrapper */
+        .table-responsive {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        /* Table action buttons */
+        .table .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .table .btn-info {
+            background: #17a2b8;
+            border-color: #17a2b8;
+        }
+        
+        .table .btn-warning {
+            background: #ffc107;
+            border-color: #ffc107;
+            color: #212529;
+        }
+        
+        .table .btn-danger {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .table .btn-success {
+            background: #28a745;
+            border-color: #28a745;
+        }
+        
+        /* Badge styling in tables */
+        .table .badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        
+        /* Card table wrapper */
+        .card .table {
+            margin-bottom: 0;
+            box-shadow: none;
+        }
+        
+        .card-body.p-0 .table {
+            border-radius: 0;
+        }
+        
+        /* Empty state */
+        .table tbody tr.empty-state td {
+            padding: 40px 20px;
+            text-align: center;
+            color: #95a5a6;
+        }
+        
+        /* Status indicators */
+        .table .status-active {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .table .status-inactive {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
+        /* Sortable table headers */
+        .table thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+        
+        .table thead th.sortable:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .table thead th.sortable::after {
+            content: '⇅';
+            position: absolute;
+            right: 10px;
+            opacity: 0.5;
+        }
+        
+        /* Small table variant */
+        .table-sm tbody td,
+        .table-sm thead th {
+            padding: 8px;
+            font-size: 13px;
+        }
+        
         @@media (max-width: 576px) {
             .app-header {
                 padding: 0 15px;
@@ -465,6 +621,16 @@
             
             .header-right {
                 gap: 10px;
+            }
+            
+            /* Responsive table adjustments */
+            .table {
+                font-size: 12px;
+            }
+            
+            .table thead th,
+            .table tbody td {
+                padding: 8px 6px;
             }
         }
     </style>
@@ -491,78 +657,29 @@
             <div class="dropdown">
                 <button class="header-icon-btn" data-bs-toggle="dropdown" title="Njoftimet">
                     <i class="fas fa-bell"></i>
-                    <span class="badge">3</span>
+                    <span class="badge" id="notificationCount">0</span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end notifications-dropdown">
-                    <h6 class="dropdown-header">Njoftimet</h6>
+                    <h6 class="dropdown-header">
+                        <i class="fas fa-bell"></i> Njoftimet
+                        <span class="badge bg-primary float-end" id="notificationBadge">0 të reja</span>
+                    </h6>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item notification-item" href="#">
-                        <div class="notification-icon bg-info">
-                            <i class="fas fa-file-alt"></i>
+                    <div id="notificationsList">
+                        <!-- Notifications will be loaded dynamically -->
+                        <div class="text-center p-3">
+                            <i class="fas fa-spinner fa-spin"></i> Duke ngarkuar...
                         </div>
-                        <div class="notification-content">
-                            <div class="notification-title">Kërkesë e re regjistrim</div>
-                            <div class="notification-time">5 minuta më parë</div>
-                        </div>
-                    </a>
-                    <a class="dropdown-item notification-item" href="#">
-                        <div class="notification-icon bg-success">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="notification-content">
-                            <div class="notification-title">Raporti u gjenerua me sukses</div>
-                            <div class="notification-time">1 orë më parë</div>
-                        </div>
-                    </a>
-                    <a class="dropdown-item notification-item" href="#">
-                        <div class="notification-icon bg-warning">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="notification-content">
-                            <div class="notification-title">Komentet duhen rishikuar</div>
-                            <div class="notification-time">2 orë më parë</div>
-                        </div>
-                    </a>
+                    </div>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-center text-primary" href="#">Shiko të gjitha njoftimet</a>
-                </div>
-            </div>
-            
-            <!-- Messages Dropdown -->
-            <div class="dropdown">
-                <button class="header-icon-btn" data-bs-toggle="dropdown" title="Mesazhet">
-                    <i class="fas fa-envelope"></i>
-                    <span class="badge">5</span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-end messages-dropdown">
-                    <h6 class="dropdown-header">Mesazhet</h6>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item message-item" href="#">
-                        <div class="message-avatar">A</div>
-                        <div class="message-content">
-                            <div class="message-title">Admin Dogana</div>
-                            <div class="message-text">Ju keni një mesazh të ri në lidhje me raportin...</div>
-                            <div class="message-time">10 minuta më parë</div>
-                        </div>
-                    </a>
-                    <a class="dropdown-item message-item" href="#">
-                        <div class="message-avatar">M</div>
-                        <div class="message-content">
-                            <div class="message-title">Menaxher Sistemi</div>
-                            <div class="message-text">Sistemi do të përditësohet sonte në orën 23:00...</div>
-                            <div class="message-time">2 orë më parë</div>
-                        </div>
-                    </a>
-                    <a class="dropdown-item message-item" href="#">
-                        <div class="message-avatar">S</div>
-                        <div class="message-content">
-                            <div class="message-title">Support Teknik</div>
-                            <div class="message-text">Kërkesa juaj është përpunuar me sukses...</div>
-                            <div class="message-time">3 orë më parë</div>
-                        </div>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-center text-primary" href="#">Shiko të gjitha mesazhet</a>
+                    <div class="d-flex justify-content-between px-3 py-2">
+                        <a asp-controller="Njoftimet" asp-action="Index" class="text-primary text-decoration-none">
+                            <i class="fas fa-eye"></i> Shiko të gjitha
+                        </a>
+                        <button onclick="markAllAsRead()" class="btn btn-sm btn-link text-success p-0">
+                            <i class="fas fa-check-double"></i> Shëno si të lexuara
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -574,7 +691,7 @@
                         <span class="d-none d-md-inline">@User.Identity.Name</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/Identity/Account/Manage"><i class="fas fa-user me-2"></i> Profili</a></li>
+                        <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index"><i class="fas fa-user me-2"></i> Profili</a></li>
                         <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Cilësimet</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
@@ -587,7 +704,7 @@
             }
             else
             {
-                <a href="/Identity/Account/Login" class="btn btn-light btn-sm">
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-light btn-sm">
                     <i class="fas fa-sign-in-alt me-1"></i> Hyr
                 </a>
             }
@@ -618,10 +735,7 @@
                     <a class="submenu-item" asp-controller="VleratProdukteve" asp-action="Index">
                         <i class="fas fa-list"></i> Dosja e vlerave
                     </a>
-                    <a class="submenu-item" asp-controller="Raportet" asp-action="DosjaTeDisponueshme">
-                        <i class="fas fa-file-alt"></i> Dosja me të dhëna
-                    </a>
-                    <a class="submenu-item" asp-controller="Raportet" asp-action="ListaNdryshimeve">
+                    <a class="submenu-item" asp-controller="VleratProdukteve" asp-action="Historia">
                         <i class="fas fa-history"></i> Historiati
                     </a>
                 </div>
@@ -683,6 +797,12 @@
                     <div class="submenu">
                         <a class="submenu-item" asp-controller="Admin" asp-action="Index">
                             <i class="fas fa-home"></i> Ballina
+                        </a>
+                        <a class="submenu-item" asp-controller="Admin" asp-action="Statistics">
+                            <i class="fas fa-chart-bar"></i> Statistikat
+                        </a>
+                        <a class="submenu-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                            <i class="fas fa-users"></i> Përdoruesit
                         </a>
                         <a class="submenu-item" asp-controller="Admin" asp-action="DatabaseSchema">
                             <i class="fas fa-database"></i> Skema e DB
@@ -757,6 +877,9 @@
                 submenu.classList.add('show');
                 toggle.classList.add('active');
             }
+
+            // Load notifications
+            loadNotifications();
         });
         
         // Close sidebar on mobile when clicking outside
@@ -770,6 +893,93 @@
                 }
             }
         });
+
+        // Load notifications dynamically
+        function loadNotifications() {
+            fetch('/Njoftimet/GetNjoftimetEfundit')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('notificationsList');
+                    const count = document.getElementById('notificationCount');
+                    const badge = document.getElementById('notificationBadge');
+                    
+                    if (data && data.length > 0) {
+                        const unreadCount = data.filter(n => !n.eshteLexuar).length;
+                        count.textContent = unreadCount;
+                        count.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+                        badge.textContent = unreadCount + ' të reja';
+                        
+                        let html = '';
+                        data.forEach(notif => {
+                            const iconClass = notif.lloji === 'Success' ? 'bg-success' :
+                                            notif.lloji === 'Warning' ? 'bg-warning' :
+                                            notif.lloji === 'Danger' ? 'bg-danger' : 'bg-info';
+                            const icon = notif.ikona || 'fa-bell';
+                            const link = notif.linku || '#';
+                            const readClass = notif.eshteLexuar ? 'opacity-75' : '';
+                            
+                            html += `
+                                <a class="dropdown-item notification-item ${readClass}" href="${link}" onclick="markAsRead(${notif.id})">
+                                    <div class="notification-icon ${iconClass}">
+                                        <i class="fas ${icon}"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <div class="notification-title">${notif.titulli}</div>
+                                        <small class="text-muted">${notif.pershkrimi || ''}</small>
+                                        <div class="notification-time">${timeAgo(notif.dataKrijimit)}</div>
+                                    </div>
+                                </a>
+                            `;
+                        });
+                        list.innerHTML = html;
+                    } else {
+                        list.innerHTML = '<div class="text-center p-3 text-muted">Nuk ka njoftime të reja</div>';
+                        count.textContent = '0';
+                        count.style.display = 'none';
+                        badge.textContent = '0 të reja';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                    document.getElementById('notificationsList').innerHTML = '<div class="text-center p-3 text-danger">Gabim në ngarkim</div>';
+                });
+        }
+
+        function markAsRead(id) {
+            fetch(`/Njoftimet/Shenjosillexuar/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => loadNotifications());
+        }
+
+        function markAllAsRead() {
+            fetch('/Njoftimet/ShenjositegjitheNjoftimet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => console.error('Error marking all as read:', error));
+        }
+
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            
+            if (seconds < 60) return seconds + ' sekonda më parë';
+            if (seconds < 3600) return Math.floor(seconds / 60) + ' minuta më parë';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + ' orë më parë';
+            return Math.floor(seconds / 86400) + ' ditë më parë';
+        }
+
+        // Reload notifications every 60 seconds
+        setInterval(loadNotifications, 60000);
     </script>
     
     @await RenderSectionAsync("Scripts", required: false)

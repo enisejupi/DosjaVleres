@@ -13,41 +13,22 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class ForgotPasswordModel : PageModel
     {
-        private readonly UserManager<Perdoruesi> _userManager;
-
-        public ForgotPasswordModel(UserManager<Perdoruesi> userManager)
+        public ForgotPasswordModel()
         {
-            _userManager = userManager;
         }
 
-        [BindProperty]
-        public InputModel Input { get; set; }
-
-        public class InputModel
+        public IActionResult OnGet()
         {
-            [Required(ErrorMessage = "Email adresa është e detyrueshme.")]
-            [EmailAddress(ErrorMessage = "Email adresa nuk është e vlefshme.")]
-            [Display(Name = "Email")]
-            public string Email { get; set; }
+            // Redirect to login with message that password reset is disabled
+            TempData["Info"] = "Rivendosja e fjalëkalimit është çaktivizuar. Fjalëkalimet menaxhohen nga Active Directory. Për ndryshime, kontaktoni departamentin IT.";
+            return RedirectToPage("./Login");
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public IActionResult OnPost()
         {
-            if (ModelState.IsValid)
-            {
-                var user = await _userManager.FindByEmailAsync(Input.Email);
-                if (user == null)
-                {
-                    // Mos zbulohet nëse përdoruesi nuk ekziston
-                    return RedirectToPage("./ForgotPasswordConfirmation");
-                }
-
-                // Për demostrim - në realitet do të dërgohej email
-                // Aktualisht kjo veçori nuk është e implementuar plotësisht
-                return RedirectToPage("./ForgotPasswordConfirmation");
-            }
-
-            return Page();
+            // Redirect to login with message that password reset is disabled
+            TempData["Info"] = "Rivendosja e fjalëkalimit është çaktivizuar. Fjalëkalimet menaxhohen nga Active Directory. Për ndryshime, kontaktoni departamentin IT.";
+            return RedirectToPage("./Login");
         }
     }
 }

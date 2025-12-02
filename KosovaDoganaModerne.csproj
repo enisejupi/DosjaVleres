@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>1944718b-3bb2-4249-b687-df3314d09d2d</UserSecretsId>
+    <!-- Default to Release configuration -->
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,14 +22,34 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.0" />
-    <PackageReference Include="ClosedXML" Version="0.102.3" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="iText7" Version="8.0.5" />
+    <PackageReference Include="iText7.pdfhtml" Version="5.0.5" />
+    <PackageReference Include="System.IO.Packaging" Version="8.0.1" />
     <PackageReference Include="System.DirectoryServices" Version="10.0.0" />
     <PackageReference Include="System.DirectoryServices.Protocols" Version="10.0.0" />
+    
+    <!-- Serilog packages for comprehensive production logging -->
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
   </ItemGroup>
 
-  <!-- Automatic deployment to IIS after build -->
-  <Target Name="DeployToIIS" AfterTargets="Build">
+  <!-- Include SQLite database in publish output -->
+  <ItemGroup>
+    <Content Include="*.db" CopyToPublishDirectory="PreserveNewest" />
+    <None Update="*.db" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Create logs directory on publish -->
+  <Target Name="CreateLogsDirectory" AfterTargets="Publish">
+    <MakeDir Directories="$(PublishDir)logs" Condition="!Exists('$(PublishDir)logs')" />
+    <Message Text="✓ Created logs directory in publish output" Importance="high" />
+  </Target>
+
+  <!-- Automatic deployment to IIS after successful project build -->
+  <Target Name="DeployToIIS" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' AND '$(DeployOnBuild)' == 'true'">
     <PropertyGroup>
       <!-- IIS root path - automatically detects system drive -->
       <IISRootPath Condition="'$(IISRootPath)' == ''">$(SystemDrive)\inetpub\wwwroot</IISRootPath>
@@ -39,10 +61,10 @@
       <IISDeployPath>$(IISRootPath)\$(IISAppName)</IISDeployPath>
       
       <!-- Application pool name - can be overridden -->
-      <AppPoolName Condition="'$(AppPoolName)' == ''">DefaultAppPool</AppPoolName>
+      <AppPoolName Condition="'$(AppPoolName)' == ''">DoganaDosjaVleres</AppPoolName>
       
-      <!-- Publish output path -->
-      <PublishOutputPath>$(ProjectDir)publish\output</PublishOutputPath>
+      <!-- Publish output path - use project-specific path to avoid solution conflicts -->
+      <PublishOutputPath>$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\publish</PublishOutputPath>
     </PropertyGroup>
     
     <Message Text="===========================================" Importance="high" />
@@ -50,8 +72,11 @@
     <Message Text="Target: $(IISDeployPath)" Importance="high" />
     <Message Text="===========================================" Importance="high" />
     
-    <!-- Publish the application -->
-    <Exec Command="dotnet publish -c $(Configuration) -o &quot;$(PublishOutputPath)&quot; --no-build" />
+    <!-- Publish the application using MSBuild properties instead of dotnet CLI -->
+    <Message Text="Publishing application..." Importance="high" />
+    <MSBuild Projects="$(MSBuildProjectFile)" 
+             Targets="Publish" 
+             Properties="Configuration=$(Configuration);PublishDir=$(PublishOutputPath);RuntimeIdentifier=win-x64;SelfContained=false" />
     
     <Message Text="Stopping IIS application pool ($(AppPoolName))..." Importance="high" />
     
@@ -60,13 +85,40 @@
           IgnoreExitCode="true" 
           ContinueOnError="true" />
     
-    <Message Text="Copying files to $(IISDeployPath)..." Importance="high" />
+    <Message Text="Preparing deployment directory..." Importance="high" />
     
     <!-- Create target directory if it doesn't exist -->
     <MakeDir Directories="$(IISDeployPath)" Condition="!Exists('$(IISDeployPath)')" />
     
-    <!-- Copy files to IIS -->
-    <Exec Command="xcopy /s /y /i &quot;$(PublishOutputPath)\*&quot; &quot;$(IISDeployPath)&quot;" />
+    <!-- Create logs directory -->
+    <MakeDir Directories="$(IISDeployPath)\logs" Condition="!Exists('$(IISDeployPath)\logs')" />
+    
+    <!-- Use robocopy for more reliable copying (exit codes 0-7 are success) -->
+    <Message Text="Copying files to $(IISDeployPath)..." Importance="high" />
+    
+    <!-- Robocopy: /MIR=mirror, /R:2=retry 2 times, /W:3=wait 3 sec, /NP=no progress, /NDL=no dir list, /NFL=no file list -->
+    <Exec Command="robocopy &quot;$(PublishOutputPath)&quot; &quot;$(IISDeployPath)&quot; /MIR /R:2 /W:3 /NP /XO" 
+          IgnoreExitCode="true"
+          ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="RobocopyExitCode"/>
+    </Exec>
+    
+    <!-- Robocopy exit codes: 0-7 are success, 8+ are errors -->
+    <Error Text="File copy failed with exit code $(RobocopyExitCode)" Condition="'$(RobocopyExitCode)' &gt; '7'" />
+    
+    <Message Text="✓ Files copied successfully (exit code: $(RobocopyExitCode))" Importance="high" Condition="'$(RobocopyExitCode)' &lt;= '7'" />
+    
+    <!-- Set database file permissions for IIS AppPool -->
+    <Message Text="Setting database file permissions for IIS AppPool..." Importance="high" />
+    <Exec Command="powershell -Command &quot;try { $dbPath = '$(IISDeployPath)\KosovaDoganaModerne.db'; if (Test-Path $dbPath) { icacls $dbPath /grant 'IIS AppPool\$(AppPoolName):(M)' /T; Write-Host 'Database permissions set' } else { Write-Host 'Database file not found at: ' + $dbPath } } catch { Write-Host 'Failed to set permissions: ' + $_.Exception.Message }&quot;" 
+          IgnoreExitCode="true" 
+          ContinueOnError="true" />
+    
+    <!-- Set directory permissions for IIS AppPool -->
+    <Message Text="Setting directory permissions for IIS AppPool..." Importance="high" />
+    <Exec Command="powershell -Command &quot;try { icacls '$(IISDeployPath)' /grant 'IIS AppPool\$(AppPoolName):(OI)(CI)M' /T; Write-Host 'Directory permissions set' } catch { Write-Host 'Failed to set directory permissions: ' + $_.Exception.Message }&quot;" 
+          IgnoreExitCode="true" 
+          ContinueOnError="true" />
     
     <Message Text="Starting IIS application pool ($(AppPoolName))..." Importance="high" />
     

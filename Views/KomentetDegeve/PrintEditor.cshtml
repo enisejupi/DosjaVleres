@@ -1,0 +1,396 @@
+@model KosovaDoganaModerne.Modelet.Entitetet.KomentiDeges
+
+@{
+    ViewData["Title"] = "Editor Printimi - Koment Dege";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .editor-toolbar {
+            background: white;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .print-preview {
+            max-width: 21cm;
+            min-height: 29.7cm;
+            margin: 20px auto;
+            background: white;
+            padding: 2cm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .draggable {
+            cursor: move;
+            border: 2px dashed transparent;
+            transition: all 0.3s;
+            position: relative;
+            padding: 10px;
+        }
+
+        .draggable:hover {
+            border-color: #007bff;
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #007bff;
+            border: 1px solid white;
+            cursor: nwse-resize;
+        }
+
+        .resize-handle.br {
+            bottom: 0;
+            right: 0;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: none;
+            z-index: 10;
+        }
+
+        .draggable:hover .delete-btn {
+            display: block;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-container img {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .content-section {
+            margin-bottom: 20px;
+        }
+
+        .footer-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        @@media print {
+            body {
+                background: white;
+            }
+            .editor-toolbar {
+                display: none !important;
+            }
+            .print-preview {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+            }
+            .draggable {
+                border: none !important;
+                cursor: default;
+            }
+            .resize-handle, .delete-btn {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-toolbar">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0"><i class="fas fa-edit"></i> Editor i Printimit</h5>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="btn-group">
+                        <button onclick="savePrintLayout()" class="btn btn-success">
+                            <i class="fas fa-save"></i> Ruaj Format
+                        </button>
+                        <button onclick="window.print()" class="btn btn-primary">
+                            <i class="fas fa-print"></i> Printo
+                        </button>
+                        <button onclick="exportToPdf()" class="btn btn-info">
+                            <i class="fas fa-file-pdf"></i> Eksporto PDF
+                        </button>
+                        <a href="@Url.Action("Detajet", "KomentetDegeve", new { id = Model.Id })" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Mbyll
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="btn-group btn-group-sm">
+                        <button onclick="changeLogoSize('small')" class="btn btn-outline-secondary">Logo i vogël</button>
+                        <button onclick="changeLogoSize('medium')" class="btn btn-outline-secondary">Logo mesatar</button>
+                        <button onclick="changeLogoSize('large')" class="btn btn-outline-secondary">Logo i madh</button>
+                    </div>
+                    <div class="btn-group btn-group-sm ms-2">
+                        <button onclick="changeFontSize('10pt')" class="btn btn-outline-secondary">Font 10pt</button>
+                        <button onclick="changeFontSize('11pt')" class="btn btn-outline-secondary">Font 11pt</button>
+                        <button onclick="changeFontSize('12pt')" class="btn btn-outline-secondary">Font 12pt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="print-preview" id="printArea">
+        <div class="draggable logo-container" draggable="true" data-section="logo">
+            <button class="btn btn-sm btn-danger delete-btn" onclick="removeSection(this)">
+                <i class="fas fa-times"></i>
+            </button>
+            <img src="~/images/dogana-logo.png" alt="Logo" id="mainLogo" />
+            <div class="resize-handle br" onmousedown="initResize(event, this)"></div>
+        </div>
+
+        <div class="draggable header-section" draggable="true" data-section="header">
+            <button class="btn btn-sm btn-danger delete-btn" onclick="removeSection(this)">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 style="color: #1e3c72;">DOGANA E KOSOVËS</h2>
+            <h5>Drejtoria e Vlerësimit Doganor</h5>
+            <h6 style="margin-top: 15px; color: #0066cc;"><strong>KOMENTI NGA DEGA</strong></h6>
+        </div>
+
+        <div class="draggable info-section" draggable="true" data-section="info">
+            <button class="btn btn-sm btn-danger delete-btn" onclick="removeSection(this)">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Numri i Komentit:</strong></div>
+                        <div class="col-6">#@Model.Id</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Data e Dërgimit:</strong></div>
+                        <div class="col-6">@Model.DataDergimit.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Dega:</strong></div>
+                        <div class="col-6">@Model.EmriDeges</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Kodi Tarifar:</strong></div>
+                        <div class="col-6"><strong>@Model.KodiTarifar</strong></div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Dërguar nga:</strong></div>
+                        <div class="col-6">@Model.DergoPrejNga</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6"><strong>Statusi:</strong></div>
+                        <div class="col-6">
+                            @if (Model.EshteZgjidhur)
+                            {
+                                <span class="badge bg-success">? Zgjidhur</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">? Në pritje</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="draggable content-section" draggable="true" data-section="message">
+            <button class="btn btn-sm btn-danger delete-btn" onclick="removeSection(this)">
+                <i class="fas fa-times"></i>
+            </button>
+            <h5 style="color: #0066cc;">Mesazhi i Degës:</h5>
+            <div class="border p-3 bg-light">
+                @Model.Mesazhi
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Pergjigja))
+        {
+            <div class="draggable content-section" draggable="true" data-section="reply">
+                <button class="btn btn-sm btn-danger delete-btn" onclick="removeSection(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h5 style="color: #0066cc;">Përgjigja Zyrtare:</h5>
+                <div class="border p-3 bg-success bg-opacity-10">
+                    @Model.Pergjigja
+                </div>
+                <div class="mt-2">
+                    <small><strong>Përgjigjur nga:</strong> @Model.PergjigjetNga</small><br />
+                    <small><strong>Data e Përgjigjes:</strong> @Model.DataPergjigjes?.ToString("dd/MM/yyyy HH:mm")</small>
+                </div>
+            </div>
+        }
+
+        <div class="draggable footer-section" draggable="true" data-section="footer">
+            <button class="btn btn-sm btn-danger delete-btn" onclick="removeSection(this)">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="text-center">
+                <p class="mb-1"><strong>Dogana e Kosovës</strong></p>
+                <p class="mb-1">Rruga "Bill Clinton" p.n., 10000 Prishtinë, Kosovë</p>
+                <p class="mb-1">Tel: +383 38 200 33 000 | Email: info@dogana.rks-gov.net</p>
+                <p class="mb-0"><em>Printuar më: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</em></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        let draggedElement = null;
+
+        // Drag and Drop functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const draggables = document.querySelectorAll('.draggable');
+            const container = document.getElementById('printArea');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.classList.add('dragging');
+                });
+
+                draggable.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                });
+            });
+
+            container.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(container, e.clientY);
+                if (afterElement == null) {
+                    container.appendChild(draggedElement);
+                } else {
+                    container.insertBefore(draggedElement, afterElement);
+                }
+            });
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function changeLogoSize(size) {
+            const logo = document.getElementById('mainLogo');
+            switch(size) {
+                case 'small':
+                    logo.style.maxWidth = '100px';
+                    break;
+                case 'medium':
+                    logo.style.maxWidth = '200px';
+                    break;
+                case 'large':
+                    logo.style.maxWidth = '300px';
+                    break;
+            }
+        }
+
+        function changeFontSize(size) {
+            document.getElementById('printArea').style.fontSize = size;
+        }
+
+        function removeSection(btn) {
+            if (confirm('A jeni të sigurt që dëshironi të fshini këtë seksion?')) {
+                btn.closest('.draggable').remove();
+            }
+        }
+
+        function savePrintLayout() {
+            const layout = {
+                sections: [],
+                logoSize: document.getElementById('mainLogo').style.maxWidth,
+                fontSize: document.getElementById('printArea').style.fontSize
+            };
+
+            document.querySelectorAll('.draggable').forEach((el, index) => {
+                layout.sections.push({
+                    type: el.dataset.section,
+                    order: index
+                });
+            });
+
+            localStorage.setItem('printLayout_comment_@Model.Id', JSON.stringify(layout));
+            alert('Formati u ruajt me sukses!');
+        }
+
+        function exportToPdf() {
+            const element = document.getElementById('printArea');
+            const opt = {
+                margin: 1,
+                filename: 'Koment_@(Model.Id)_@(DateTime.Now.ToString("yyyyMMdd")).pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Load saved layout
+        window.addEventListener('load', function() {
+            const saved = localStorage.getItem('printLayout_comment_@(Model.Id)');
+            if (saved) {
+                const layout = JSON.parse(saved);
+                if (layout.logoSize) {
+                    document.getElementById('mainLogo').style.maxWidth = layout.logoSize;
+                }
+                if (layout.fontSize) {
+                    document.getElementById('printArea').style.fontSize = layout.fontSize;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

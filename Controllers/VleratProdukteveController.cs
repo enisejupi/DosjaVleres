@@ -12,12 +12,21 @@ namespace KosovaDoganaModerne.Controllers
         private readonly IDepoja_VleraProduktit _depoja;
         private readonly IDepoja_KomentiDeges _depojaKomenteve;
         private readonly SherbimetAuditimit _auditimi;
+        private readonly SherbimetPrintimit _sherbimetPrintimit;
+        private readonly IWebHostEnvironment _environment;
 
-        public VleratProdukteveController(IDepoja_VleraProduktit depoja, IDepoja_KomentiDeges depojaKomenteve, SherbimetAuditimit auditimi)
+        public VleratProdukteveController(
+            IDepoja_VleraProduktit depoja, 
+            IDepoja_KomentiDeges depojaKomenteve, 
+            SherbimetAuditimit auditimi,
+            SherbimetPrintimit sherbimetPrintimit,
+            IWebHostEnvironment environment)
         {
             _depoja = depoja;
             _depojaKomenteve = depojaKomenteve;
             _auditimi = auditimi;
+            _sherbimetPrintimit = sherbimetPrintimit;
+            _environment = environment;
         }
 
         [HttpGet("")]
@@ -122,12 +131,39 @@ namespace KosovaDoganaModerne.Controllers
 
         [HttpPost("Krijo")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Krijo(VleraProduktit vlera)
+        public async Task<IActionResult> Krijo(VleraProduktit vlera, IFormFile? bashkangjitja)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
+                    // Handle file upload
+                    if (bashkangjitja != null && bashkangjitja.Length > 0)
+                    {
+                        var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png", ".gif" };
+                        var fileExtension = Path.GetExtension(bashkangjitja.FileName).ToLowerInvariant();
+                        
+                        if (allowedExtensions.Contains(fileExtension))
+                        {
+                            // Create uploads directory if it doesn't exist
+                            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "bashkangjitje");
+                            Directory.CreateDirectory(uploadsFolder);
+
+                            // Generate unique filename
+                            var uniqueFileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid()}{fileExtension}";
+                            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                            // Save file
+                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await bashkangjitja.CopyToAsync(fileStream);
+                            }
+
+                            vlera.Bashkangjitje = $"/uploads/bashkangjitje/{uniqueFileName}";
+                            vlera.EmeriBashkangjitjes = bashkangjitja.FileName;
+                        }
+                    }
+
                     // Vendos të dhënat e krijimit
                     vlera.Krijuar_Nga = User.Identity?.Name ?? "Anonim";
                     vlera.Krijuar_Me = DateTime.UtcNow;
@@ -190,7 +226,7 @@ namespace KosovaDoganaModerne.Controllers
         /// </summary>
         [HttpPost("Perditeso/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Perditeso(int id, VleraProduktit vlera)
+        public async Task<IActionResult> Perditeso(int id, VleraProduktit vlera, IFormFile? fotoNdryshimit, string? arsyejaNdryshimit, IFormFile? bashkangjitja)
         {
             if (id != vlera.Id)
             {
@@ -210,9 +246,71 @@ namespace KosovaDoganaModerne.Controllers
                         return RedirectToAction(nameof(Index));
                     }
 
+                    // Handle attachment upload if provided
+                    if (bashkangjitja != null && bashkangjitja.Length > 0)
+                    {
+                        var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png", ".gif" };
+                        var fileExtension = Path.GetExtension(bashkangjitja.FileName).ToLowerInvariant();
+                        
+                        if (allowedExtensions.Contains(fileExtension))
+                        {
+                            // Create uploads directory if it doesn't exist
+                            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "bashkangjitje");
+                            Directory.CreateDirectory(uploadsFolder);
+
+                            // Generate unique filename
+                            var uniqueFileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid()}{fileExtension}";
+                            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                            // Save file
+                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await bashkangjitja.CopyToAsync(fileStream);
+                            }
+
+                            vlera.Bashkangjitje = $"/uploads/bashkangjitje/{uniqueFileName}";
+                            vlera.EmeriBashkangjitjes = bashkangjitja.FileName;
+                        }
+                    }
+                    else
+                    {
+                        // Keep existing attachment if no new file uploaded
+                        vlera.Bashkangjitje = vleraVjeter.Bashkangjitje;
+                        vlera.EmeriBashkangjitjes = vleraVjeter.EmeriBashkangjitjes;
+                    }
+
                     // Kontrollo nëse vlera doganore është ndryshuar
                     if (vleraVjeter.VleraDoganore != vlera.VleraDoganore)
                     {
+                        string? fotoPath = null;
+
+                        // Handle photo upload if provided
+                        if (fotoNdryshimit != null && fotoNdryshimit.Length > 0)
+                        {
+                            // Validate file type
+                            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                            var fileExtension = Path.GetExtension(fotoNdryshimit.FileName).ToLowerInvariant();
+                            
+                            if (allowedExtensions.Contains(fileExtension))
+                            {
+                                // Create uploads directory if it doesn't exist
+                                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "historia");
+                                Directory.CreateDirectory(uploadsFolder);
+
+                                // Generate unique filename
+                                var uniqueFileName = $"{id}_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid()}{fileExtension}";
+                                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                                // Save file
+                                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                                {
+                                    await fotoNdryshimit.CopyToAsync(fileStream);
+                                }
+
+                                fotoPath = $"/uploads/historia/{uniqueFileName}";
+                            }
+                        }
+
                         // Shto në historinë e ndryshimeve
                         var historia = new HistoriaVlerave
                         {
@@ -221,7 +319,8 @@ namespace KosovaDoganaModerne.Controllers
                             Vlera_Re = vlera.VleraDoganore,
                             Valuta_Mepar = vleraVjeter.Valuta,
                             Valuta_Re = vlera.Valuta,
-                            ArsyejaE_Ndryshimit = "Përditësim manual",
+                            ArsyejaE_Ndryshimit = !string.IsNullOrWhiteSpace(arsyejaNdryshimit) ? arsyejaNdryshimit : "Përditësim manual",
+                            FotoNdryshimit = fotoPath,
                             Ndryshuar_Nga = User.Identity?.Name ?? "Anonim",
                             AdresaIP = HttpContext.Connection.RemoteIpAddress?.ToString(),
                             NumriVersionit = (vleraVjeter.HistoriaVlerave?.Count() ?? 0) + 1
@@ -387,19 +486,133 @@ namespace KosovaDoganaModerne.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                await _auditimi.RegjistroVeprim(
-                    User.Identity?.Name ?? "Anonim",
-                    "Printo",
-                    "VleraProduktit",
-                    id.ToString(),
-                    detajet: $"Printuar dokumenti për produktin ID: {id}"
+                var vlerat = new List<VleraProduktit> { vlera };
+                var parametra = new Dictionary<string, string>
+                {
+                    { "Lloji i raportit", "Detajet e Produktit" },
+                    { "Kodi i produktit", vlera.KodiProduktit },
+                    { "Emri i produktit", vlera.EmriProduktit }
+                };
+
+                var htmlContent = await _sherbimetPrintimit.GjeneroPërmbajtjeHTML("VleratProdukteve", vlerat, parametra);
+                
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "VleratProdukteve",
+                    formatiEksportimit: "Print",
+                    numriRekordeve: 1,
+                    filtrat: new { Id = id },
+                    shenime: $"Printuar detajet për produktin: {vlera.EmriProduktit}"
                 );
 
-                return View(vlera);
+                return Content(htmlContent, "text/html");
             }
             catch (Exception ex)
             {
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "VleratProdukteve",
+                    formatiEksportimit: "Print",
+                    numriRekordeve: 0,
+                    eshteSuksesshem: false,
+                    mesazhiGabimit: ex.Message
+                );
+
                 TempData["Gabim"] = "Gabim gjatë printimit: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpGet("PDF/{id}")]
+        public async Task<IActionResult> PDF(int id)
+        {
+            try
+            {
+                var vlera = await _depoja.MerrSipasID(id);
+                if (vlera == null)
+                {
+                    TempData["Gabim"] = "Produkti nuk u gjet.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var vlerat = new List<VleraProduktit> { vlera };
+                var parametra = new Dictionary<string, string>
+                {
+                    { "Lloji i raportit", "Detajet e Produktit" },
+                    { "Kodi i produktit", vlera.KodiProduktit },
+                    { "Emri i produktit", vlera.EmriProduktit }
+                };
+
+                var pdfData = await _sherbimetPrintimit.GjeneroPDF("VleratProdukteve", vlerat, parametra);
+                
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "VleratProdukteve",
+                    formatiEksportimit: "PDF",
+                    numriRekordeve: 1,
+                    filtrat: new { Id = id },
+                    shenime: $"Gjeneruar PDF për produktin: {vlera.EmriProduktit}"
+                );
+
+                var fileName = $"Produkti_{vlera.KodiProduktit}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                return File(pdfData, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "VleratProdukteve",
+                    formatiEksportimit: "PDF",
+                    numriRekordeve: 0,
+                    eshteSuksesshem: false,
+                    mesazhiGabimit: ex.Message
+                );
+
+                TempData["Gabim"] = "Gabim gjatë gjenerimit të PDF: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpGet("Excel/{id}")]
+        public async Task<IActionResult> Excel(int id)
+        {
+            try
+            {
+                var vlera = await _depoja.MerrSipasID(id);
+                if (vlera == null)
+                {
+                    TempData["Gabim"] = "Produkti nuk u gjet.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var vlerat = new List<VleraProduktit> { vlera };
+                var parametra = new Dictionary<string, string>
+                {
+                    { "Lloji i raportit", "Detajet e Produktit" },
+                    { "Kodi i produktit", vlera.KodiProduktit },
+                    { "Emri i produktit", vlera.EmriProduktit }
+                };
+
+                var excelData = await _sherbimetPrintimit.GjeneroExcel("VleratProdukteve", vlerat, parametra);
+                
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "VleratProdukteve",
+                    formatiEksportimit: "Excel",
+                    numriRekordeve: 1,
+                    filtrat: new { Id = id },
+                    shenime: $"Eksportuar në Excel produktin: {vlera.EmriProduktit}"
+                );
+
+                var fileName = $"Produkti_{vlera.KodiProduktit}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+                return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "VleratProdukteve",
+                    formatiEksportimit: "Excel",
+                    numriRekordeve: 0,
+                    eshteSuksesshem: false,
+                    mesazhiGabimit: ex.Message
+                );
+
+                TempData["Gabim"] = "Gabim gjatë gjenerimit të Excel: " + ex.Message;
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -456,6 +669,352 @@ namespace KosovaDoganaModerne.Controllers
                 );
                 TempData["Gabim"] = "Gabim gjatë krijimit të komentit: " + ex.Message;
                 return RedirectToAction(nameof(Index));
+            }
+        }
+
+        /// <summary>
+        /// API endpoint për të marrë komentet e një produkti (për AJAX)
+        /// </summary>
+        [HttpGet("/api/komentet/{produktId}")]
+        public async Task<IActionResult> MerrKomentet(int produktId)
+        {
+            try
+            {
+                var komentet = await _depojaKomenteve.MerrSipasVleresProduktit(produktId);
+                
+                var result = komentet.Select(k => new
+                {
+                    id = k.Id,
+                    emriDeges = k.EmriDeges,
+                    mesazhi = k.Mesazhi,
+                    dataDergimit = k.DataDergimit,
+                    dergoPrejNga = k.DergoPrejNga,
+                    eshteLexuar = k.EshteLexuar,
+                    eshteZgjidhur = k.EshteZgjidhur,
+                    pergjigja = k.Pergjigja,
+                    dataPergjigjes = k.DataPergjigjes,
+                    pergjigjetNga = k.PergjigjetNga
+                }).ToList();
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Shfaq historinë e ndryshimeve për një produkt të caktuar
+        /// </summary>
+        [HttpGet("Historia/{id}")]
+        public async Task<IActionResult> Historia(int id)
+        {
+            try
+            {
+                var vlera = await _depoja.MerrSipasID(id);
+                if (vlera == null)
+                {
+                    TempData["Gabim"] = "Produkti nuk u gjet.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Merr historinë e ndryshimeve
+                var historia = await _depoja.MerrHistorine(id);
+
+                ViewBag.Produkti = vlera;
+                ViewData["EmriProduktit"] = vlera.EmriProduktit;
+                ViewData["KodiProduktit"] = vlera.KodiProduktit;
+
+                // Regjistro shikimin e historisë në audit
+                await _auditimi.RegjistroVeprim(
+                    User.Identity?.Name ?? "Anonim",
+                    "ShikoHistorine",
+                    "VleraProduktit",
+                    id.ToString(),
+                    detajet: $"Shikuar historia për produktin: {vlera.EmriProduktit}"
+                );
+
+                return View(historia);
+            }
+            catch (Exception ex)
+            {
+                await _auditimi.RegjistroVeprim(
+                    User.Identity?.Name ?? "Anonim",
+                    "ShikoHistorine",
+                    "VleraProduktit",
+                    id.ToString(),
+                    eshte_suksesshem: false,
+                    mesazhiGabimit: ex.Message
+                );
+                TempData["Gabim"] = "Gabim gjatë ngarkimit të historisë: " + ex.Message;
+                return RedirectToAction(nameof(Detajet), new { id });
+            }
+        }
+
+        /// <summary>
+        /// Upload product images
+        /// </summary>
+        [HttpPost("NgarkoImazhe/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NgarkoImazhe(int id, List<IFormFile> imazhet, string? pershkrimi)
+        {
+            try
+            {
+                var vlera = await _depoja.MerrSipasID(id);
+                if (vlera == null)
+                {
+                    return Json(new { success = false, message = "Produkti nuk u gjet." });
+                }
+
+                if (imazhet == null || !imazhet.Any())
+                {
+                    return Json(new { success = false, message = "Nuk ka imazhe për tu ngarkuar." });
+                }
+
+                var uploadedImages = new List<ImazhetProduktit>();
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                var maxFileSize = 5 * 1024 * 1024; // 5MB
+
+                // Create uploads directory if it doesn't exist
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "produkte");
+                Directory.CreateDirectory(uploadsFolder);
+
+                foreach (var imazh in imazhet)
+                {
+                    if (imazh.Length == 0) continue;
+
+                    var fileExtension = Path.GetExtension(imazh.FileName).ToLowerInvariant();
+                    
+                    // Validate file type
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        return Json(new { success = false, message = $"Formati i skedarit '{imazh.FileName}' nuk është i lejuar. Lejohen vetëm: {string.Join(", ", allowedExtensions)}" });
+                    }
+
+                    // Validate file size
+                    if (imazh.Length > maxFileSize)
+                    {
+                        return Json(new { success = false, message = $"Skedari '{imazh.FileName}' është shumë i madh. Maksimumi: 5MB" });
+                    }
+
+                    // Generate unique filename
+                    var uniqueFileName = $"{id}_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid()}{fileExtension}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    // Save file to disk
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imazh.CopyToAsync(fileStream);
+                    }
+
+                    // Create image entity
+                    var imazhEntity = new ImazhetProduktit
+                    {
+                        VleraProduktit_Id = id,
+                        ShtegimaImazhit = $"/uploads/produkte/{uniqueFileName}",
+                        EmriOrigjinal = imazh.FileName,
+                        LlojiImazhit = "Produkt",
+                        Pershkrimi = pershkrimi,
+                        MadhesiaBytes = imazh.Length,
+                        NgarkuarNga = User.Identity?.Name ?? "Anonim",
+                        NgarkuarMe = DateTime.UtcNow,
+                        RradhaShfaqjes = 0,
+                        EshteImazhKryesor = false
+                    };
+
+                    uploadedImages.Add(imazhEntity);
+                }
+
+                // Save to database
+                await _depoja.ShtoImazhe(uploadedImages);
+
+                // Audit log
+                await _auditimi.RegjistroVeprim(
+                    User.Identity?.Name ?? "Anonim",
+                    "NgarkoImazhe",
+                    "VleraProduktit",
+                    id.ToString(),
+                    detajet: $"Ngarkuar {uploadedImages.Count} imazhe për produktin ID: {id}"
+                );
+
+                return Json(new { 
+                    success = true, 
+                    message = $"{uploadedImages.Count} imazhe u ngarkuan me sukses!",
+                    images = uploadedImages.Select(i => new { 
+                        id = i.Id,
+                        url = i.ShtegimaImazhit,
+                        emri = i.EmriOrigjinal
+                    })
+                });
+            }
+            catch (Exception ex)
+            {
+                await _auditimi.RegjistroVeprim(
+                    User.Identity?.Name ?? "Anonim",
+                    "NgarkoImazhe",
+                    "VleraProduktit",
+                    id.ToString(),
+                    eshte_suksesshem: false,
+                    mesazhiGabimit: ex.Message
+                );
+                return Json(new { success = false, message = "Gabim gjatë ngarkimit të imazheve: " + ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Download/View product image
+        /// </summary>
+        [HttpGet("Imazhi/{imazhId}")]
+        public async Task<IActionResult> Imazhi(int imazhId)
+        {
+            try
+            {
+                var imazh = await _depoja.MerrImazhSipasID(imazhId);
+                if (imazh == null)
+                {
+                    return NotFound("Imazhi nuk u gjet.");
+                }
+
+                // Get physical file path
+                var filePath = Path.Combine(_environment.WebRootPath, imazh.ShtegimaImazhit.TrimStart('/'));
+
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound("Skedari i imazhit nuk ekziston në server.");
+                }
+
+                // Determine content type
+                var contentType = imazh.ShtegimaImazhit.ToLowerInvariant() switch
+                {
+                    var s when s.EndsWith(".jpg") || s.EndsWith(".jpeg") => "image/jpeg",
+                    var s when s.EndsWith(".png") => "image/png",
+                    var s when s.EndsWith(".gif") => "image/gif",
+                    var s when s.EndsWith(".bmp") => "image/bmp",
+                    _ => "application/octet-stream"
+                };
+
+                // Return file
+                var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+                return File(fileBytes, contentType, imazh.EmriOrigjinal);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Gabim gjatë shkarkimit të imazhit: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Delete product image
+        /// </summary>
+        [HttpPost("FshiImazhin/{imazhId}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FshiImazhin(int imazhId)
+        {
+            try
+            {
+                var imazh = await _depoja.MerrImazhSipasID(imazhId);
+                if (imazh == null)
+                {
+                    return Json(new { success = false, message = "Imazhi nuk u gjet." });
+                }
+
+                // Delete physical file
+                var filePath = Path.Combine(_environment.WebRootPath, imazh.ShtegimaImazhit.TrimStart('/'));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+
+                // Delete from database
+                await _depoja.FshiImazhin(imazhId);
+
+                // Audit log
+                await _auditimi.RegjistroVeprim(
+                    User.Identity?.Name ?? "Anonim",
+                    "FshiImazhin",
+                    "ImazhetProduktit",
+                    imazhId.ToString(),
+                    detajet: $"Fshirë imazhi për produktin ID: {imazh.VleraProduktit_Id}"
+                );
+
+                return Json(new { success = true, message = "Imazhi u fshi me sukses!" });
+            }
+            catch (Exception ex)
+            {
+                await _auditimi.RegjistroVeprim(
+                    User.Identity?.Name ?? "Anonim",
+                    "FshiImazhin",
+                    "ImazhetProduktit",
+                    imazhId.ToString(),
+                    eshte_suksesshem: false,
+                    mesazhiGabimit: ex.Message
+                );
+                return Json(new { success = false, message = "Gabim gjatë fshirjes së imazhit: " + ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all images for a product (API endpoint for AJAX)
+        /// </summary>
+        [HttpGet("/api/imazhet/{produktId}")]
+        public async Task<IActionResult> MerrImazhet(int produktId)
+        {
+            try
+            {
+                var imazhet = await _depoja.MerrImazhetProduktit(produktId);
+                
+                var result = imazhet.Select(i => new
+                {
+                    id = i.Id,
+                    url = i.ShtegimaImazhit,
+                    emriOrigjinal = i.EmriOrigjinal,
+                    llojiImazhit = i.LlojiImazhit,
+                    pershkrimi = i.Pershkrimi,
+                    madhesiaBytes = i.MadhesiaBytes,
+                    eshteKryesor = i.EshteImazhKryesor,
+                    ngarkuarNga = i.NgarkuarNga,
+                    ngarkuarMe = i.NgarkuarMe
+                }).ToList();
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Set an image as primary for a product
+        /// </summary>
+        [HttpPost("VendosImazhKryesor/{imazhId}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VendosImazhKryesor(int imazhId)
+        {
+            try
+            {
+                var imazh = await _depoja.MerrImazhSipasID(imazhId);
+                if (imazh == null)
+                {
+                    return Json(new { success = false, message = "Imazhi nuk u gjet." });
+                }
+
+                await _depoja.VendosImazhKryesor(imazhId, imazh.VleraProduktit_Id);
+
+                await _auditimi.RegjistroVeprim(
+                    User.Identity?.Name ?? "Anonim",
+                    "VendosImazhKryesor",
+                    "ImazhetProduktit",
+                    imazhId.ToString(),
+                    detajet: $"Vendosur si imazh kryesor për produktin ID: {imazh.VleraProduktit_Id}"
+                );
+
+                return Json(new { success = true, message = "Imazhi u vendos si kryesor me sukses!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Gabim: " + ex.Message });
             }
         }
     }

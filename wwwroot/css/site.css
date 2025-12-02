@@ -569,3 +569,59 @@ body {
     border: 1px solid #dee2e6 !important;
   }
 }
+
+/* Override purple colors with dark blue to match company logo */
+:root {
+  --bs-purple: #1e3c72 !important;
+  --company-dark-blue: #1e3c72;
+  --company-blue: #2a5298;
+}
+
+/* Override Bootstrap purple table colors with dark blue */
+.table-primary {
+  --bs-table-bg: #d4e3f7 !important;
+  --bs-table-striped-bg: #c5d7f2 !important;
+  --bs-table-striped-color: #000 !important;
+  --bs-table-active-bg: #bacbe6 !important;
+  --bs-table-active-color: #000 !important;
+  --bs-table-hover-bg: #bfd1ec !important;
+  --bs-table-hover-color: #000 !important;
+  color: #000 !important;
+  border-color: #bacbe6 !important;
+}
+
+/* Custom dark blue classes for consistency */
+.bg-company-blue {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+  color: white !important;
+}
+
+.text-company-blue {
+  color: #1e3c72 !important;
+}
+
+.btn-company-blue {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  box-shadow: 0 4px 15px rgba(30, 60, 114, 0.4);
+  color: white;
+  border: none;
+}
+
+.btn-company-blue:hover {
+  background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+  box-shadow: 0 6px 20px rgba(30, 60, 114, 0.6);
+  transform: translateY(-2px);
+  color: white;
+}
+
+.border-company-blue {
+  border-color: #1e3c72 !important;
+}
+
+/* Override any purple badges with dark blue */
+.badge-purple,
+.bg-purple {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+  color: white !important;
+}
+

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using KosovaDoganaModerne.Modelet.Entitetet;
 using KosovaDoganaModerne.Sherbime;
@@ -23,6 +24,7 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class RegisterModel : PageModel
     {
+        private readonly IConfiguration _configuration;
         private readonly SignInManager<Perdoruesi> _signInManager;
         private readonly UserManager<Perdoruesi> _userManager;
         private readonly IUserStore<Perdoruesi> _userStore;
@@ -37,7 +39,8 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
             SignInManager<Perdoruesi> signInManager,
             ILogger<RegisterModel> logger,
             SherbimetActiveDirectory adSherbimi,
-            IDepoja_KerkeseRegjistrim depojaKerkesave)
+            IDepoja_KerkeseRegjistrim depojaKerkesave,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -46,6 +49,7 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
             _logger = logger;
             _adSherbimi = adSherbimi;
             _depojaKerkesave = depojaKerkesave;
+            _configuration = configuration;
         }
 
         [BindProperty]
@@ -62,74 +66,32 @@ namespace KosovaDoganaModerne.Areas.Identity.Pages.Account
             public string Email { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
+            // Kontrollo nëse Active Directory është aktivizuar
+            var adEnabled = bool.Parse(_configuration["ActiveDirectory:Enabled"] ?? "false");
+            
+            if (adEnabled)
+            {
+                // Nëse AD është aktivizuar, nuk lejohet regjistrimi manual
+                TempData["Info"] = "Regjistrimi manual nuk është i disponueshëm. Ju lutem përdorni kredencialet tuaja të Active Directory për të hyrë në sistem.";
+                _logger.LogInformation("Tentativë për të aksesuar faqen e regjistrimit kur AD është aktivizuar");
+                return RedirectToPage("./Login", new { returnUrl });
+            }
+
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            // Ridrejto te Login sepse regjistrimi është çaktivizuar
+            var adEnabled = bool.Parse(_configuration["ActiveDirectory:Enabled"] ?? "false");
             
-            if (ModelState.IsValid)
+            if (adEnabled)
             {
-                // Kontrollo nëse përdoruesi ekziston tashmë në sistem
-                var ekzistonPerdoruesi = await _userManager.FindByEmailAsync(Input.Email) ?? 
-                                         await _userManager.FindByNameAsync(Input.Email);
-                
-                if (ekzistonPerdoruesi != null)
-                {
-                    ModelState.AddModelError(string.Empty, "Ky përdorues ekziston tashmë në sistem.");
-                    return Page();
-                }
-
-                // Kontrollo nëse ka një kërkesë në pritje
-                var kerkesaEkzistuese = await _depojaKerkesave.MerrSipasEmail(Input.Email);
-                if (kerkesaEkzistuese != null)
-                {
-                    if (kerkesaEkzistuese.Statusi == StatusiKerkeses.NePritje)
-                    {
-                        ModelState.AddModelError(string.Empty, "Keni tashmë një kërkesë në pritje. Ju lutem prisni që administratori ta shqyrtojë.");
-                        return Page();
-                    }
-                    else if (kerkesaEkzistuese.Statusi == StatusiKerkeses.Refuzuar)
-                    {
-                        ModelState.AddModelError(string.Empty, $"Kërkesa juaj është refuzuar më parë. Arsyeja: {kerkesaEkzistuese.ArsetimiRefuzimit}");
-                        return Page();
-                    }
-                }
-
-                // Verifiko në Active Directory - përdor password dummy për verifikim
-                var (success, userInfo) = await _adSherbimi.AutontifikoNeActiveDirectory(Input.Email, "DummyPasswordForVerification");
-                
-                // Nëse AD është i çaktivizuar, success do të jetë true me userInfo të gjeneruar automatikisht
-                if (userInfo == null)
-                {
-                    ModelState.AddModelError(string.Empty, "Nuk u arrit të komunikohet me Active Directory. Ju lutem kontaktoni administratorin.");
-                    _logger.LogWarning("Tentativë regjistrimi dështoi: {Email} - problem me AD", Input.Email);
-                    return Page();
-                }
-
-                // Krijo kërkesën për regjistrim
-                var kerkese = new KerkeseRegjistrim
-                {
-                    Email = userInfo.Email ?? Input.Email,
-                    EmriPlote = userInfo.DisplayName,
-                    Departamenti = userInfo.Department,
-                    Pozicioni = userInfo.Title,
-                    ADUsername = userInfo.SamAccountName,
-                    EshteVerifikuarNeAD = true,
-                    Statusi = StatusiKerkeses.NePritje,
-                    DataKerkeses = DateTime.UtcNow
-                };
-
-                await _depojaKerkesave.Shto(kerkese);
-
-                _logger.LogInformation("Kërkesë e re regjistrimi nga: {Email}, Email AD: {ADEmail}", Input.Email, userInfo.Email);
-
-                TempData["Sukses"] = "Kërkesa juaj për regjistrim është dërguar me sukses! Administratori do ta shqyrtojë dhe ju do të njoftoheni.";
+                TempData["Info"] = "Regjistrimi manual nuk është i disponueshëm. Ju lutem përdorni kredencialet tuaja të Active Directory për të hyrë në sistem.";
                 return RedirectToPage("./Login");
             }
 

@@ -12,12 +12,18 @@ namespace KosovaDoganaModerne.Controllers
         private readonly IDepoja_KomentiDeges _depoja;
         private readonly IDepoja_VleraProduktit _depojaProdukteve;
         private readonly SherbimetAuditimit _auditimi;
+        private readonly SherbimetPrintimit _sherbimetPrintimit;
 
-        public KomentetDegeveController(IDepoja_KomentiDeges depoja, IDepoja_VleraProduktit depojaProdukteve, SherbimetAuditimit auditimi)
+        public KomentetDegeveController(
+            IDepoja_KomentiDeges depoja, 
+            IDepoja_VleraProduktit depojaProdukteve, 
+            SherbimetAuditimit auditimi,
+            SherbimetPrintimit sherbimetPrintimit)
         {
             _depoja = depoja;
             _depojaProdukteve = depojaProdukteve;
             _auditimi = auditimi;
+            _sherbimetPrintimit = sherbimetPrintimit;
         }
 
         [HttpGet("")]
@@ -102,10 +108,30 @@ namespace KosovaDoganaModerne.Controllers
             }
         }
 
+        /// <summary>
+        /// Krijo një koment të ri. Kjo metodë duhet të aksesohet vetëm nga tabela e produkteve.
+        /// </summary>
         [HttpGet("Krijo")]
-        public IActionResult Krijo()
+        public IActionResult Krijo(int? vleraProduktitId, string? kodiTarifar)
         {
-            return View();
+            // Nëse nuk vjen nga tabela e produkteve, ridrejto te lista
+            if (!vleraProduktitId.HasValue && string.IsNullOrWhiteSpace(kodiTarifar))
+            {
+                TempData["Gabim"] = "Komentet mund të shtohen vetëm nga tabela e produkteve.";
+                return RedirectToAction("Index", "VleratProdukteve");
+            }
+
+            var model = new KomentiDeges();
+            if (vleraProduktitId.HasValue)
+            {
+                model.VleraProduktit_Id = vleraProduktitId.Value;
+            }
+            if (!string.IsNullOrWhiteSpace(kodiTarifar))
+            {
+                model.KodiTarifar = kodiTarifar;
+            }
+
+            return View(model);
         }
 
         [HttpPost("Krijo")]
@@ -130,6 +156,13 @@ namespace KosovaDoganaModerne.Controllers
                     );
 
                     TempData["Sukses"] = "Komenti u dërgua me sukses!";
+                    
+                    // Ridrejto mbrapa te produkti nëse ka ID
+                    if (komenti.VleraProduktit_Id.HasValue)
+                    {
+                        return RedirectToAction("Detajet", "VleratProdukteve", new { id = komenti.VleraProduktit_Id.Value });
+                    }
+                    
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -176,24 +209,39 @@ namespace KosovaDoganaModerne.Controllers
                     return View(komenti);
                 }
 
-                var sukses = await _depoja.ShënosiZgjidhur(id, model.Pergjigja, User.Identity?.Name ?? "Anonim");
-                
-                if (sukses)
-                {
-                    await _auditimi.RegjistroVeprim(
-                        User.Identity?.Name ?? "Anonim",
-                        "Pergjigju",
-                        "KomentiDeges",
-                        id.ToString(),
-                        detajet: "Komenti u përgjigjur"
-                    );
-
-                    TempData["Sukses"] = "Përgjigjja u dërgua me sukses!";
-                }
-                else
+                // Merr koment ekzistues
+                var komentiEkzistues = await _depoja.MerrSipasID(id);
+                if (komentiEkzistues == null)
                 {
                     TempData["Gabim"] = "Komenti nuk u gjet.";
+                    return RedirectToAction(nameof(Index));
                 }
+
+                // Update the comment with the reply
+                komentiEkzistues.Pergjigja = model.Pergjigja;
+                komentiEkzistues.PergjigjetNga = User.Identity?.Name ?? "Anonim";
+                komentiEkzistues.DataPergjigjes = DateTime.UtcNow;
+                komentiEkzistues.EshteLexuar = true; // Always mark as read when replied
+                
+                // Only mark as solved if the checkbox was checked
+                if (model.EshteZgjidhur)
+                {
+                    komentiEkzistues.EshteZgjidhur = true;
+                }
+
+                await _depoja.Perditeso(komentiEkzistues);
+
+                await _auditimi.RegjistroVeprim(
+                    User.Identity?.Name ?? "Anonim",
+                    "Pergjigju",
+                    "KomentiDeges",
+                    id.ToString(),
+                    detajet: $"Komenti u përgjigjur. Zgjidhur: {model.EshteZgjidhur}"
+                );
+
+                TempData["Sukses"] = model.EshteZgjidhur 
+                    ? "Përgjigjja u dërgua me sukses dhe komenti u shënua si i zgjidhur!"
+                    : "Përgjigjja u dërgua me sukses! Diskutimi mund të vazhdojë.";
 
                 return RedirectToAction(nameof(Detajet), new { id });
             }
@@ -248,11 +296,133 @@ namespace KosovaDoganaModerne.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                return View(komenti);
+                var komentet = new List<KomentiDeges> { komenti };
+                var parametra = new Dictionary<string, string>
+                {
+                    { "Lloji i raportit", "Detajet e Komentit" },
+                    { "Dega", komenti.EmriDeges },
+                    { "Kodi Tarifar", komenti.KodiTarifar }
+                };
+
+                var htmlContent = await _sherbimetPrintimit.GjeneroPërmbajtjeHTML("KomentetDegeve", komentet, parametra);
+                
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "KomentetDegeve",
+                    formatiEksportimit: "Print",
+                    numriRekordeve: 1,
+                    filtrat: new { Id = id },
+                    shenime: $"Printuar detajet për komentin ID: {id}"
+                );
+
+                return Content(htmlContent, "text/html");
             }
             catch (Exception ex)
             {
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "KomentetDegeve",
+                    formatiEksportimit: "Print",
+                    numriRekordeve: 0,
+                    eshteSuksesshem: false,
+                    mesazhiGabimit: ex.Message
+                );
+
                 TempData["Gabim"] = "Gabim gjatë përgatitjes së printimit: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpGet("PDF/{id}")]
+        public async Task<IActionResult> PDF(int id)
+        {
+            try
+            {
+                var komenti = await _depoja.MerrSipasID(id);
+                if (komenti == null)
+                {
+                    TempData["Gabim"] = "Komenti nuk u gjet.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var komentet = new List<KomentiDeges> { komenti };
+                var parametra = new Dictionary<string, string>
+                {
+                    { "Lloji i raportit", "Detajet e Komentit" },
+                    { "Dega", komenti.EmriDeges },
+                    { "Kodi Tarifar", komenti.KodiTarifar }
+                };
+
+                var pdfData = await _sherbimetPrintimit.GjeneroPDF("KomentetDegeve", komentet, parametra);
+                
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "KomentetDegeve",
+                    formatiEksportimit: "PDF",
+                    numriRekordeve: 1,
+                    filtrat: new { Id = id },
+                    shenime: $"Gjeneruar PDF për komentin ID: {id}"
+                );
+
+                var fileName = $"Komenti_{id}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                return File(pdfData, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "KomentetDegeve",
+                    formatiEksportimit: "PDF",
+                    numriRekordeve: 0,
+                    eshteSuksesshem: false,
+                    mesazhiGabimit: ex.Message
+                );
+
+                TempData["Gabim"] = "Gabim gjatë gjenerimit të PDF: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpGet("Excel/{id}")]
+        public async Task<IActionResult> Excel(int id)
+        {
+            try
+            {
+                var komenti = await _depoja.MerrSipasID(id);
+                if (komenti == null)
+                {
+                    TempData["Gabim"] = "Komenti nuk u gjet.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var komentet = new List<KomentiDeges> { komenti };
+                var parametra = new Dictionary<string, string>
+                {
+                    { "Lloji i raportit", "Detajet e Komentit" },
+                    { "Dega", komenti.EmriDeges },
+                    { "Kodi Tarifar", komenti.KodiTarifar }
+                };
+
+                var excelData = await _sherbimetPrintimit.GjeneroExcel("KomentetDegeve", komentet, parametra);
+                
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "KomentetDegeve",
+                    formatiEksportimit: "Excel",
+                    numriRekordeve: 1,
+                    filtrat: new { Id = id },
+                    shenime: $"Eksportuar në Excel komentin ID: {id}"
+                );
+
+                var fileName = $"Komenti_{id}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+                return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                await _sherbimetPrintimit.RegjistroAuditimPrintimi(
+                    llojiRaportit: "KomentetDegeve",
+                    formatiEksportimit: "Excel",
+                    numriRekordeve: 0,
+                    eshteSuksesshem: false,
+                    mesazhiGabimit: ex.Message
+                );
+
+                TempData["Gabim"] = "Gabim gjatë gjenerimit të Excel: " + ex.Message;
                 return RedirectToAction(nameof(Index));
             }
         }

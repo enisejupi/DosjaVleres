@@ -17,6 +17,7 @@ namespace KosovaDoganaModerne.Depo
         {
             return await _konteksti.VleratProdukteve
                 .Include(p => p.HistoriaVlerave)
+                .Include(p => p.Imazhet)
                 .OrderBy(p => p.EmriProduktit)
                 .ToListAsync();
         }
@@ -25,6 +26,7 @@ namespace KosovaDoganaModerne.Depo
         {
             return await _konteksti.VleratProdukteve
                 .Include(p => p.HistoriaVlerave)
+                .Include(p => p.Imazhet)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
@@ -33,6 +35,7 @@ namespace KosovaDoganaModerne.Depo
             return await _konteksti.VleratProdukteve
                 .AsNoTracking()
                 .Include(p => p.HistoriaVlerave)
+                .Include(p => p.Imazhet)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
@@ -40,6 +43,7 @@ namespace KosovaDoganaModerne.Depo
         {
             return await _konteksti.VleratProdukteve
                 .Include(p => p.HistoriaVlerave)
+                .Include(p => p.Imazhet)
                 .FirstOrDefaultAsync(p => p.KodiProduktit == kodi);
         }
 
@@ -115,6 +119,7 @@ namespace KosovaDoganaModerne.Depo
 
             return await query
                 .Include(p => p.HistoriaVlerave)
+                .Include(p => p.Imazhet)
                 .OrderBy(p => p.EmriProduktit)
                 .ToListAsync();
         }
@@ -169,6 +174,81 @@ namespace KosovaDoganaModerne.Depo
             _konteksti.HistoriaVlerave.Add(historia);
             await _konteksti.SaveChangesAsync();
             return historia;
+        }
+
+        // ============================================================================
+        // IMAGE OPERATIONS
+        // ============================================================================
+
+        public async Task<IEnumerable<ImazhetProduktit>> MerrImazhetProduktit(int produktId)
+        {
+            return await _konteksti.ImazhetProduktit
+                .Where(i => i.VleraProduktit_Id == produktId)
+                .OrderByDescending(i => i.EshteImazhKryesor)
+                .ThenBy(i => i.RradhaShfaqjes)
+                .ThenBy(i => i.NgarkuarMe)
+                .ToListAsync();
+        }
+
+        public async Task<ImazhetProduktit?> MerrImazhSipasID(int imazhId)
+        {
+            return await _konteksti.ImazhetProduktit
+                .FirstOrDefaultAsync(i => i.Id == imazhId);
+        }
+
+        public async Task<ImazhetProduktit> ShtoImazh(ImazhetProduktit imazh)
+        {
+            imazh.NgarkuarMe = DateTime.UtcNow;
+            _konteksti.ImazhetProduktit.Add(imazh);
+            await _konteksti.SaveChangesAsync();
+            return imazh;
+        }
+
+        public async Task ShtoImazhe(List<ImazhetProduktit> imazhet)
+        {
+            if (imazhet == null || !imazhet.Any())
+                return;
+
+            foreach (var imazh in imazhet)
+            {
+                imazh.NgarkuarMe = DateTime.UtcNow;
+            }
+
+            _konteksti.ImazhetProduktit.AddRange(imazhet);
+            await _konteksti.SaveChangesAsync();
+        }
+
+        public async Task<bool> FshiImazhin(int imazhId)
+        {
+            var imazh = await MerrImazhSipasID(imazhId);
+            if (imazh == null)
+                return false;
+
+            _konteksti.ImazhetProduktit.Remove(imazh);
+            await _konteksti.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task VendosImazhKryesor(int imazhId, int produktId)
+        {
+            // First, set all images of this product to not primary
+            var imazhet = await _konteksti.ImazhetProduktit
+                .Where(i => i.VleraProduktit_Id == produktId)
+                .ToListAsync();
+
+            foreach (var imazh in imazhet)
+            {
+                imazh.EshteImazhKryesor = false;
+            }
+
+            // Then set the selected image as primary
+            var imazhKryesor = imazhet.FirstOrDefault(i => i.Id == imazhId);
+            if (imazhKryesor != null)
+            {
+                imazhKryesor.EshteImazhKryesor = true;
+            }
+
+            await _konteksti.SaveChangesAsync();
         }
     }
 }

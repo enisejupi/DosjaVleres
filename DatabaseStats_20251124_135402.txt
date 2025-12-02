@@ -1,0 +1,91 @@
+﻿========================================
+KOSOVO CUSTOMS - DATABASE STATISTICS
+Dosja e Vlerave (Value File Application)
+========================================
+Generated: 2025-11-24 13:54:02
+
+DATABASE TYPE: SQLite
+DATABASE FILE: KosovaDoganaModerne.db
+DATABASE SIZE: 0.28515625 MB
+
+TABLES AND STRUCTURE:
+---------------------
+
+1. VleratProdukteve (Product Values)
+   - Main table for customs product valuations
+   - Fields: Id, Kodi, KodiProduktit, EmriProduktit, Pershkrimi, Origjina, 
+            Pariteti, Njesia, Cmimi, VleraDoganore, Valuta, Kategoria, etc.
+
+2. HistoriaVlerave (Value History)
+   - Tracks all changes to product values
+   - Implements version control for value modifications
+   - Linked to VleratProdukteve (cascade delete)
+
+3. ShpenzimetTransportit (Transport Costs)
+   - Transport relationship management
+   - Fields: VendiOrigjines, VendiDestinacionit, LlojiTransportit, Cmimi
+
+4. NdryshimetTransportit (Transport Changes History)
+   - Tracks changes to transport costs
+   - Linked to ShpenzimetTransportit (cascade delete)
+
+5. Komentet (Comments)
+   - User comments on product values
+   - Linked to VleratProdukteve and users
+
+6. KomentetDegeve (Branch Office Comments)
+   - Comments from different customs branches
+   - Includes: EmriDeges, KodiTarifar, Teksti, DataDergimit
+
+7. Deget (Branches)
+   - Customs branch offices
+   - Fields: KodiDeges, EmriDeges, Adresa, NrTelefonit
+
+8. AspNetUsers (Users - Identity)
+   - User authentication and authorization
+   - Integrated with Active Directory support
+   - Extended with: Dega_Id, EmriPlote, RoliSystemit
+
+9. RegjistriAuditimit (Audit Log)
+   - Complete audit trail of all system actions
+   - Tracks: User, Action Type, Entity, Timestamp, Changes
+
+10. SesionetPerdoruesve (User Sessions)
+    - Active session management
+    - Session timeout tracking
+
+11. KerkesatRegjistrim (Registration Requests)
+    - User registration and access requests
+    - Workflow for user approval
+
+12. PreferencatPerdoruesve (User Preferences)
+    - User-specific settings and preferences
+
+13. TabelatCustom (Custom Tables)
+    - Configurable custom data tables
+
+14. FormatetiPrintimit (Print Formats)
+    - Report templates and print configurations
+
+CATEGORIES IN SYSTEM:
+--------------------
+- Tjera (Other)
+- PemÃ«-Perime (Fruits-Vegetables)
+- Ã‡mimi nga Bursa (Stock Exchange Prices)
+- PjesÃ« Auto (Auto Parts)
+
+FEATURES IMPLEMENTED:
+--------------------
+âœ“ Public view without login (filtering by description and tariff code)
+âœ“ Active Directory authentication
+âœ“ Complete CRUD operations for products
+âœ“ Version history tracking for all changes
+âœ“ Photo support for products (multiple photos per item)
+âœ“ Transport cost management with history
+âœ“ Comments system (public and branch-specific)
+âœ“ Advanced filtering (category, wildcard search, tariff code)
+âœ“ Complete audit logging
+âœ“ Report generation (Excel, PDF)
+âœ“ Session management
+âœ“ User preferences
+

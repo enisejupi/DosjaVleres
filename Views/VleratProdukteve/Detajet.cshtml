@@ -24,6 +24,38 @@
                     </h4>
                 </div>
                 <div class="card-body">
+                    <!-- Imazhi i produktit -->
+                    @if (!string.IsNullOrEmpty(Model.Bashkangjitje))
+                    {
+                        var extension = System.IO.Path.GetExtension(Model.Bashkangjitje)?.ToLowerInvariant();
+                        var isImage = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" }.Contains(extension);
+                        
+                        <div class="text-center mb-4">
+                            @if (isImage)
+                            {
+                                <img src="@Model.Bashkangjitje" 
+                                     alt="@Model.EmriProduktit" 
+                                     class="img-fluid rounded shadow" 
+                                     style="max-height: 400px; cursor: pointer;"
+                                     onclick="shfaqImazhin('@Model.Bashkangjitje', '@Model.EmriProduktit')" 
+                                     title="Kliko për ta zmadhuar" />
+                                <br />
+                                <small class="text-muted">Kliko imazhin për ta zmadhuar</small>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="fas fa-file fa-3x"></i>
+                                    <p class="mb-2 mt-2"><strong>Bashkëngjitje:</strong> @Model.EmeriBashkangjitjes</p>
+                                    <a href="@Model.Bashkangjitje" class="btn btn-primary" target="_blank">
+                                        <i class="fas fa-download"></i> Shkarko bashkëngjitjen
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                        <hr />
+                    }
+                    
                     <dl class="row">
                         <dt class="col-sm-4">
                             <i class="fas fa-barcode"></i> Kodi i produktit:
@@ -143,7 +175,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-sm table-hover">
+                            <table class="table table-striped table-hover table-sm">
                                 <thead>
                                     <tr>
                                         <th>Ver.</th>
@@ -152,6 +184,7 @@
                                         <th>Vlera e re</th>
                                         <th>Ndryshuar nga</th>
                                         <th>Arsyeja</th>
+                                        <th>Foto</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -175,6 +208,18 @@
                                                 @if (!string.IsNullOrEmpty(h.ArsyejaE_Ndryshimit))
                                                 {
                                                     <small>@h.ArsyejaE_Ndryshimit</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(h.FotoNdryshimit))
+                                                {
+                                                    <a href="@h.FotoNdryshimit" target="_blank" class="btn btn-sm btn-info" title="Shiko foton">
+                                                        <i class="fas fa-image"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
                                                 }
                                             </td>
                                         </tr>
@@ -259,3 +304,41 @@
         </div>
     </div>
 </div>
+
+<!-- Modal për shfaqjen e imazhit -->
+<div class="modal fade" id="imazhiModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="imazhiModalTitull">
+                    <i class="fas fa-image"></i> Imazhi i produktit
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center" style="background-color: #f8f9fa;">
+                <img id="imazhiModalImg" src="" alt="" class="img-fluid" style="max-height: 80vh;" />
+            </div>
+            <div class="modal-footer">
+                <a id="imazhiModalShkarko" href="" download class="btn btn-primary">
+                    <i class="fas fa-download"></i> Shkarko imazhin
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mbyll</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Funksion për të shfaqur imazhin në modal
+        function shfaqImazhin(url, emri) {
+            document.getElementById('imazhiModalTitull').innerHTML = '<i class="fas fa-image"></i> ' + emri;
+            document.getElementById('imazhiModalImg').src = url;
+            document.getElementById('imazhiModalImg').alt = emri;
+            document.getElementById('imazhiModalShkarko').href = url;
+            
+            var modal = new bootstrap.Modal(document.getElementById('imazhiModal'));
+            modal.show();
+        }
+    </script>
+}

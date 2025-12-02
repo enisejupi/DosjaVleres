@@ -53,14 +53,20 @@
                 </div>
 
                 <div class="mb-3 form-check">
-                    <input asp-for="EshteZgjidhur" class="form-check-input" type="checkbox" />
-                    <label asp-for="EshteZgjidhur" class="form-check-label"></label>
-                    <small class="form-text text-muted d-block">Nëse çështja është zgjidhur plotësisht, shënoni këtë opsion.</small>
+                    <input asp-for="EshteZgjidhur" class="form-check-input" type="checkbox" id="eshteZgjidhur" />
+                    <label asp-for="EshteZgjidhur" class="form-check-label" for="eshteZgjidhur">
+                        Shëno si të zgjidhur
+                    </label>
+                    <small class="form-text text-muted d-block">
+                        <i class="fas fa-info-circle"></i> Shënoni këtë opsion VETËM nëse çështja është zgjidhur plotësisht. 
+                        Nëse dëshironi të vazhdoni diskutimin, mos e shënoni këtë.
+                    </small>
                 </div>
 
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i> 
-                    <strong>Informacion:</strong> Përgjigja juaj do t'i dërgohet degës përkatëse dhe do të regjistrohet në sistemin e auditimit.
+                    <strong>Informacion:</strong> Përgjigja juaj do t'i dërgohet degës përkatëse dhe do të regjistrohet në sistemin e auditimit. 
+                    Diskutimi mund të vazhdojë edhe pas kësaj përgjigjeje nëse nuk e shënoni si të zgjidhur.
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">

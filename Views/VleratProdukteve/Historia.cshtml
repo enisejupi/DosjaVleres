@@ -1,0 +1,257 @@
+@model IEnumerable<KosovaDoganaModerne.Modelet.Entitetet.HistoriaVlerave>
+
+@{
+    ViewData["Title"] = "Historia e ndryshimeve";
+    var produkti = ViewBag.Produkti as KosovaDoganaModerne.Modelet.Entitetet.VleraProduktit;
+    var emriProduktit = ViewData["EmriProduktit"]?.ToString() ?? "Produkt";
+    var kodiProduktit = ViewData["KodiProduktit"]?.ToString() ?? "";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Header -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-history"></i> Historia e ndryshimeve
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5><i class="fas fa-box-open"></i> @emriProduktit</h5>
+                            @if (!string.IsNullOrEmpty(kodiProduktit))
+                            {
+                                <p class="mb-0">
+                                    <strong>Kodi:</strong> <code class="text-dark">@kodiProduktit</code>
+                                </p>
+                            }
+                        </div>
+                        <div class="col-md-4 text-end">
+                            @if (produkti != null)
+                            {
+                                <a asp-action="Detajet" asp-route-id="@produkti.Id" class="btn btn-primary">
+                                    <i class="fas fa-eye"></i> Shiko detajet
+                                </a>
+                            }
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Kthehu
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historia -->
+            @if (Model != null && Model.Any())
+            {
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list"></i> Ndryshimet e regjistruara
+                            <span class="badge bg-light text-dark float-end">Totali: @Model.Count()</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th style="width: 80px;">
+                                            <i class="fas fa-code-branch"></i> Versioni
+                                        </th>
+                                        <th style="width: 180px;">
+                                            <i class="fas fa-clock"></i> Data e ndryshimit
+                                        </th>
+                                        <th style="width: 150px;">
+                                            <i class="fas fa-arrow-down text-danger"></i> Vlera e vjetër
+                                        </th>
+                                        <th style="width: 150px;">
+                                            <i class="fas fa-arrow-up text-success"></i> Vlera e re
+                                        </th>
+                                        <th style="width: 120px;">
+                                            <i class="fas fa-user"></i> Ndryshuar nga
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-comment"></i> Arsyeja
+                                        </th>
+                                        <th style="width: 100px;" class="text-center">
+                                            <i class="fas fa-image"></i> Foto
+                                        </th>
+                                        <th style="width: 120px;">
+                                            <i class="fas fa-network-wired"></i> Adresa IP
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var h in Model.OrderByDescending(x => x.Ndryshuar_Me))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-primary" style="font-size: 0.95rem;">
+                                                    <i class="fas fa-tag"></i> v@h.NumriVersionit
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <strong>@h.Ndryshuar_Me.ToString("dd/MM/yyyy")</strong><br />
+                                                <small class="text-muted">@h.Ndryshuar_Me.ToString("HH:mm:ss")</small>
+                                            </td>
+                                            <td>
+                                                <div class="text-danger">
+                                                    <strong>@h.Vlera_Mepar.ToString("N2")</strong>
+                                                    @if (!string.IsNullOrEmpty(h.Valuta_Mepar))
+                                                    {
+                                                        <br /><small>@h.Valuta_Mepar</small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="text-success">
+                                                    <strong>@h.Vlera_Re.ToString("N2")</strong>
+                                                    @if (!string.IsNullOrEmpty(h.Valuta_Re))
+                                                    {
+                                                        <br /><small>@h.Valuta_Re</small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <i class="fas fa-user-circle text-primary"></i> @h.Ndryshuar_Nga
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(h.ArsyejaE_Ndryshimit))
+                                                {
+                                                    <p class="mb-0" style="font-size: 0.9rem;">@h.ArsyejaE_Ndryshimit</p>
+                                                }
+                                                else
+                                                {
+                                                    <em class="text-muted">Nuk ka arsye të specifikuar</em>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (!string.IsNullOrEmpty(h.FotoNdryshimit))
+                                                {
+                                                    <a href="@h.FotoNdryshimit" target="_blank" class="btn btn-sm btn-info" title="Shiko foton">
+                                                        <i class="fas fa-image"></i> Shiko
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(h.AdresaIP))
+                                                {
+                                                    <code style="font-size: 0.8rem;">@h.AdresaIP</code>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Totali i ndryshimeve:</strong> @Model.Count()
+                            </div>
+                            @if (Model.Any())
+                            {
+                                <div class="col-md-4">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <strong>Ndryshimi i parë:</strong> @Model.OrderBy(h => h.Ndryshuar_Me).First().Ndryshuar_Me.ToString("dd/MM/yyyy")
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <strong>Ndryshimi i fundit:</strong> @Model.OrderByDescending(h => h.Ndryshuar_Me).First().Ndryshuar_Me.ToString("dd/MM/yyyy")
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistikat shtesë -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h2 class="text-primary mb-0">@Model.Count()</h2>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-exchange-alt"></i> Ndryshime totale
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h2 class="text-success mb-0">
+                                    v@(Model.Any() ? Model.Max(h => h.NumriVersionit) : 0)
+                                </h2>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-code-branch"></i> Versioni aktual
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h2 class="text-info mb-0">
+                                    @Model.Select(h => h.Ndryshuar_Nga).Distinct().Count()
+                                </h2>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-users"></i> Përdorues të ndryshëm
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle"></i> Nuk ka ndryshime</h5>
+                    <p class="mb-0">
+                        Ky produkt nuk ka ndryshime të regjistruara në histori. Ndryshimet do të regjistrohen automatikisht kur të përditësohen vlerat doganore.
+                    </p>
+                </div>
+                <div class="text-center mt-4">
+                    @if (produkti != null)
+                    {
+                        <a asp-action="Detajet" asp-route-id="@produkti.Id" class="btn btn-primary">
+                            <i class="fas fa-eye"></i> Shiko detajet e produktit
+                        </a>
+                    }
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Kthehu në listë
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .table th {
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    
+    .table td {
+        vertical-align: middle;
+    }
+    
+    code {
+        background-color: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+    }
+</style>
